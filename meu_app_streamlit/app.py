@@ -23,8 +23,9 @@ produtos_cadastrados = {
     "H0270322": {"nome": "Oxidante Creme 75ml 20 Vol", "marca": "sac"},
     "6134464": {"nome": "Advanced Keratin Bond Deep Repair Shampoo 600ml", "marca": "purederm"},
     "E4181100": {"nome": "Blond Absolu - L'Huile Cicagloss - Óleo Capilar 75ml (Refil)", "marca": "tsubaki"},
-    "493.046-G": {"nome": "All In One Leave-In Multifuncional - Spray de Gatilho 240ml", "marca": "Dr.PawPaw"},
-    "39852E_5": {"nome": "Keep My Blonde Mask CD 750ml", "marca": "alfaparf"}
+    "493.046-G": {"nome": "All In One Leave-In Multifuncional - Spray de Gatilho 240ml", "marca": "tsubaki"},
+    "39852E_5": {"nome": "Keep My Blonde Mask CD 750ml", "marca": "tsubaki"}
+
 }
 
 # Inicializa variáveis na sessão
