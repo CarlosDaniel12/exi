@@ -1,2 +1,0 @@
-cd C:\meu_app_streamlit
-pip install -r requirements.txt
