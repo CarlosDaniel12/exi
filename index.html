@@ -1,63 +1,84 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Exi</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      color: #333;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: start;
-      min-height: 100vh;
-    }
-    header {
-      background: #222;
-      width: 100%;
-      padding: 20px 0;
-      text-align: center;
-    }
-    header h1 {
-      color: #fff;
-      font-size: 2em;
-      margin: 0;
-    }
-    main {
-      padding: 20px;
-      width: 100%;
-      max-width: 600px;
-    }
-    .product-list {
-      list-style: none;
-      padding: 0;
-    }
-    .product-list li {
-      background: #fff;
-      margin-bottom: 10px;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Exi - Produtos</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+            background-color: #f7f7f7;
+        }
+        #logo {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        #products {
+            margin-bottom: 30px;
+        }
+        .button {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            background-color: #0070f3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #0051a3;
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>Exi</h1>
-  </header>
-  <main>
-    <h2>Lista de Produtos</h2>
-    <ul class="product-list">
-      <li>Produto 1 - Quantidade: 2</li>
-      <li>Produto 2 - Quantidade: 5</li>
-      <li>Produto 3 - Quantidade: 1</li>
-      <!-- Você pode adicionar mais produtos aqui -->
-    </ul>
-  </main>
+
+<div id="logo">Exi</div>
+
+<div id="products">
+    <h2>Produtos:</h2>
+    <ul id="productList"></ul>
+</div>
+
+<div id="qrcode"></div>
+
+<br>
+
+<!-- Botão para abrir o site -->
+<a class="button" href="https://exibrasil.github.io/exi/" target="_blank">Ver Página no GitHub</a>
+
+<script>
+    // Simulação de produtos
+    const produtos = [
+        "Produto 1 - Quantidade: 2",
+        "Produto 2 - Quantidade: 5",
+        "Produto 3 - Quantidade: 1"
+    ];
+
+    // Mostrar produtos na tela
+    const productList = document.getElementById('productList');
+    produtos.forEach(produto => {
+        const li = document.createElement('li');
+        li.textContent = produto;
+        productList.appendChild(li);
+    });
+
+    // Gerar QR Code automaticamente ao carregar a página
+    window.onload = function() {
+        const qrcodeDiv = document.getElementById('qrcode');
+        new QRCode(qrcodeDiv, {
+            text: "https://exibrasil.github.io/exi/",
+            width: 200,
+            height: 200
+        });
+    };
+</script>
+
 </body>
 </html>
