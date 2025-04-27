@@ -25,7 +25,6 @@ produtos_cadastrados = {
     "E4181100": {"nome": "Blond Absolu - L'Huile Cicagloss - Óleo Capilar 75ml (Refil)", "marca": "tsubaki"},
     "493.046-G": {"nome": "All In One Leave-In Multifuncional - Spray de Gatilho 240ml", "marca": "tsubaki"},
     "39852E_5": {"nome": "Keep My Blonde Mask CD 750ml", "marca": "tsubaki"}
-
 }
 
 # Inicializa variáveis na sessão
@@ -44,27 +43,32 @@ params = st.query_params  # st.query_params é uma propriedade, sem parênteses!
 if "resultado" in params:
     st.title("Resultados dos Produtos Bipados")
     st.markdown("---")
-    # Para cada parâmetro (exceto 'resultado'), exibe os dados do produto
-    for codigo, valores in params.items():
-        if codigo == "resultado":
-            continue
-        quantidade = valores[0]  # Assumimos uma única quantidade por SKU
-        produto = produtos_cadastrados.get(codigo)
+    # Agrupar produtos por marca: para cada marca, os produtos com o mesmo nome terão suas quantidades somadas.
+    produtos_por_marca = {}
+    for cod, qtd in st.session_state.contagem.items():
+        produto = produtos_cadastrados.get(cod)
         if produto:
-            st.markdown(f"### {produto['nome']}")
-            st.markdown(f"**Marca:** {produto['marca']} | **Quantidade:** {quantidade}")
-            try:
-                # Converte o nome da marca para minúsculas para buscar, por exemplo, "sebastian.png"
-                logo_path = os.path.join(CAMINHO_LOGOS, f"{produto['marca'].lower()}.png")
-                with open(logo_path, "rb") as img_file:
-                    logo_encoded = base64.b64encode(img_file.read()).decode()
-                st.markdown(
-                    f"<img src='data:image/png;base64,{logo_encoded}' width='100'>", 
-                    unsafe_allow_html=True
-                )
-            except Exception as e:
-                st.write(f"Logo não encontrada para {produto['marca']}")
-            st.markdown("---")
+            marca = produto["marca"]
+            nome = produto["nome"]
+            if marca not in produtos_por_marca:
+                produtos_por_marca[marca] = {}
+            # Agrupa por nome do produto
+            produtos_por_marca[marca][nome] = produtos_por_marca[marca].get(nome, 0) + qtd
+
+    # Exibe os resultados agrupados por marca
+    for marca, produtos in produtos_por_marca.items():
+        st.markdown(f"## {marca}")
+        # Tenta exibir a logo (convertendo o nome para minúsculas)
+        try:
+            logo_path = os.path.join(CAMINHO_LOGOS, f"{marca.lower()}.png")
+            with open(logo_path, "rb") as img_file:
+                logo_encoded = base64.b64encode(img_file.read()).decode()
+            st.markdown(f"<img src='data:image/png;base64,{logo_encoded}' width='100'>", unsafe_allow_html=True)
+        except Exception as e:
+            st.write(f"Logo não encontrada para {marca}")
+        for nome, total in produtos.items():
+            st.markdown(f"- **{nome}** | Quantidade: {total}")
+        st.markdown("---")
     st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
     st.stop()
 
@@ -87,9 +91,7 @@ def processar():
             if "SKU" not in df.columns:
                 st.error("Não foi encontrada a coluna 'SKU' no CSV. Colunas disponíveis: " + ", ".join(df.columns))
                 return
-            df["SKU"] = df["SKU"].apply(
-                lambda x: str(int(float(str(x).replace(",", "").replace(" ", "").strip()))) if "E+" in str(x) else str(x).strip()
-            )
+            df["SKU"] = df["SKU"].apply(lambda x: str(int(float(str(x).replace(",", "").replace(" ", "").strip()))) if "E+" in str(x) else str(x).strip())
             for codigo in codigos:
                 pedidos = df[df["Número pedido"].astype(str).str.strip() == codigo]
                 if not pedidos.empty:
@@ -130,18 +132,12 @@ try:
     exi_logo_path = os.path.join(CAMINHO_LOGOS, "exi.png")
     with open(exi_logo_path, "rb") as image_file:
         encoded = base64.b64encode(image_file.read()).decode()
-    st.markdown(
-        f"<div style='text-align: center;'><img src='data:image/png;base64,{encoded}' width='200'></div>",
-        unsafe_allow_html=True,
-    )
+    st.markdown(f"<div style='text-align: center;'><img src='data:image/png;base64,{encoded}' width='200'></div>", unsafe_allow_html=True)
 except Exception:
     st.markdown("<h2 style='text-align: center;'>EXI</h2>", unsafe_allow_html=True)
 
 # Aba de pesquisa para entrada dos códigos
-st.markdown(
-    "<p style='font-weight: bold;'>Digite o(s) código(s) do pedido ou SKU direto:<br><small>Exemplo: 12345, 67890 111213</small></p>",
-    unsafe_allow_html=True
-)
+st.markdown("<p style='font-weight: bold;'>Digite o(s) código(s) do pedido ou SKU direto:<br><small>Exemplo: 12345, 67890 111213</small></p>", unsafe_allow_html=True)
 st.text_input("", key="input_codigo", on_change=processar)
 
 # Se houver códigos não encontrados, exibe-os em um expander
@@ -150,37 +146,29 @@ if st.session_state.nao_encontrados:
         for entrada in st.session_state.nao_encontrados:
             st.markdown(f"- {entrada}")
 
-# Exibe os produtos bipados agrupados por marca
-marcas_com_produtos = []
-for cod in st.session_state.contagem:
+# Exibe os produtos bipados agrupados por marca (com a agregação que já fizemos na página de resultados, agora opcional na página principal)
+# Aqui podemos listar individualmente, mas se preferir pode retirar essa seção e deixar os resultados apenas na página de resultados.
+st.markdown("### Produtos Bipados Agrupados por Marca")
+produtos_por_marca = {}
+for cod, qtd in st.session_state.contagem.items():
     produto = produtos_cadastrados.get(cod)
-    if produto and produto["marca"] not in marcas_com_produtos:
-        marcas_com_produtos.append(produto["marca"])
+    if produto:
+        marca = produto["marca"]
+        nome = produto["nome"]
+        if marca not in produtos_por_marca:
+            produtos_por_marca[marca] = {}
+        produtos_por_marca[marca][nome] = produtos_por_marca[marca].get(nome, 0) + qtd
 
-marcas_por_linha = 4
-linhas = math.ceil(len(marcas_com_produtos) / marcas_por_linha)
-for i in range(linhas):
-    linha_marcas = marcas_com_produtos[i * marcas_por_linha:(i + 1) * marcas_por_linha]
-    cols = st.columns(len(linha_marcas))
-    for col, marca in zip(cols, linha_marcas):
-        with col:
-            try:
-                img = Image.open(os.path.join(CAMINHO_LOGOS, f"{marca}.png"))
-                st.image(img, width=120)
-            except Exception:
-                st.write(marca.upper())
-            for cod, qtd in st.session_state.contagem.items():
-                produto = produtos_cadastrados.get(cod)
-                if produto and produto["marca"] == marca:
-                    st.markdown(
-                        f"<p style='margin-top: 0;'><strong>{produto['nome']}</strong> | Quantidade: {qtd}</p>",
-                        unsafe_allow_html=True,
-                    )
+for marca, prods in produtos_por_marca.items():
+    st.markdown(f"**{marca}**")
+    for nome, total in prods.items():
+        st.markdown(f"- {nome} | Quantidade: {total}")
+    st.markdown("---")
 
 # Geração do QR Code que redireciona para a página de resultados
 if st.session_state.contagem:
     # Defina o base_url para a URL pública do seu app (no Streamlit Community Cloud)
-    base_url = "https://cogpz234emkoeygixmfemn.streamlit.app"  # Substitua pela URL do seu app
+    base_url = "https://tdkdeaxrzoguoscmiieqwp.streamlit.app/"  # Substitua pela URL do seu app
     params_dict = {"resultado": "1"}
     for sku, qtd in st.session_state.contagem.items():
         params_dict[sku] = str(qtd)
@@ -197,4 +185,5 @@ if st.session_state.contagem:
     st.markdown(f"[Clique aqui para acessar a página de resultados]({full_url})", unsafe_allow_html=True)
 else:
     st.info("Nenhum produto bipado ainda!")
+
 
