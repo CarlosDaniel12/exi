@@ -172,7 +172,7 @@ for cod, qtd in st.session_state.contagem.items():
 # Geração do QR Code que redireciona para a página de resultados dinâmicos
 if st.session_state.contagem:
     # Defina o base_url para a URL pública do seu app no Streamlit Community Cloud
-    base_url = "https://tdkdeaxrzoguoscmiieqwp.streamlit.app/"  # Atualize conforme necessário
+    base_url = "https://cogpz234emkoeygixmfemn.streamlit.app"  # Atualize conforme necessário
     params_dict = {"resultado": "1"}
     for sku, qtd in st.session_state.contagem.items():
         params_dict[sku] = str(qtd)
