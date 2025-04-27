@@ -1,84 +1,53 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>Exi - Produtos</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 50px;
-            background-color: #f7f7f7;
-        }
-        #logo {
-            font-size: 48px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #333;
-        }
-        #products {
-            margin-bottom: 30px;
-        }
-        .button {
-            display: inline-block;
-            margin: 10px;
-            padding: 10px 20px;
-            background-color: #0070f3;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .button:hover {
-            background-color: #0051a3;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .logo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 20px;
+      align-items: center;
+      justify-items: center;
+    }
+
+    .logo-grid img {
+      width: 100%;
+      max-width: 150px;
+      height: auto;
+      object-fit: contain;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      background: white;
+      transition: transform 0.3s ease;
+    }
+
+    .logo-grid img:hover {
+      transform: scale(1.05);
+      border-color: #aaa;
+    }
+  </style>
 </head>
 <body>
 
-<div id="logo">Exi</div>
+  <h1>Logos</h1>
 
-<div id="products">
-    <h2>Produtos:</h2>
-    <ul id="productList"></ul>
-</div>
-
-<div id="qrcode"></div>
-
-<br>
-
-<!-- Botão para abrir o site -->
-<a class="button" href="https://exibrasil.github.io/exi/" target="_blank">Ver Página no GitHub</a>
-
-<script>
-    // Simulação de produtos
-    const produtos = [
-        "Produto 1 - Quantidade: 2",
-        "Produto 2 - Quantidade: 5",
-        "Produto 3 - Quantidade: 1"
-    ];
-
-    // Mostrar produtos na tela
-    const productList = document.getElementById('productList');
-    produtos.forEach(produto => {
-        const li = document.createElement('li');
-        li.textContent = produto;
-        productList.appendChild(li);
-    });
-
-    // Gerar QR Code automaticamente ao carregar a página
-    window.onload = function() {
-        const qrcodeDiv = document.getElementById('qrcode');
-        new QRCode(qrcodeDiv, {
-            text: "https://exibrasil.github.io/exi/",
-            width: 200,
-            height: 200
-        });
-    };
-</script>
+  <div class="logo-grid">
+    <img src="logos/logo1.png" alt="Logo 1">
+    <img src="logos/logo2.png" alt="Logo 2">
+    <img src="logos/logo3.png" alt="Logo 3">
+    <!-- Adicione mais imagens aqui -->
+  </div>
 
 </body>
 </html>
