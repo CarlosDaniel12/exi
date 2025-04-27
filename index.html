@@ -36,35 +36,52 @@
       transform: scale(1.05);
       border-color: #aaa;
     }
+
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
-
   <h1>Logos</h1>
-  <p>Bem-vindo à galeria de logos! Aqui estão as marcas disponíveis:</p>
+  <p>Veja abaixo as marcas correspondentes ao que você escolheu:</p>
 
   <div class="logo-grid">
-    <img src="logos/kerastase.png" alt="Kerastase">
-    <img src="logos/kerasys.png" alt="Kerasys">
-    <img src="logos/mise.png" alt="Mise">
-    <img src="logos/ice.png" alt="Ice">
-    <img src="logos/image.png" alt="Image">
-    <img src="logos/carol.png" alt="Carol">
-    <img src="logos/redken.png" alt="Redken">
-    <img src="logos/banila.png" alt="Banila">
-    <img src="logos/bedhead.png" alt="Bedhead">
-    <img src="logos/wella.png" alt="Wella">
-    <img src="logos/real.png" alt="Real">
-    <img src="logos/exi.png" alt="Exi">
-    <img src="logos/fino.png" alt="Fino">
-    <img src="logos/tsubaki.png" alt="Tsubaki">
-    <img src="logos/senscience.png" alt="Senscience">
-    <img src="logos/sebastian.png" alt="Sebastian">
-    <img src="logos/sac.png" alt="Sac">
-    <img src="logos/ecotools.png" alt="Ecotools">
-    <img src="logos/purederm.png" alt="Purederm">
-    <img src="logos/alfaparf.png" alt="Alfaparf">
+    <img src="logos/kerastase.png" alt="Kerastase" class="logo" data-marca="kerastase">
+    <img src="logos/kerasys.png" alt="Kerasys" class="logo" data-marca="kerasys">
+    <img src="logos/mise.png" alt="Mise" class="logo" data-marca="mise">
+    <img src="logos/ice.png" alt="Ice" class="logo" data-marca="ice">
+    <img src="logos/image.png" alt="Image" class="logo" data-marca="image">
+    <img src="logos/carol.png" alt="Carol" class="logo" data-marca="carol">
+    <img src="logos/redken.png" alt="Redken" class="logo" data-marca="redken">
+    <img src="logos/banila.png" alt="Banila" class="logo" data-marca="banila">
+    <img src="logos/bedhead.png" alt="Bedhead" class="logo" data-marca="bedhead">
+    <img src="logos/wella.png" alt="Wella" class="logo" data-marca="wella">
+    <img src="logos/real.png" alt="Real" class="logo" data-marca="real">
+    <img src="logos/exi.png" alt="Exi" class="logo" data-marca="exi">
+    <img src="logos/fino.png" alt="Fino" class="logo" data-marca="fino">
+    <img src="logos/tsubaki.png" alt="Tsubaki" class="logo" data-marca="tsubaki">
+    <img src="logos/senscience.png" alt="Senscience" class="logo" data-marca="senscience">
+    <img src="logos/sebastian.png" alt="Sebastian" class="logo" data-marca="sebastian">
+    <img src="logos/sac.png" alt="Sac" class="logo" data-marca="sac">
+    <img src="logos/ecotools.png" alt="Ecotools" class="logo" data-marca="ecotools">
+    <img src="logos/purederm.png" alt="Purederm" class="logo" data-marca="purederm">
+    <img src="logos/alfaparf.png" alt="Alfaparf" class="logo" data-marca="alfaparf">
   </div>
 
+  <script>
+    // Obtém os parâmetros da URL
+    const params = new URLSearchParams(window.location.search);
+    const marcaParam = params.get("marca"); // Obtém a marca passada como parâmetro
+
+    // Filtra as logos com base no parâmetro
+    if (marcaParam) {
+      document.querySelectorAll(".logo").forEach(logo => {
+        if (!logo.dataset.marca.includes(marcaParam)) {
+          logo.classList.add("hidden");
+        }
+      });
+    }
+  </script>
 </body>
 </html>
