@@ -53,7 +53,8 @@ if "resultado" in params:
             st.markdown(f"### {produto['nome']}")
             st.markdown(f"**Marca:** {produto['marca']} | **Quantidade:** {quantidade}")
             try:
-                logo_path = os.path.join(CAMINHO_LOGOS, f"{produto['marca']}.png")
+                # Converte o nome da marca para minúsculas para buscar, por exemplo, "sebastian.png"
+                logo_path = os.path.join(CAMINHO_LOGOS, f"{produto['marca'].lower()}.png")
                 with open(logo_path, "rb") as img_file:
                     logo_encoded = base64.b64encode(img_file.read()).decode()
                 st.markdown(
@@ -177,14 +178,14 @@ for i in range(linhas):
 
 # Geração do QR Code que redireciona para a página de resultados
 if st.session_state.contagem:
-    # Defina o base_url para a URL pública do seu app (usando GitHub Pages, por exemplo)
-    base_url = "https://cogpz234emkoeygixmfemn.streamlit.app/"  # Utilize esta URL conforme necessário
+    # Defina o base_url para a URL pública do seu app (no Streamlit Community Cloud)
+    base_url = "https://tdkdeaxrzoguoscmiieqwp.streamlit.app/"  # Substitua pela URL do seu app
     params_dict = {"resultado": "1"}
     for sku, qtd in st.session_state.contagem.items():
         params_dict[sku] = str(qtd)
     query_string = urllib.parse.urlencode(params_dict)
     full_url = f"{base_url}/?{query_string}"
-
+    
     qr = qrcode.QRCode(version=1, box_size=10, border=4)
     qr.add_data(full_url)
     qr.make(fit=True)
@@ -195,3 +196,4 @@ if st.session_state.contagem:
     st.markdown(f"[Clique aqui para acessar a página de resultados]({full_url})", unsafe_allow_html=True)
 else:
     st.info("Nenhum produto bipado ainda!")
+
