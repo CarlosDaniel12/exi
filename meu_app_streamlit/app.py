@@ -9,7 +9,7 @@ import math, re, qrcode, urllib.parse
 st.set_page_config(layout="wide")
 
 # Caminho para as logos (ajuste se necessário)
-CAMINHO_LOGOS = "C:/meu_app_streamlit/logos"
+CAMINHO_LOGOS = "meu_app_streamlit/logos"
 
 # Produtos cadastrados
 produtos_cadastrados = {
