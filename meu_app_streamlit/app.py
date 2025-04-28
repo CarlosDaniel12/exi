@@ -3,6 +3,9 @@ import pandas as pd
 from PIL import Image
 import os, base64
 from io import BytesIO
+import re
+import pandas as pd
+import streamlit as st
 import math, re, qrcode, urllib.parse
 
 # Configura layout
@@ -93,29 +96,36 @@ def processar():
     if not codigos_input:
         return
 
+    # Separando os códigos usando espaços e vírgulas
     codigos = re.split(r'[\s,]+', codigos_input)
 
+    # Verificando se arquivos foram carregados
+    uploaded_files = st.session_state.get('uploaded_files', [])
     if uploaded_files:
         for uploaded_file in uploaded_files:
             df = tentar_ler_csv(uploaded_file)
             if df is None:
-                return
+                return  # Se falhar ao carregar o CSV, interrompe a execução
 
+            # Verificando a presença da coluna 'SKU'
             if "SKU" not in df.columns:
-                st.error("Não foi encontrada a coluna 'SKU' no CSV. Colunas disponíveis: " + ", ".join(df.columns))
+                st.error(f"Não foi encontrada a coluna 'SKU' no CSV. Colunas disponíveis: " + ", ".join(df.columns))
                 return
 
+            # Processando a coluna 'SKU'
             df["SKU"] = df["SKU"].apply(
-                lambda x: str(int(float(str(x).replace(",", "").replace(" ", "").strip())))
-                if "E+" in str(x) else str(x).strip()
+                lambda x: str(int(float(str(x).replace(",", "").replace(" ", "").strip())) 
+                if "E+" in str(x) else str(x).strip())
             )
 
+            # Processando os códigos dos pedidos
             for codigo in codigos:
                 pedidos = df[df["Número pedido"].astype(str).str.strip() == codigo]
                 if not pedidos.empty:
                     for sku in pedidos["SKU"]:
                         for sku_individual in str(sku).split("+"):
                             sku_individual = sku_individual.strip()
+                            # Verificando se o SKU foi cadastrado
                             if sku_individual in produtos_cadastrados:
                                 st.session_state.contagem[sku_individual] = st.session_state.contagem.get(sku_individual, 0) + 1
                             else:
@@ -130,6 +140,7 @@ def processar():
                         if entrada not in st.session_state.nao_encontrados:
                             st.session_state.nao_encontrados.append(entrada)
     else:
+        # Se nenhum arquivo CSV foi carregado, apenas processa os códigos diretamente
         for codigo in codigos:
             if codigo in produtos_cadastrados:
                 st.session_state.contagem[codigo] = st.session_state.contagem.get(codigo, 0) + 1
@@ -138,8 +149,9 @@ def processar():
                 if entrada not in st.session_state.nao_encontrados:
                     st.session_state.nao_encontrados.append(entrada)
 
+    # Limpa o campo de entrada de código
     st.session_state.input_codigo = ""
-
+    
 if st.button("🔄 Limpar pedidos bipados"):
     st.session_state.pedidos_bipados.clear()
     st.session_state.contagem.clear()
