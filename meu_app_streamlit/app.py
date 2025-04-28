@@ -84,6 +84,7 @@ produtos_cadastrados = {
   "H2471902": {"nome": "Blondifier - Mask COOL 250ml", "marca": "loreal"},
   "E3573901": {"nome": "Pro Longer - Cream 10-IN-1 150ml", "marca": "loreal"},
   "E3573901": {"nome": "Pro Longer - Cream 10-IN-1 150ml", "marca": "loreal"},
+    "1786": {"nome": "KIT EVERYDAY ESSENTIALS", "marca": "real"},"codigo_produto": "079625017861"
 }
 
 # Inicializa variáveis na sessão
