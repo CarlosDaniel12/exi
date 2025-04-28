@@ -17,8 +17,8 @@ else:
 
 # Produtos cadastrados
 produtos_cadastrados = {
-    "2735182": {
-        "nome": "Balance - Shampoo 280ml", "marca": "Senscience", "codigo_produto": "9988776655"
+    
+        "2735182": { "nome": "Balance - Shampoo 280ml", "marca": "Senscience", "codigo_produto": "9988776655"
         
         
     },
