@@ -88,6 +88,7 @@ if "resultado" in params:
     st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
     st.stop()
 
+
 # ------------ Página Principal (Interface de Busca) ------------
 
 st.title("Bipagem de Produtos")
