@@ -1,39 +1,108 @@
+import streamlit as st
+import pandas as pd
+from PIL import Image
+import os, base64
+from io import BytesIO
+import math, re, qrcode, urllib.parse
+
+# Configura layout
+st.set_page_config(layout="wide")
+
+# Caminho para as logos (ajuste se necessário)
+CAMINHO_LOGOS = "C:/meu_app_streamlit/logos"
+
+# Produtos cadastrados
+produtos_cadastrados = {
+    "2735182": {"nome": "Balance - Shampoo 280ml", "marca": "Senscience"},
+    "25154-0": {"nome": "Color Motion+ Máscara 500ml", "marca": "fino"},
+    "25839-0": {"nome": "Dark Oil Condicionador 1000ml", "marca": "Sebastian"},
+    "111414201": {"nome": "Damage Care & Nourishing Floral Powdery - Shampoo 180ml", "marca": "carol"},
+    "E4031400": {"nome": "Acidic Bonding Concentrate - 5-min Liquid Mask 250ml", "marca": "Redken"},
+    "111316309": {"nome": "10 Professional Cica Ceramide Oil Serum 60ml", "marca": "sebastian"},
+    "H0270321": {"nome": "Oxidante Creme 75ml 20 Vol", "marca": "Ecotools"},
+    "H0270322": {"nome": "Oxidante Creme 75ml 20 Vol", "marca": "sac"},
+    "6134464": {"nome": "Advanced Keratin Bond Deep Repair Shampoo 600ml", "marca": "purederm"},
+    "E4181100": {"nome": "Blond Absolu - L'Huile Cicagloss - Óleo Capilar 75ml (Refil)", "marca": "tsubaki"},
+    "493.046-G": {"nome": "All In One Leave-In Multifuncional - Spray de Gatilho 240ml", "marca": "Dr.PawPaw"},
+    "39852E_5": {"nome": "Keep My Blonde Mask CD 750ml", "marca": "alfaparf"}
+}
+
+# Inicializa variáveis na sessão
+if "contagem" not in st.session_state:
+    st.session_state.contagem = {}
+if "pedidos_bipados" not in st.session_state:
+    st.session_state.pedidos_bipados = []
+if "input_codigo" not in st.session_state:
+    st.session_state.input_codigo = ""
+if "nao_encontrados" not in st.session_state:
+    st.session_state.nao_encontrados = []
+
+# ------------ Página de Resultados (QR Code) ------------
+# Esta seção é exibida quando a URL contém o parâmetro "resultado"
+params = st.query_params  # st.query_params é uma propriedade e não uma função!
+if "resultado" in params:
+    st.title("Resultados dos Produtos Bipados")
+    st.markdown("---")
+
+    # Agrega os produtos vindos pelos parâmetros da URL
+    # Cria um dicionário para agrupar por marca e depois por nome do produto.
+    produtos_por_marca = {}
+    for sku, valores in params.items():
+        if sku == "resultado":  # Ignora o parâmetro de controle
+            continue
+        try:
+            quantidade = int(valores[0])
+        except ValueError:
+            quantidade = 0
+        produto = produtos_cadastrados.get(sku)
+        if produto:
+            marca = produto["marca"]
+            nome = produto["nome"]
+            if marca not in produtos_por_marca:
+                produtos_por_marca[marca] = {}
+            # Soma a quantidade se o produto já foi adicionado
+            produtos_por_marca[marca][nome] = produtos_por_marca[marca].get(nome, 0) + quantidade
+
+    # Exibe os resultados agrupados por marca
+    for marca, prods in produtos_por_marca.items():
+        st.markdown(f"## {marca}")
+        # Tenta exibir a logo da marca (buscando o arquivo em letras minúsculas)
+        try:
+            logo_path = os.path.join(CAMINHO_LOGOS, f"{marca.lower()}.png")
+            with open(logo_path, "rb") as img_file:
+                logo_encoded = base64.b64encode(img_file.read()).decode()
+            st.markdown(f"<img src='data:image/png;base64,{logo_encoded}' width='100'>", unsafe_allow_html=True)
+        except Exception as e:
+            st.write(f"Logo não encontrada para {marca}")
+        for nome, total in prods.items():
+            st.markdown(f"- **{nome}** | Quantidade: {total}")
+        st.markdown("---")
+    st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
+    st.stop()
+
+# ------------ Página Principal (Tela de Pesquisa) ------------
+st.title("Bipagem de Produtos")
+
+# Upload opcional de arquivos CSV
+uploaded_files = st.file_uploader("Envie os CSVs do pedido exportados do Bling:", type=["csv"], accept_multiple_files=True)
+
+# Função para processar os códigos digitados
 def processar():
     codigos_input = st.session_state.input_codigo.strip()
     if not codigos_input:
         return
     codigos = re.split(r'[\s,]+', codigos_input)
-    
     if uploaded_files:
         for uploaded_file in uploaded_files:
-            try:
-                # Prévia para visualização e detecção de problemas
-                try:
-                    preview = uploaded_file.read().decode("utf-8")
-                    encoding_used = "utf-8"
-                except UnicodeDecodeError:
-                    uploaded_file.seek(0)
-                    preview = uploaded_file.read().decode("latin1")
-                    encoding_used = "latin1"
-
-                uploaded_file.seek(0)  # Reset do ponteiro do arquivo para leitura com pandas
-
-                st.text_area("Prévia do arquivo CSV", preview[:1000], height=200)
-
-                # Leitura com tolerância a erros
-                df = pd.read_csv(uploaded_file, sep=";", dtype=str, encoding=encoding_used, on_bad_lines="skip")
-            except Exception as e:
-                st.error(f"Erro ao ler o CSV: {e}")
-                continue
-
-            if "SKU" not in df.columns or "Número pedido" not in df.columns:
-                st.error("❌ Colunas esperadas ('SKU' e 'Número pedido') não encontradas. Colunas no CSV: " + ", ".join(df.columns))
+            df = pd.read_csv(uploaded_file, sep=";", dtype=str)
+            # Verifica a existência da coluna 'SKU'
+            if "SKU" not in df.columns:
+                st.error("Não foi encontrada a coluna 'SKU' no CSV. Colunas disponíveis: " + ", ".join(df.columns))
                 return
-
             df["SKU"] = df["SKU"].apply(
-                lambda x: str(int(float(str(x).replace(",", "").replace(" ", "").strip()))) if "E+" in str(x) else str(x).strip()
+                lambda x: str(int(float(str(x).replace(",", "").replace(" ", "").strip()))) 
+                if "E+" in str(x) else str(x).strip()
             )
-
             for codigo in codigos:
                 pedidos = df[df["Número pedido"].astype(str).str.strip() == codigo]
                 if not pedidos.empty:
@@ -61,5 +130,61 @@ def processar():
                 entrada = f"Código direto → SKU: {codigo}"
                 if entrada not in st.session_state.nao_encontrados:
                     st.session_state.nao_encontrados.append(entrada)
-
     st.session_state.input_codigo = ""
+
+# Botão para limpar os pedidos
+if st.button("🔄 Limpar pedidos bipados"):
+    st.session_state.pedidos_bipados.clear()
+    st.session_state.contagem.clear()
+    st.session_state.nao_encontrados.clear()
+
+# Exibe o logo principal da EXI
+try:
+    exi_logo_path = os.path.join(CAMINHO_LOGOS, "exi.png")
+    with open(exi_logo_path, "rb") as image_file:
+        encoded = base64.b64encode(image_file.read()).decode()
+    st.markdown(f"<div style='text-align: center;'><img src='data:image/png;base64,{encoded}' width='200'></div>",
+                unsafe_allow_html=True)
+except Exception:
+    st.markdown("<h2 style='text-align: center;'>EXI</h2>", unsafe_allow_html=True)
+
+# Aba de pesquisa para entrada dos códigos
+st.markdown(
+    "<p style='font-weight: bold;'>Digite o(s) código(s) do pedido ou SKU direto:<br><small>Exemplo: 12345, 67890 111213</small></p>",
+    unsafe_allow_html=True
+)
+st.text_input("", key="input_codigo", on_change=processar)
+
+# Se houver códigos não encontrados, exibe-os em um expander
+if st.session_state.nao_encontrados:
+    with st.expander("❗ Códigos não cadastrados no sistema"):
+        for entrada in st.session_state.nao_encontrados:
+            st.markdown(f"- {entrada}")
+
+# (Tela de pesquisa) Exibe os produtos bipados individualmente ou agrupados conforme sua lógica original
+st.markdown("### Produtos Bipados")
+for cod, qtd in st.session_state.contagem.items():
+    produto = produtos_cadastrados.get(cod)
+    if produto:
+        st.markdown(f"- **{produto['marca']} | {produto['nome']}** - Quantidade: {qtd}")
+
+# Geração do QR Code que redireciona para a página de resultados dinâmicos
+if st.session_state.contagem:
+    # Defina o base_url para a URL pública do seu app no Streamlit Community Cloud
+    base_url = "https://tdkdeaxrzoguoscmiieqwp.streamlit.app/"  # Atualize conforme necessário
+    params_dict = {"resultado": "1"}
+    for sku, qtd in st.session_state.contagem.items():
+        params_dict[sku] = str(qtd)
+    query_string = urllib.parse.urlencode(params_dict)
+    full_url = f"{base_url}/?{query_string}"
+    
+    qr = qrcode.QRCode(version=1, box_size=10, border=4)
+    qr.add_data(full_url)
+    qr.make(fit=True)
+    img_qr = qr.make_image(fill_color="black", back_color="white")
+    buf = BytesIO()
+    img_qr.save(buf, format="PNG")
+    st.image(buf.getvalue(), caption="QR Code para a Página de Resultados", use_container_width=False)
+    st.markdown(f"[Clique aqui para acessar a página de resultados]({full_url})", unsafe_allow_html=True)
+else:
+    st.info("Nenhum produto bipado ainda!")
