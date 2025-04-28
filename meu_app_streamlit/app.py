@@ -19,7 +19,7 @@ else:
 produtos_cadastrados = {
     "2735182": {"nome": "Balance - Shampoo 280ml", "marca": "Senscience"},
     "25154-0": {"nome": "Color Motion+ Máscara 500ml", "marca": "fino"},
-    "25839-0": {"nome": "Dark Oil Condicionador 1000ml", "marca": "Sebastian"},
+    "25839-0": {"nome": "Dark Oil Condicionador 1000ml", "marca": "sebastian"},
     "111414201": {"nome": "Damage Care & Nourishing Floral Powdery - Shampoo 180ml", "marca": "carol"},
     "E4031400": {"nome": "Acidic Bonding Concentrate - 5-min Liquid Mask 250ml", "marca": "Redken"},
     "111316309": {"nome": "10 Professional Cica Ceramide Oil Serum 60ml", "marca": "sebastian"},
