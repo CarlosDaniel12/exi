@@ -4,7 +4,6 @@ from PIL import Image
 import os, base64
 from io import BytesIO
 import math, re, qrcode, urllib.parse
-import streamlit as st
 
 # Configura layout
 st.set_page_config(layout="wide")
@@ -17,80 +16,18 @@ else:
 
 # Produtos cadastrados
 produtos_cadastrados = {
-
-
-  
-    "0047": {
-        "nome": "ECO KIT BLEND + BLUS DUO",
-        "marca": "Ecotools",
-        "codigo_produto": "079625440706"
-    },
-    "ECO-3144": {
-        "nome": "Duo Esponjas Para Aplicação De Maquiagem No Rosto - 3144",
-        "marca": "Ecotools",
-        "codigo_produto": "079625031447"
-    },
-    "ECO-1202": {
-        "nome": "Foundation Brush - Pincel de Base - 1202",
-        "marca": "Ecotools",
-        "codigo_produto": "079625012026"
-    },
-    "ECO-3146": {
-        "nome": "Kit Holiday Vibes - 3146",
-        "marca": "Ecotools",
-        "codigo_produto": "000000000"
-    },
-    "ECO-1606": {
-        "nome": "Kit Start The Day Beautiful Makeup Brush - 1606",
-        "marca": "Ecotools",
-        "codigo_produto": "079625016062"
-    },
-    "ECO-7572 (C)": {
-        "nome": "Massageador Corporal Body Roller Cinza - 7572",
-        "marca": "Ecotools",
-        "codigo_produto": "079625075724"
-    },
-    "ECO-7572 (R)": {
-        "nome": "Massageador Corporal Body Roller Rosa - 7572",
-        "marca": "Ecotools",
-        "codigo_produto": "079625075724"
-    },
-    "ECO-1600": {
-        "nome": "Pincel Full Pó - 1600",
-        "marca": "Ecotools",
-        "codigo_produto": "079625016000"
-    },
-    "ECO-1608": {
-        "nome": "Pincel Para Detalhes - 1608",
-        "marca": "Ecotools",
-        "codigo_produto": "00000000"
-    },
-    "ECO-1306": {
-        "nome": "Pincel para Blush - 1306",
-        "marca": "Ecotools",
-        "codigo_produto": "079625013061"
-    },
-    "ECO-7592": {
-        "nome": "Rolo Massageador Facial Contour - 7592",
-        "marca": "Ecotools",
-        "codigo_produto": "079625075922"
-    },
-    "ECO-7517": {
-        "nome": "Rolo Massageador Facial Pedra Jade - 7517",
-        "marca": "Ecotools",
-        "codigo_produto": "079625075175"
-    },
-    "Eco-Necessaire": {
-        "nome": "Eco-Necessaire",
-        "marca": "Ecotools",
-        "codigo_produto": "000000000"
-    }
-
- 
-  
- 
-  
-    
+    "2735182": {"nome": "Balance - Shampoo 280ml", "marca": "Senscience", "codigo_produto": "9988776655"},
+    "25154-0": {"nome": "Color Motion+ Máscara 500ml", "marca": "fino", "codigo_produto": "23525235345"},
+    "25839-0": {"nome": "Dark Oil Condicionador 1000ml", "marca": "sebastian", "codigo_produto": "1122334455"},
+    "111414201": {"nome": "Damage Care & Nourishing Floral Powdery - Shampoo 180ml", "marca": "carol", "codigo_produto": "6677889900"},
+    "E4031400": {"nome": "Acidic Bonding Concentrate - 5-min Liquid Mask 250ml", "marca": "Redken", "codigo_produto": "1234567890"},
+    "111316309": {"nome": "10 Professional Cica Ceramide Oil Serum 60ml", "marca": "sebastian", "codigo_produto": "4455667788"},
+    "H0270321": {"nome": "Oxidante Creme 75ml 20 Vol", "marca": "Ecotools", "codigo_produto": "5566778899"},
+    "H0270322": {"nome": "Oxidante Creme 75ml 20 Vol", "marca": "sac", "codigo_produto": "2233445566"},
+    "6134464": {"nome": "Advanced Keratin Bond Deep Repair Shampoo 600ml", "marca": "purederm", "codigo_produto": "3344556677"},
+    "E4181100": {"nome": "Blond Absolu - L'Huile Cicagloss - Óleo Capilar 75ml (Refil)", "marca": "tsubaki", "codigo_produto": "7788990011"},
+    "493.046-G": {"nome": "All In One Leave-In Multifuncional - Spray de Gatilho 240ml", "marca": "Dr.PawPaw", "codigo_produto": "1122112211"},
+    "39852E_5": {"nome": "Keep My Blonde Mask CD 750ml", "marca": "alfaparf", "codigo_produto": "9900112233"}
 }
 
 # Inicializa variáveis na sessão
@@ -103,13 +40,12 @@ if "input_codigo" not in st.session_state:
 if "nao_encontrados" not in st.session_state:
     st.session_state.nao_encontrados = []
 
-# ------------ Página de Resultados (corrigido para agrupar produtos corretamente) ------------
+# ------------ Página de Resultados ------------
 params = st.query_params
 if "resultado" in params:
     st.title("Resumo do Pedido")
     st.markdown("---")
 
-    # Organiza produtos por marca
     produtos_por_marca = {}
     for codigo, valores in params.items():
         if codigo == "resultado":
@@ -122,14 +58,11 @@ if "resultado" in params:
                 produtos_por_marca[marca] = []
             produtos_por_marca[marca].append({
                 "nome": produto['nome'],
-                "quantidade": quantidade
+                "quantidade": quantidade,
+                "codigo_produto": produto.get('codigo_produto', '')
             })
 
-    # Agora exibe por marca agrupado
     for marca, lista_produtos in produtos_por_marca.items():
-         
-
-        # Exibe a logo da marca uma vez só
         try:
             logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
             with open(logo_path, "rb") as img_file:
@@ -141,17 +74,19 @@ if "resultado" in params:
         except Exception:
             st.warning(f"⚠️ Logo da marca **{marca}** não encontrada.")
 
-        # Lista todos os produtos da marca
         for produto in lista_produtos:
-            st.markdown(f"**{produto['nome']}** | Quantidade: {produto['quantidade']}")
+            codigo_produto = produto.get('codigo_produto', '')
+            if codigo_produto:
+                st.markdown(f"**{produto['nome']}** | Quantidade: {produto['quantidade']} ({codigo_produto})")
+            else:
+                st.markdown(f"**{produto['nome']}** | Quantidade: {produto['quantidade']}")
 
         st.markdown("---")
 
     st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
     st.stop()
 
-
-# ------------ Página Principal (Interface de Busca) ------------
+# ------------ Página Principal ------------
 
 st.title("Bipagem de Produtos")
 
@@ -164,7 +99,10 @@ def processar():
     codigos = re.split(r'[\s,]+', codigos_input)
     if uploaded_files:
         for uploaded_file in uploaded_files:
-            df = pd.read_csv(uploaded_file, sep=";", dtype=str)
+            try:
+                df = pd.read_csv(uploaded_file, sep=";", dtype=str, encoding="utf-8")
+            except UnicodeDecodeError:
+                df = pd.read_csv(uploaded_file, sep=";", dtype=str, encoding="latin1")
             if "SKU" not in df.columns:
                 st.error("Não foi encontrada a coluna 'SKU' no CSV. Colunas disponíveis: " + ", ".join(df.columns))
                 return
@@ -271,5 +209,3 @@ if st.session_state.contagem:
     st.markdown(f"[Clique aqui para acessar a página de resultados]({full_url})", unsafe_allow_html=True)
 else:
     st.info("Nenhum produto bipado ainda!")
-
-
