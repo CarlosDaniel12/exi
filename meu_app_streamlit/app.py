@@ -17,76 +17,68 @@ if os.path.exists("C:/meu_app_streamlit/logos"):
 else:
     CAMINHO_LOGOS = "meu_app_streamlit/logos"
 
-# Produtos cadastrados
 produtos_cadastrados = {
-    "2735182": {"nome": "Balance - Shampoo 280ml", "marca": "Senscience"},
-    "25154-0": {"nome": "Color Motion+ Máscara 500ml", "marca": "fino"},
-    "25839-0": {"nome": "Dark Oil Condicionador 1000ml", "marca": "sebastian"},
-    "111414201": {"nome": "Damage Care & Nourishing Floral Powdery - Shampoo 180ml", "marca": "carol"},
-    "E4031400": {"nome": "Acidic Bonding Concentrate - 5-min Liquid Mask 250ml", "marca": "Redken"},
-    "111316309": {"nome": "10 Professional Cica Ceramide Oil Serum 60ml", "marca": "sebastian"},
-    "H0270321": {"nome": "Oxidante Creme 75ml 20 Vol", "marca": "Ecotools"},
-    "H0270322": {"nome": "Oxidante Creme 75ml 20 Vol", "marca": "sac"},
-    "6134464": {"nome": "Advanced Keratin Bond Deep Repair Shampoo 600ml", "marca": "purederm"},
-    "E4181100": {"nome": "Blond Absolu - L'Huile Cicagloss - Óleo Capilar 75ml (Refil)", "marca": "tsubaki"},
-    "493.046-G": {"nome": "All In One Leave-In Multifuncional - Spray de Gatilho 240ml", "marca": "Dr.PawPaw"},
-    "39852E_5": {"nome": "Keep My Blonde Mask CD 750ml", "marca": "alfaparf"},
-     "H0270321": {"nome": "Oxidante Creme 75ml 20 Vol", "marca": "loreal"},
-  "E3825500": {"nome": "Curl Expression Gelée Lavante Anti-résidus 300ml", "marca": "loreal"},
-  "E3564101": {"nome": "Absolut Repair - Mask 250ml", "marca": "loreal"},
-  "E3574500": {"nome": "Absolut Repair - Oil 90ml", "marca": "loreal"},
-  "E3795000": {"nome": "Absolut Repair - Óleo 10 em 1 30ml", "marca": "loreal"},
-  "H2469500": {"nome": "Absolut Repair Gold - Condicionador 200ml", "marca": "loreal"},
-  "H2469700": {"nome": "Absolut Repair Gold - Mask 250ml", "marca": "loreal"},
-  "H2469101": {"nome": "Absolut Repair Gold - Shampoo 300ml", "marca": "loreal"},
-  "E4033400": {"nome": "Absolut Repair Molecular - Leave-in 100ml", "marca": "loreal"},
-  "E4173000": {"nome": "Absolut Repair Molecular - Máscara Capilar 250ml", "marca": "loreal"},
-  "E4173200": {"nome": "Absolut Repair Molecular - Máscara Capilar 500ml", "marca": "loreal"},
-  "E4033800": {"nome": "Absolut Repair Molecular - Shampoo 300ml", "marca": "loreal"},
-  "E4034100": {"nome": "Absolut Repair Molecular - Shampoo 500ml", "marca": "loreal"},
-  "H3689700": {"nome": "Absolut Repair Shampoo Refil 240ml", "marca": "loreal"},
-  "E3887500": {"nome": "Aminexil - Ampoules 10x6ml", "marca": "loreal"},
-  "H2466300": {"nome": "Blondifier - Condicionador 200ml", "marca": "loreal"},
-  "H2466501": {"nome": "Blondifier - Mask Gloss 250ml", "marca": "loreal"},
-  "H2465900": {"nome": "Blondifier - Shampoo Gloss 300ml", "marca": "loreal"},
-  "H2608400": {"nome": "Curl Expression - Leave-in Condicionador 200ml", "marca": "loreal"},
-  "H2608500": {"nome": "Curl Expression - Mask 250ml", "marca": "loreal"},
-  "H2607200": {"nome": "Curl Expression - Mask Rich 250ml", "marca": "loreal"},
-  "E3826600": {"nome": "Curl Expression - Moisturizing Shampoo 300ml", "marca": "loreal"},
-  "E3835000": {"nome": "Curl Expression - Reviver Spray 190ml", "marca": "loreal"},
-  "7,90862E+12": {"nome": "Diactivateur 15 Volumes 120ml", "marca": "loreal"},
-  "H2467500": {"nome": "Inforcer - Mask 250ml", "marca": "loreal"},
-  "H2466901": {"nome": "Inforcer - Shampoo 300ml", "marca": "loreal"},
-  "E4033200": {"nome": "Metal Detox - Anti-Metal de Alta Proteção Leave-in 100ml", "marca": "loreal"},
-  "E3548402": {"nome": "Metal Detox - Mask 250ml", "marca": "loreal"},
-  "E3560001": {"nome": "Metal Detox - Mask 500ml", "marca": "loreal"},
-  "E3548702": {"nome": "Metal Detox - Shampoo 300ml", "marca": "loreal"},
-  "E3549301": {"nome": "Metal Detox - Treatment Spray 500ml", "marca": "loreal"},
-  "E4123900": {"nome": "Metal Detox - Pre-Shampoo Treatment 250ml", "marca": "loreal"},
-  "H2610800": {"nome": "NutriOil - Leave-In 150ml", "marca": "loreal"},
-  "H2611001": {"nome": "NutriOil - Mask 250ml", "marca": "loreal"},
-  "H2610201": {"nome": "NutriOil - Shampoo 300ml", "marca": "loreal"},
-  "H2468700": {"nome": "Pro Longer - Mask 250ml", "marca": "loreal"},
-  "H2467901": {"nome": "Pro Longer - Shampoo 300ml", "marca": "loreal"},
-  "E3886000": {"nome": "Scalp Anti-Dandruff - Shampoo 300ml", "marca": "loreal"},
-  "E3847900": {"nome": "Scalp Anti-Discomfort - Shampoo 300ml", "marca": "loreal"},
-  "E3848800": {"nome": "Scalp Anti-Discomfort - Treatment 200ml", "marca": "loreal"},
-  "E3848300": {"nome": "Scalp Anti-Oily - Mask 250ml", "marca": "loreal"},
-  "E3848700": {"nome": "Scalp Anti-Oily - Mask 500ml", "marca": "loreal"},
-  "E3872900": {"nome": "Scalp Anti-Oily - Shampoo 300ml", "marca": "loreal"},
-  "E3872300": {"nome": "Serioxyl Densifying - Shampoo 300ml", "marca": "loreal"},
-  "H2470302": {"nome": "Silver Shampoo 300ml", "marca": "loreal"},
-  "E3554500": {"nome": "Vitamino Color - 10-in-1 190ml", "marca": "loreal"},
-  "H2471100": {"nome": "Vitamino Color - Condicionador 200ml", "marca": "loreal"},
-  "H2471300": {"nome": "Vitamino Color - Mask 250ml", "marca": "loreal"},
-  "H2470900": {"nome": "Vitamino Color - Shampoo 300ml", "marca": "loreal"},
-  "H2689800": {"nome": "Vitamino Color Resveratrol - Shampoo Refil 240ml", "marca": "loreal"},
-  "H2471902": {"nome": "Blondifier - Mask COOL 250ml", "marca": "loreal"},
-  "E3573901": {"nome": "Pro Longer - Cream 10-IN-1 150ml", "marca": "loreal"},
-  "E3573901": {"nome": "Pro Longer - Cream 10-IN-1 150ml", "marca": "loreal"},
-    "1786": {"nome": "KIT EVERYDAY ESSENTIALS", "marca": "real"},"codigo_produto": "079625017861"
+    "2735182": {
+        "nome": "Balance - Shampoo 280ml",
+        "marca": "Senscience",
+        "codigo_produto": "9988776655"
+    },
+    "25154-0": {
+        "nome": "Color Motion+ Máscara 500ml",
+        "marca": "fino",
+        "codigo_produto": "23525235345"
+    },
+    "25839-0": {
+        "nome": "Dark Oil Condicionador 1000ml",
+        "marca": "sebastian",
+        "codigo_produto": "1122334455"
+    },
+    "111414201": {
+        "nome": "Damage Care & Nourishing Floral Powdery - Shampoo 180ml",
+        "marca": "carol",
+        "codigo_produto": "6677889900"
+    },
+    "E4031400": {
+        "nome": "Acidic Bonding Concentrate - 5-min Liquid Mask 250ml",
+        "marca": "Redken",
+        "codigo_produto": "1234567890"
+    },
+    "111316309": {
+        "nome": "10 Professional Cica Ceramide Oil Serum 60ml",
+        "marca": "sebastian",
+        "codigo_produto": "4455667788"
+    },
+    "H0270321": {
+        "nome": "Oxidante Creme 75ml 20 Vol",
+        "marca": "Ecotools",
+        "codigo_produto": "5566778899"
+    },
+    "H0270322": {
+        "nome": "Oxidante Creme 75ml 20 Vol",
+        "marca": "sac",
+        "codigo_produto": "2233445566"
+    },
+    "6134464": {
+        "nome": "Advanced Keratin Bond Deep Repair Shampoo 600ml",
+        "marca": "purederm",
+        "codigo_produto": "3344556677"
+    },
+    "E4181100": {
+        "nome": "Blond Absolu - L'Huile Cicagloss - Óleo Capilar 75ml (Refil)",
+        "marca": "tsubaki",
+        "codigo_produto": "7788990011"
+    },
+    "493.046-G": {
+        "nome": "All In One Leave-In Multifuncional - Spray de Gatilho 240ml",
+        "marca": "Dr.PawPaw",
+        "codigo_produto": "1122112211"
+    },
+    "39852E_5": {
+        "nome": "Keep My Blonde Mask CD 750ml",
+        "marca": "alfaparf",
+        "codigo_produto": "9900112233"
+    }
 }
-
 # Inicializa variáveis na sessão
 if "contagem" not in st.session_state:
     st.session_state.contagem = {}
