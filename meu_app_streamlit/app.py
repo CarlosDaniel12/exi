@@ -95,10 +95,10 @@ def processar():
     codigos = re.split(r'[\s,]+', codigos_input)
     if uploaded_files:
         for uploaded_file in uploaded_files:
-            df = pd.read_csv(uploaded_file, sep=";", dtype=str)
-            if "SKU" not in df.columns:
-                st.error("Não foi encontrada a coluna 'SKU' no CSV. Colunas disponíveis: " + ", ".join(df.columns))
-                return
+            df = tentar_ler_csv(uploaded_file)
+if df is None:
+    return
+
             df["SKU"] = df["SKU"].apply(lambda x: str(int(float(str(x).replace(",", "").replace(" ", "").strip()))) if "E+" in str(x) else str(x).strip())
             for codigo in codigos:
                 pedidos = df[df["Número pedido"].astype(str).str.strip() == codigo]
