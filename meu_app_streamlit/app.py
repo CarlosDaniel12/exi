@@ -92,14 +92,24 @@ def processar():
     codigos_input = st.session_state.input_codigo.strip()
     if not codigos_input:
         return
+
     codigos = re.split(r'[\s,]+', codigos_input)
+
     if uploaded_files:
         for uploaded_file in uploaded_files:
             df = tentar_ler_csv(uploaded_file)
-if df is None:
-    return
+            if df is None:
+                return
 
-            df["SKU"] = df["SKU"].apply(lambda x: str(int(float(str(x).replace(",", "").replace(" ", "").strip()))) if "E+" in str(x) else str(x).strip())
+            if "SKU" not in df.columns:
+                st.error("Não foi encontrada a coluna 'SKU' no CSV. Colunas disponíveis: " + ", ".join(df.columns))
+                return
+
+            df["SKU"] = df["SKU"].apply(
+                lambda x: str(int(float(str(x).replace(",", "").replace(" ", "").strip())))
+                if "E+" in str(x) else str(x).strip()
+            )
+
             for codigo in codigos:
                 pedidos = df[df["Número pedido"].astype(str).str.strip() == codigo]
                 if not pedidos.empty:
@@ -127,6 +137,7 @@ if df is None:
                 entrada = f"Código direto → SKU: {codigo}"
                 if entrada not in st.session_state.nao_encontrados:
                     st.session_state.nao_encontrados.append(entrada)
+
     st.session_state.input_codigo = ""
 
 if st.button("🔄 Limpar pedidos bipados"):
