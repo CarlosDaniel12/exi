@@ -65,7 +65,7 @@ if "resultado" in params:
 
     # Agora exibe por marca agrupado
     for marca, lista_produtos in produtos_por_marca.items():
-        st.markdown(f"## {marca.title()}")  # Deixa a primeira letra maiúscula
+        st.markdown(f"## {marca.title()}")  
 
         # Exibe a logo da marca uma vez só
         try:
