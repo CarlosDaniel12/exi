@@ -1158,36 +1158,28 @@ uploaded_files = st.file_uploader("Envie os CSVs do pedido exportados do Bling:"
 if uploaded_files:
     st.session_state.uploaded_files = uploaded_files
 
-# Função mais inteligente para ler CSVs
+# Função para ler CSV corretamente
 def tentar_ler_csv(uploaded_file):
-    # Tenta primeiro ler como UTF-8 com separador ;
     try:
+        # Tenta abrir com separador ; e utf-8
         df = pd.read_csv(uploaded_file, sep=";", dtype=str, encoding="utf-8", on_bad_lines="skip")
     except UnicodeDecodeError:
         try:
+            # Se falhar, tenta com latin-1
             df = pd.read_csv(uploaded_file, sep=";", dtype=str, encoding="latin-1", on_bad_lines="skip")
-        except Exception:
-            # Se mesmo assim não der, tenta separador vírgula
-            try:
-                df = pd.read_csv(uploaded_file, sep=",", dtype=str, encoding="latin-1", on_bad_lines="skip")
-            except Exception as e:
-                st.error(f"Erro ao ler o arquivo {uploaded_file.name}: {str(e)}")
-                return None
-    except Exception:
-        # Se o problema não for codificação, tenta separador vírgula direto
-        try:
-            df = pd.read_csv(uploaded_file, sep=",", dtype=str, encoding="utf-8", on_bad_lines="skip")
         except Exception as e:
             st.error(f"Erro ao ler o arquivo {uploaded_file.name}: {str(e)}")
             return None
+    except Exception as e:
+        st.error(f"Erro ao ler o arquivo {uploaded_file.name}: {str(e)}")
+        return None
 
-    # Agora padroniza as colunas
+    # Ajusta os nomes das colunas (sem espaço, tudo minúsculo)
     df.columns = df.columns.str.strip().str.lower()
 
-    # Verifica se tem SKU e Número Pedido
-    colunas_esperadas = {"sku", "número pedido"}
-    if not colunas_esperadas.issubset(set(df.columns)):
-        st.error(f"CSV {uploaded_file.name} inválido. Colunas obrigatórias não encontradas: {colunas_esperadas}")
+    # Verifica se as colunas certas estão presentes
+    if "sku" not in df.columns or "número pedido" not in df.columns:
+        st.error(f"CSV {uploaded_file.name} inválido. As colunas obrigatórias 'SKU' e 'Número pedido' não foram encontradas.")
         return None
 
     return df
