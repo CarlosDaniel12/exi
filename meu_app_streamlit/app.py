@@ -18,53 +18,13 @@ else:
     CAMINHO_LOGOS = "meu_app_streamlit/logos"
 
 produtos_cadastrados = {
-    "H0270321": {"nome": "Oxidante Creme 75ml 20 Vol", "marca": "loreal", "codigo_produto": "7896014179541"},
-  "E3825500": {"nome": "Curl Expression Gelée Lavante Anti-résidus 300ml", "marca": "loreal", "codigo_produto": "3474637069087"},
-  "E3564101": {"nome": "Absolut Repair - Mask 250ml", "marca": "loreal", "codigo_produto": "3474636975310"},
-  "E3574500": {"nome": "Absolut Repair - Oil 90ml", "marca": "loreal", "codigo_produto": "3474636977369"},
-  "E3795000": {"nome": "Absolut Repair - Óleo 10 em 1 30ml", "marca": "loreal", "codigo_produto": "3474637052263"},
-  "H2469500": {"nome": "Absolut Repair Gold - Condicionador 200ml", "marca": "loreal", "codigo_produto": "7899706189644"},
-  "H2469700": {"nome": "Absolut Repair Gold - Mask 250ml", "marca": "loreal", "codigo_produto": "7899706189668"},
-  "H2469101": {"nome": "Absolut Repair Gold - Shampoo 300ml", "marca": "loreal", "codigo_produto": "7899706189606"},
-  "E4033400": {"nome": "Absolut Repair Molecular - Leave-in 100ml", "marca": "loreal", "codigo_produto": "3474637153489"},
-  "E4173000": {"nome": "Absolut Repair Molecular - Máscara Capilar 250ml", "marca": "loreal", "codigo_produto": "3474637217884"},
-  "E4173200": {"nome": "Absolut Repair Molecular - Máscara Capilar 500ml", "marca": "loreal", "codigo_produto": "3474637217907"},
-  "E4033800": {"nome": "Absolut Repair Molecular - Shampoo 300ml", "marca": "loreal", "codigo_produto": "3474637153526"},
-  "E4034100": {"nome": "Absolut Repair Molecular - Shampoo 500ml", "marca": "loreal", "codigo_produto": "3474637153557"},
-  "H3689700": {"nome": "Absolut Repair Shampoo Refil 240ml", "marca": "loreal", "codigo_produto": "7908785404958"},
-  "E3887500": {"nome": "Aminexil - Ampoules 10x6ml", "marca": "loreal", "codigo_produto": "3474637109523"},
-  "H2466300": {"nome": "Blondifier - Condicionador 200ml", "marca": "loreal", "codigo_produto": "7899706189323"},
-  "H2466501": {"nome": "Blondifier - Mask Gloss 250ml", "marca": "loreal", "codigo_produto": "7899706189347"},
-  "H2465900": {"nome": "Blondifier - Shampoo Gloss 300ml", "marca": "loreal", "codigo_produto": "7899706189279"},
-  "H2608400": {"nome": "Curl Expression - Leave-in Condicionador 200ml", "marca": "loreal", "codigo_produto": "7899706203906"},
-  "H2608500": {"nome": "Curl Expression - Mask 250ml", "marca": "loreal", "codigo_produto": "7899706203944"},
-  "H2607200": {"nome": "Curl Expression - Mask Rich 250ml", "marca": "loreal", "codigo_produto": "7899706203579"},
-  "E3826600": {"nome": "Curl Expression - Moisturizing Shampoo 300ml", "marca": "loreal", "codigo_produto": "3474637069193"},
-  "E3835000": {"nome": "Curl Expression - Reviver Spray 190ml", "marca": "loreal", "codigo_produto": "3474637076498"},
-  "7908615012667": {"nome": "Diactivateur 15 Volumes 120ml", "marca": "loreal", "codigo_produto": "000000000"},
-  "H2467500": {"nome": "Inforcer - Mask 250ml", "marca": "loreal", "codigo_produto": "7899706189446"},
-  "H2466901": {"nome": "Inforcer - Shampoo 300ml", "marca": "loreal", "codigo_produto": "7899706189385"},
-  "E4033200": {"nome": "Metal Detox - Anti-Metal de Alta Proteção Leave-in 100ml", "marca": "loreal", "codigo_produto": "30161153"},
-  "E3548402": {"nome": "Metal Detox - Mask 250ml", "marca": "loreal", "codigo_produto": "30160606"},
-  "E3560001": {"nome": "Metal Detox - Mask 500ml", "marca": "loreal", "codigo_produto": "30163478"},
-  "E3548702": {"nome": "Metal Detox - Shampoo 300ml", "marca": "loreal", "codigo_produto": "30158078"},
-  "E3549301": {"nome": "Metal Detox - Treatment Spray 500ml", "marca": "loreal", "codigo_produto": "0000030164840"},
-  "E4123900": {"nome": "Metal Detox - Pre-Shampoo Treatment 250ml", "marca": "loreal", "codigo_produto": "3474637199708"},
-  "H2610800": {"nome": "NutriOil - Leave-In 150ml", "marca": "loreal", "codigo_produto": "7899706205177"},
-  "H2611001": {"nome": "NutriOil - Mask 250ml", "marca": "loreal", "codigo_produto": "7899706205252"},
-  "H2610201": {"nome": "NutriOil - Shampoo 300ml", "marca": "loreal", "codigo_produto": "7899706204934"},
-  "H2468700": {"nome": "Pro Longer - Mask 250ml", "marca": "loreal", "codigo_produto": "7899706189569"},
-  "H2467901": {"nome": "Pro Longer - Shampoo 300ml", "marca": "loreal", "codigo_produto": "7899706189484"},
-  "E3886000": {"nome": "Scalp Anti-Dandruff - Shampoo 300ml", "marca": "loreal", "codigo_produto": "3474637109370"},
-  "E3847900": {"nome": "Scalp Anti-Discomfort - Shampoo 300ml", "marca": "loreal", "codigo_produto": "3474637090487"},
-  "E3848800": {"nome": "Scalp Anti-Discomfort - Treatment 200ml", "marca": "loreal", "codigo_produto": "3474637090579"},
-  "E3848300": {"nome": "Scalp Anti-Oily - Mask 250ml", "marca": "loreal", "codigo_produto": "3474637090524"},
-  "E3848700": {"nome": "Scalp Anti-Oily - Mask 500ml", "marca": "loreal", "codigo_produto": "3474637090562"},
-  "E3872900": {"nome": "Scalp Anti-Oily - Shampoo 300ml", "marca": "loreal", "codigo_produto": "3474637106454"},
-  "E3872300": {"nome": "Serioxyl Densifying - Shampoo 300ml", "marca": "loreal", "codigo_produto": "3474637106393"},
-  "H2470302": {"nome": "Silver Shampoo 300ml", "marca": "loreal", "codigo_produto": "7899706189729"},
-  "E3554500": {"nome": "Vitamino Color - 10-in-1 190ml", "marca": "loreal", "codigo_produto": "3474636974368"},
-  "H2471100": {"nome": "Vitamino Color - Condicionador 200ml", "marca": "loreal", "codigo_produto": "7899706189804"},
+
+"H0270321": {
+        "nome": "Oxidante Creme 75ml 20 Vol",
+        "marca": "loreal",
+        "codigo_produto": "7896014179541"
+  }      
+   
 }
 # Inicializa variáveis na sessão
 if "contagem" not in st.session_state:
