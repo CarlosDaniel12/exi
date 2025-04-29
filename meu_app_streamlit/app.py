@@ -295,8 +295,8 @@ lista_produtos = {
   "493.041": {"nome": "Milk Clenz Shampoo Condicionante 240ml", "marca": "Image","codigo_produto": "0860005042470"},
   "493.047": {"nome": "Reconstructor Water - Finalizador 240ml", "marca": "Image","codigo_produto": "0860010127872"},
   "493.042": {"nome": "Yucca Blossom Energizing Body & Shine - Condicionador 240ml", "marca": "Image","codigo_produto": "0860010127834"},
-  "493.015": {"nome": "Yucca Blossom Energizing Body & Shine - Condicionador 1L", "marca": "Image","codigo_produto": "036954332515"},
-  "493.045": {"nome": "FINISHING MIST JUMPING CURLS 240mL", "marca": "Image","codigo_produto": "0860005042494"},
+  "493.015": {"nome": "Yucca Blossom Energizing Body & Shine - Condicionador 1L", "marca": "image","codigo_produto": "036954332515"},
+  "493.045": {"nome": "FINISHING MIST JUMPING CURLS 240mL", "marca": "image","codigo_produto": "0860005042494"},
   
   "39852E_5": {"nome": "Keep My Blonde Mask CD 750ml", "marca": "ice","codigo_produto": "4743318139852"},
   "51038E_5": {"nome": "Tame My Hair Cream 100ml", "marca": "ice","codigo_produto": "4743318151038"},
