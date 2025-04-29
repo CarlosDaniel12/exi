@@ -832,19 +832,19 @@ lista_produtos = {
   "111316352": {"nome": "Magic Straight Tratamento 230ml", "marca": "mise","codigo_produto": "8809925167483"},
   "111316353": {"nome": "Magic Straight Sérum 80ml", "marca": "mise","codigo_produto": "8809925167490"},
   "111316359": {"nome": "SÉRUM CREAM 80ML", "marca": "mise","codigo_produto": "8809925167810"         },
-  "25839-0": {"nome": "Dark Oil Condicionador 1000ml", "marca": "Sebastian","codigo_produto": "4064666102375"},
-  "25840-0": {"nome": "Dark Oil Máscara Capilar 500ml", "marca": "Sebastian","codigo_produto": "4064666102382"},
-  "26500-0": {"nome": "Dark Oil Silkening Fragrância Spray 200ml", "marca": "Sebastian","codigo_produto": "4064666314426"},
-  "26490-0": {"nome": "Dark Oil Óleo Capilar 30ml", "marca": "Sebastian","codigo_produto": "7898973417054"},
-  "24608-0": {"nome": "Dark Oil Óleo Capilar 95ml", "marca": "Sebastian","codigo_produto": "7898973417023"},
-  "24889-0": {"nome": "Flaunt Trilliant Protetor Térmico Trifásico 150ml", "marca": "Sebastian","codigo_produto": "8005610569574"},
-  "25328-0": {"nome": "No Breaker Leave-in 100ml", "marca": "Sebastian","codigo_produto": "4064666214467"},
-  "24890-0": {"nome": "Novo Shine Define Finalizador 200ml", "marca": "Sebastian","codigo_produto": "4064666225494"},
-  "24781-0": {"nome": "Penetraitt Masque - Tratamento 150ml", "marca": "Sebastian","codigo_produto": "4064666317380"},
-  "26050-0": {"nome": "Potion 9 Lite Spray Líquido 150ml", "marca": "Sebastian","codigo_produto": "4064666225272"},
-  "24165-2": {"nome": "Sublimate Creme Invisível Modelador 100ml", "marca": "Sebastian","codigo_produto": "8005610580838"},
-  "26392-0": {"nome": "Trilliance Condicionador 250ml", "marca": "Sebastian","codigo_produto": "4064666307015"},
-  "23489-3": {"nome": "Twisted Curl Elastic Detangler Condicionador 250ml", "marca": "Sebastian","codigo_produto": "8005610426648" },
+  "25839-0": {"nome": "Dark Oil Condicionador 1000ml", "marca": "sebastian","codigo_produto": "4064666102375"},
+  "25840-0": {"nome": "Dark Oil Máscara Capilar 500ml", "marca": "sebastian","codigo_produto": "4064666102382"},
+  "26500-0": {"nome": "Dark Oil Silkening Fragrância Spray 200ml", "marca": "sebastian","codigo_produto": "4064666314426"},
+  "26490-0": {"nome": "Dark Oil Óleo Capilar 30ml", "marca": "sebastian","codigo_produto": "7898973417054"},
+  "24608-0": {"nome": "Dark Oil Óleo Capilar 95ml", "marca": "sebastian","codigo_produto": "7898973417023"},
+  "24889-0": {"nome": "Flaunt Trilliant Protetor Térmico Trifásico 150ml", "marca": "sebastian","codigo_produto": "8005610569574"},
+  "25328-0": {"nome": "No Breaker Leave-in 100ml", "marca": "sebastian","codigo_produto": "4064666214467"},
+  "24890-0": {"nome": "Novo Shine Define Finalizador 200ml", "marca": "sebastian","codigo_produto": "4064666225494"},
+  "24781-0": {"nome": "Penetraitt Masque - Tratamento 150ml", "marca": "sebastian","codigo_produto": "4064666317380"},
+  "26050-0": {"nome": "Potion 9 Lite Spray Líquido 150ml", "marca": "sebastian","codigo_produto": "4064666225272"},
+  "24165-2": {"nome": "Sublimate Creme Invisível Modelador 100ml", "marca": "sebastian","codigo_produto": "8005610580838"},
+  "26392-0": {"nome": "Trilliance Condicionador 250ml", "marca": "sebastian","codigo_produto": "4064666307015"},
+  "23489-3": {"nome": "Twisted Curl Elastic Detangler Condicionador 250ml", "marca": "sebastian","codigo_produto": "8005610426648" },
   "111414201": {"nome": "Damage Care & Nourishing Floral Powdery - Shampoo 180ml", "marca": "ryo","codigo_produto": "8809925154216"},
   "111413638": {"nome": "Hair Loss Expert Care 9EX - Oily Scalp Shampoo 400ml", "marca": "ryo","codigo_produto": "9988776655"},
   "111413647": {"nome": "Root Strength Mk 330ml Couro Cabeludo Oleoso", "marca": "ryo","codigo_produto": "9988776655"},
@@ -1294,7 +1294,6 @@ if st.session_state.contagem:
     full_url = f"{base_url}/?{query_string}"
 
     qr = qrcode.QRCode(box_size=10, border=4)
-
     qr.add_data(full_url)
     qr.make(fit=True)
     img_qr = qr.make_image(fill_color="black", back_color="white")
