@@ -1161,12 +1161,10 @@ if uploaded_files:
 # Função para ler CSV corretamente
 def tentar_ler_csv(uploaded_file):
     try:
-        # Tenta abrir com separador ; e utf-8
-        df = pd.read_csv(uploaded_file, sep=";", dtype=str, encoding="utf-8", on_bad_lines="skip")
+        df = pd.read_csv(uploaded_file, sep=";", dtype=str, encoding="utf-8", on_bad_lines="skip", engine="python")
     except UnicodeDecodeError:
         try:
-            # Se falhar, tenta com latin-1
-            df = pd.read_csv(uploaded_file, sep=";", dtype=str, encoding="latin-1", on_bad_lines="skip")
+            df = pd.read_csv(uploaded_file, sep=";", dtype=str, encoding="latin-1", on_bad_lines="skip", engine="python")
         except Exception as e:
             st.error(f"Erro ao ler o arquivo {uploaded_file.name}: {str(e)}")
             return None
@@ -1174,10 +1172,10 @@ def tentar_ler_csv(uploaded_file):
         st.error(f"Erro ao ler o arquivo {uploaded_file.name}: {str(e)}")
         return None
 
-    # Ajusta os nomes das colunas (sem espaço, tudo minúsculo)
+    # Corrige os nomes das colunas
     df.columns = df.columns.str.strip().str.lower()
 
-    # Verifica se as colunas certas estão presentes
+    # Verifica se as colunas obrigatórias existem
     if "sku" not in df.columns or "número pedido" not in df.columns:
         st.error(f"CSV {uploaded_file.name} inválido. As colunas obrigatórias 'SKU' e 'Número pedido' não foram encontradas.")
         return None
