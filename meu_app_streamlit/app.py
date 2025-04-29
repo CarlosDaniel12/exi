@@ -275,8 +275,7 @@ lista_produtos = {
   "E3996700": {"nome": "Symbiose - Bain Crème Anti-Pelliculaire 250ml", "marca": "kerastase","codigo_produto": "3474637135690"},
   "E4000000": {"nome": "Symbiose - Fondant Apaisant Essentiel 200ml", "marca": "kerastase","codigo_produto": "3474637136383"},
   "H2516710": {"nome": "Genesis Bain Hydra-Fortifiant - Shampoo Refil 500ml", "marca": "kerastase","codigo_produto": "000000000"},
-  "E4181400": {"nome": "Blond Absolu L'Huile Cicagloss - Óleo Capilar 75ml", "marca": "kerastase", "codigo_produto": "3474637219536"},
-    
+  "E4181400": {"nome": "Blond Absolu L'Huile Cicagloss - Óleo Capilar 75ml", "marca": "kerastase", "codigo_produto": "3474637219536"},    
   "493.046-G": {"nome": "All In One Leave-In Multifuncional - Spray de Gatilho 240ml", "marca": "image","codigo_produto": "0860005042456"},
   "493.046-P": {"nome": "All In One Leave-In Multifuncional - Spray de Pump 240ml", "marca": "image","codigo_produto": "0860005042456"},
   "493.021": {"nome": "Cherimoya Clenz Shampoo 1L", "marca": "image","codigo_produto": "036954338159"},
