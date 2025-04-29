@@ -4,9 +4,7 @@ from PIL import Image
 import os, base64
 from io import BytesIO
 import re
-import pandas as pd
-import streamlit as st
-import math, re, qrcode, urllib.parse
+import math, qrcode, urllib.parse
 
 # Configura layout
 st.set_page_config(layout="wide")
@@ -17,15 +15,27 @@ if os.path.exists("C:/meu_app_streamlit/logos"):
 else:
     CAMINHO_LOGOS = "meu_app_streamlit/logos"
 
-produtos_cadastrados = {
+# Lista reta de produtos
+lista_produtos = [
+    {"codigo": "2735182", "nome": "Balance - Shampoo 280ml", "marca": "Senscience", "codigo_produto": "9988776655"},
+    {"codigo": "25154-0", "nome": "Color Motion+ Máscara 500ml", "marca": "fino", "codigo_produto": "23525235345"},
+    {"codigo": "25839-0", "nome": "Dark Oil Condicionador 1000ml", "marca": "sebastian", "codigo_produto": "1122334455"},
+    {"codigo": "111414201", "nome": "Damage Care & Nourishing Floral Powdery - Shampoo 180ml", "marca": "carol", "codigo_produto": "6677889900"},
+    {"codigo": "E4031400", "nome": "Acidic Bonding Concentrate - 5-min Liquid Mask 250ml", "marca": "Redken", "codigo_produto": "1234567890"},
+    {"codigo": "111316309", "nome": "10 Professional Cica Ceramide Oil Serum 60ml", "marca": "sebastian", "codigo_produto": "4455667788"},
+    {"codigo": "H0270321", "nome": "Oxidante Creme 75ml 20 Vol", "marca": "Ecotools", "codigo_produto": "5566778899"},
+    {"codigo": "H0270322", "nome": "Oxidante Creme 75ml 20 Vol", "marca": "sac", "codigo_produto": "2233445566"},
+    {"codigo": "6134464", "nome": "Advanced Keratin Bond Deep Repair Shampoo 600ml", "marca": "purederm", "codigo_produto": "3344556677"},
+    {"codigo": "E4181100", "nome": "Blond Absolu - L'Huile Cicagloss - Óleo Capilar 75ml (Refil)", "marca": "tsubaki", "codigo_produto": "7788990011"},
+    {"codigo": "493.046-G", "nome": "All In One Leave-In Multifuncional - Spray de Gatilho 240ml", "marca": "Dr.PawPaw", "codigo_produto": "1122112211"},
+    {"codigo": "39852E_5", "nome": "Keep My Blonde Mask CD 750ml", "marca": "alfaparf", "codigo_produto": "9900112233"}
+]
 
-"H0270321": {
-        "nome": "Oxidante Creme 75ml 20 Vol",
-        "marca": "loreal",
-        "codigo_produto": "7896014179541"
-  }      
-   
-}
+# Converte lista em dicionário para manter compatibilidade
+produtos_cadastrados = {p["codigo"]: p for p in lista_produtos}
+
+# Continua o seu código daqui em diante normalmente...
+
 # Inicializa variáveis na sessão
 if "contagem" not in st.session_state:
     st.session_state.contagem = {}
@@ -35,7 +45,6 @@ if "input_codigo" not in st.session_state:
     st.session_state.input_codigo = ""
 if "nao_encontrados" not in st.session_state:
     st.session_state.nao_encontrados = []
-
 # ------------ Página de Resultados (corrigido para agrupar produtos corretamente e mostrar código_produto) ------------
 params = st.query_params
 if "resultado" in params:
@@ -226,3 +235,4 @@ if st.session_state.contagem:
     st.markdown(f"[Clique aqui para acessar a página de resultados]({full_url})", unsafe_allow_html=True)
 else:
     st.info("Nenhum produto bipado ainda!")
+
