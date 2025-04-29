@@ -1293,7 +1293,8 @@ if st.session_state.contagem:
     query_string = urllib.parse.urlencode(params_dict)
     full_url = f"{base_url}/?{query_string}"
 
-    qr = qrcode.QRCode(version=1, box_size=10, border=4)
+    qr = qrcode.QRCode(box_size=10, border=4)
+
     qr.add_data(full_url)
     qr.make(fit=True)
     img_qr = qr.make_image(fill_color="black", back_color="white")
