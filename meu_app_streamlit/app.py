@@ -1161,12 +1161,19 @@ if uploaded_files:
 # Função de processamento
 def tentar_ler_csv(uploaded_file):
     try:
-        df = pd.read_csv(uploaded_file, sep=";", dtype=str)
-        df.columns = df.columns.str.strip().str.lower()  # Garante nomes corretos
-        return df
+        df = pd.read_csv(uploaded_file, sep=";", dtype=str, encoding="utf-8")
+    except UnicodeDecodeError:
+        try:
+            df = pd.read_csv(uploaded_file, sep=";", dtype=str, encoding="latin-1")
+        except Exception as e:
+            st.error(f"Erro ao ler o arquivo {uploaded_file.name}: {str(e)}")
+            return None
     except Exception as e:
         st.error(f"Erro ao ler o arquivo {uploaded_file.name}: {str(e)}")
         return None
+
+    df.columns = df.columns.str.strip().str.lower()
+    return df
 
 def processar():
     codigos_input = st.session_state.input_codigo.strip()
@@ -1287,4 +1294,5 @@ if st.session_state.contagem:
     st.markdown(f"[Clique aqui para acessar a página de resultados]({full_url})", unsafe_allow_html=True)
 else:
     st.info("Nenhum produto bipado ainda!")
+
 
