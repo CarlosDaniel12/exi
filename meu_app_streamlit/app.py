@@ -70,6 +70,7 @@ lista_produtos = {
     "H2470900": {"nome": "Vitamino Color - Shampoo 300ml", "marca": "loreal", "codigo_produto": "7899706189781"},
     "H2689800": {"nome": "Vitamino Color Resveratrol - Shampoo Refil 240ml", "marca": "loreal", "codigo_produto": "7908785404996"},
     "H2471902": {"nome": "Blondifier - Mask COOL 250ml", "marca": "loreal", "codigo_produto": "7899706189880"},
+    "5019487": {"nome": "Advanced Repair Ampoule 10x Cd Serum 80ml", "marca": "Kerasys"},"codigo_produto": "8801046357828"},
     "E3573901": {"nome": "Pro Longer - Cream 10-IN-1 150ml", "marca": "loreal", "codigo_produto": "3474636977307"}
 }
 
