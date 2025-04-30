@@ -1206,6 +1206,8 @@ def processar():
         df["sku"] = df["sku"].apply(lambda x: str(int(float(str(x).replace(",", "").replace(" ", "").strip()))) if "E+" in str(x) else str(x).strip())
 
         for codigo in codigos:
+        if codigo not in st.session_state.pedidos_bipados:
+            st.session_state.pedidos_bipados.append(codigo)
             pedidos = df[df["número pedido"].astype(str).str.strip() == codigo]
             if not pedidos.empty:
                 for sku in pedidos["sku"]:
@@ -1303,3 +1305,9 @@ else:
     st.info("Nenhum produto bipado ainda!")
 
 
+
+
+if "pedidos_bipados" in st.session_state and st.session_state.pedidos_bipados:
+    with st.expander("📋 Pedidos já bipados"):
+        for pedido in st.session_state.pedidos_bipados:
+            st.markdown(f"- {pedido}")
