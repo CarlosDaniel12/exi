@@ -1266,9 +1266,14 @@ st.markdown(
 st.text_input("", key="input_codigo", on_change=processar)
 
 if st.session_state.nao_encontrados:
-    with st.expander("❗ Códigos não cadastrados no sistema"):
+    qtd_nao = len(st.session_state.nao_encontrados)
+    # Cria um título com HTML para exibição em vermelho, indicando a quantidade de códigos não encontrados
+    titulo_expander = f"<span style='color:red;'>❗ {qtd_nao} código(s) não cadastrados - Clique para visualizar</span>"
+    # Expander começa fechado (expanded=False)
+    with st.expander(titulo_expander, expanded=False):
         for entrada in st.session_state.nao_encontrados:
             st.markdown(f"- {entrada}")
+
 
 marcas_com_produtos = []
 for cod in st.session_state.contagem:
