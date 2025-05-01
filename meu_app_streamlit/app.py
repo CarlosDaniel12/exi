@@ -1183,6 +1183,66 @@ if "resultado" in params:
     st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
     st.stop()
 
+        # Cria as abas somente para os grupos filtrados
+    titulos_abas = [titulo for titulo, marcas in grupos_filtrados]
+    abas = st.tabs(titulos_abas)
+    
+    # Função para formatar produtos TSUBAKI conforme especificado
+    def format_tsubaki_produto(prod):
+        nome = prod["nome"].strip()
+        quantidade = prod["quantidade"]
+        lower_nome = nome.lower()
+        cor = None
+        if "moist repair conditioner" in lower_nome:
+            cor = "red"
+        elif "moist repair shampoo" in lower_nome:
+            cor = "red"
+        elif "volume repair conditioner" in lower_nome:
+            cor = "yellow"
+        elif "volume repair shampoo" in lower_nome:
+            cor = "yellow"
+        elif "repair mask" in lower_nome:
+            cor = "goldenrod"
+        if cor:
+            nome_formatado = f"<span style='color:{cor};'><strong>{nome}</strong></span>"
+            qtd_formatado = f"<span style='color:{cor};'><strong>{quantidade}</strong></span>"
+            return nome_formatado, qtd_formatado
+        else:
+            return f"<strong>{nome}</strong>", f"<strong>{quantidade}</strong>"
+    
+    # Para cada grupo (aba), exibe os pedidos para as marcas definidas na ordem fixa
+    for (titulo, lista_marcas), aba in zip(grupos_filtrados, abas):
+        with aba:
+            st.header(titulo)
+            # Para cada marca do grupo, se houver pedidos, exibe a logo e os itens
+            for marca in lista_marcas:
+                if marca in agrupado_por_marca:
+                    try:
+                        logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
+                        with open(logo_path, "rb") as img_file:
+                            logo_encoded = base64.b64encode(img_file.read()).decode()
+                        st.markdown(
+                            f"<img src='data:image/png;base64,{logo_encoded}' width='150' style='margin-bottom: 10px;'>",
+                            unsafe_allow_html=True)
+                    except Exception:
+                        st.warning(f"Logo da marca **{marca}** não encontrada.")
+                    for prod in agrupado_por_marca[marca]:
+                        cp = prod.get("codigo_produto", "")
+                        # Se a marca for tsubaki, verifica para aplicar formatação especial
+                        if marca == "tsubaki":
+                            nome_fmt, qtd_fmt = format_tsubaki_produto(prod)
+                            st.markdown(
+                                f"{nome_fmt} | Quantidade: {qtd_fmt} &nbsp;&nbsp;&nbsp; ({cp})",
+                                unsafe_allow_html=True)
+                        else:
+                            st.markdown(
+                                f"**{prod['nome']}** | Quantidade: **{prod['quantidade']}** &nbsp;&nbsp;&nbsp; ({cp})",
+                                unsafe_allow_html=True)
+                    st.markdown("---")
+    
+    st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
+    st.stop()
+
 #################################
 # Página Principal (Interface)
 #################################
