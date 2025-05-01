@@ -1142,12 +1142,24 @@ if "resultado" in params:
         ("sac", ["sac"])
     ]
     
-    # Cria as abas com os títulos fixos
-    titulos_abas = [titulo for titulo, marcas in grupos]
+    # Filtra apenas os grupos que possuem ao menos um pedido para alguma das marcas
+    grupos_filtrados = []
+    for titulo, marcas in grupos:
+        for m in marcas:
+            if m in agrupado_por_marca:
+                grupos_filtrados.append((titulo, marcas))
+                break
+
+    if not grupos_filtrados:
+        st.info("Nenhum produto encontrado.")
+        st.stop()
+    
+    # Cria as abas apenas para os grupos filtrados, mantendo a ordem fixa
+    titulos_abas = [titulo for titulo, marcas in grupos_filtrados]
     abas = st.tabs(titulos_abas)
     
-    # Para cada grupo (aba), exibe os pedidos para as marcas definidas na ordem fixa
-    for (titulo, lista_marcas), aba in zip(grupos, abas):
+    # Para cada grupo, exibe os produtos para as marcas definidas na ordem fixa
+    for (titulo, lista_marcas), aba in zip(grupos_filtrados, abas):
         with aba:
             st.header(titulo)
             for marca in lista_marcas:
@@ -1157,17 +1169,16 @@ if "resultado" in params:
                         with open(logo_path, "rb") as img_file:
                             logo_encoded = base64.b64encode(img_file.read()).decode()
                         st.markdown(
-                            f"<img src='data:image/png;base64,{logo_encoded}' width='150' style='margin-bottom: 10px;'>", 
+                            f"<img src='data:image/png;base64,{logo_encoded}' width='150' style='margin-bottom: 10px;'>",
                             unsafe_allow_html=True)
                     except Exception:
                         st.warning(f"Logo da marca **{marca}** não encontrada.")
                     for prod in agrupado_por_marca[marca]:
                         cp = prod.get("codigo_produto", "")
                         st.markdown(
-    f"**{prod['nome']}** | Quantidade: **{prod['quantidade']}** &nbsp;&nbsp;&nbsp; ({cp})",
-    unsafe_allow_html=True
-)
-
+                            f"**{prod['nome']}** | Quantidade: **{prod['quantidade']}** &nbsp;&nbsp;&nbsp; ({cp})",
+                            unsafe_allow_html=True)
+                    st.markdown("---")
     
     st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
     st.stop()
