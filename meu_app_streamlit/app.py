@@ -753,7 +753,7 @@ lista_produtos = {
 "10170636202": {"nome": "VOLUME Repair Conditioner 490ml", "marca": "tsubaki","codigo_produto": "4901872466238"},
 "10170634202": {"nome": "VOLUME Repair Shampoo 490ml", "marca": "tsubaki","codigo_produto": "4901872466146"},
 "10170632202": {"nome": "MOIST Repair Conditioner 490ml", "marca": "tsubaki","codigo_produto": "4901872466061"},
-"10170630202": {"nome": "MOIST Repair Shampoo 490ml", "marca": "tsubaki","codigo_produto": "4901872466023"},
+"10170630202": {"nome": "TSUBAKI -  MOIST Repair Shampoo 490ml", "marca": "tsubaki","codigo_produto": "4901872466023"},
   "14072": {"nome": "Argan Oil Condicionador 500ml", "marca": "lee","codigo_produto": "5060282708532"},
   "14073": {"nome": "Argan Oil Máscara 200ml", "marca": "lee","codigo_produto": "5060282704640"},
   "14074": {"nome": "Argan Oil Nourishing Miracle Oil 50ml", "marca": "lee","codigo_produto": "5060282704664"},
@@ -1082,6 +1082,12 @@ lista_produtos = {
 "G-7908195709933": {"nome": "Girassol Pink By Kern -Sérum Noturno - Esmalte 9ml", "marca": "sac"}
 
 
+
+ 
+
+
+
+
 }
 
 produtos_cadastrados = {codigo: produto for codigo, produto in lista_produtos.items()}
@@ -1308,9 +1314,21 @@ st.markdown(
 st.text_input("", key="input_codigo", on_change=processar)
 
 if st.session_state.nao_encontrados:
-    with st.expander("❗ Códigos não cadastrados no sistema"):
+    qtd_nao = len(st.session_state.nao_encontrados)
+    # Mensagem de alerta persistente
+    st.markdown(
+        f"<div style='background-color:#ffcccc; padding:10px; border-radius:5px; color:red; text-align:center;'>"
+        f"⚠️ ATENÇÃO: {qtd_nao} pedido(s) não foram lidos!"
+        f"</div>",
+        unsafe_allow_html=True
+    )
+    
+    # Expander para visualizar os SKUs não lidos
+    titulo_expander = f"<span style='color:red;'>Clique aqui para visualizar os {qtd_nao} pedidos não lidos.</span>"
+    with st.expander(titulo_expander, expanded=False):
         for entrada in st.session_state.nao_encontrados:
             st.markdown(f"- {entrada}")
+
 
 marcas_com_produtos = []
 for cod in st.session_state.contagem:
