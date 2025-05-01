@@ -1142,7 +1142,7 @@ if "resultado" in params:
         ("sac", ["sac"])
     ]
     
-    # Filtra apenas os grupos que possuem ao menos um pedido para alguma das marcas
+    # Filtra apenas os grupos que possuem algum pedido para pelo menos uma marca
     grupos_filtrados = []
     for titulo, marcas in grupos:
         for m in marcas:
@@ -1158,7 +1158,7 @@ if "resultado" in params:
     titulos_abas = [titulo for titulo, marcas in grupos_filtrados]
     abas = st.tabs(titulos_abas)
     
-    # Para cada grupo, exibe os produtos para as marcas definidas na ordem fixa
+    # Exibe os pedidos para cada grupo (aba)
     for (titulo, lista_marcas), aba in zip(grupos_filtrados, abas):
         with aba:
             st.header(titulo)
@@ -1188,27 +1188,25 @@ if "resultado" in params:
 #################################
 st.title("Bipagem de Produtos")
 
+# Upload dos arquivos CSV
 uploaded_files = st.file_uploader("Envie os CSVs do pedido exportados do Bling:", type=["csv"], accept_multiple_files=True)
 if uploaded_files:
     st.session_state.uploaded_files = uploaded_files
 
-def tentar_ler_csv(uploaded_file):
+# Função cacheada para ler o CSV dos bytes do arquivo
+@st.cache_data(show_spinner=True)
+def tentar_ler_csv_cache(file_bytes):
     try:
-        df = pd.read_csv(uploaded_file, sep=";", dtype=str, encoding="utf-8", on_bad_lines="skip", engine="python")
+        df = pd.read_csv(BytesIO(file_bytes), sep=";", dtype=str, encoding="utf-8", on_bad_lines="skip", engine="python")
     except UnicodeDecodeError:
-        try:
-            df = pd.read_csv(uploaded_file, sep=";", dtype=str, encoding="latin-1", on_bad_lines="skip", engine="python")
-        except Exception as e:
-            st.error(f"Erro ao ler o arquivo {uploaded_file.name}: {str(e)}")
-            return None
-    except Exception as e:
-        st.error(f"Erro ao ler o arquivo {uploaded_file.name}: {str(e)}")
-        return None
+        df = pd.read_csv(BytesIO(file_bytes), sep=";", dtype=str, encoding="latin-1", on_bad_lines="skip", engine="python")
     df.columns = df.columns.str.strip().str.lower()
-    if "sku" not in df.columns or "número pedido" not in df.columns:
-        st.error(f"CSV {uploaded_file.name} inválido. As colunas obrigatórias 'SKU' e 'Número pedido' não foram encontradas.")
-        return None
     return df
+
+# Função para ler CSV utilizando o cache
+def tentar_ler_csv(uploaded_file):
+    file_bytes = uploaded_file.getvalue()
+    return tentar_ler_csv_cache(file_bytes)
 
 def processar():
     codigos_input = st.session_state.input_codigo.strip()
@@ -1224,7 +1222,7 @@ def processar():
         if df is None:
             continue
         if "sku" not in df.columns or "número pedido" not in df.columns:
-            st.error(f"CSV {uploaded_file.name} inválido. Colunas obrigatórias: 'SKU' e 'Número pedido'")
+            st.error(f"CSV {uploaded_file.name} inválido. As colunas obrigatórias 'SKU' e 'Número pedido' não foram encontradas.")
             return
         df["sku"] = df["sku"].apply(lambda x: str(int(float(str(x).replace(",", "").replace(" ", "").strip()))) if "E+" in str(x) else str(x).strip())
         for codigo in codigos:
