@@ -1163,8 +1163,11 @@ if "resultado" in params:
                         st.warning(f"Logo da marca **{marca}** não encontrada.")
                     for prod in agrupado_por_marca[marca]:
                         cp = prod.get("codigo_produto", "")
-                        st.markdown(f"**{prod['nome']}** | Quantidade: {prod['quantidade']} {f'({cp})' if cp else ''}")
-                    st.markdown("---")
+                        st.markdown(
+    f"**{prod['nome']}** | Quantidade: **{prod['quantidade']}** &nbsp;&nbsp;&nbsp; ({cp})",
+    unsafe_allow_html=True
+)
+
     
     st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
     st.stop()
