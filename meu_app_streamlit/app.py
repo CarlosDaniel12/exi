@@ -1189,6 +1189,45 @@ if "resultado" in params:
         "50222E_5": "#97b5f5",
         "39852E_5": "#97b5f5"
     }
+
+    # Mapeamento de cores para produtos da marca "kerasys"
+    kerasys_color_mapping = {
+        "6066191": "#e91e63",
+        "6066716": "#e91e63",
+        "6066192": "#e91e63",
+        "6066189": "#e91e63",
+        "6066712": "#e91e63",
+        "6066188": "#e91e63",
+        "6066186": "#1e90ff",
+        "6066715": "#1e90ff",
+        "6066185": "#1e90ff",
+        "6066183": "#1e90ff",
+        "6066711": "#1e90ff",
+        "6066182": "#1e90ff",
+        "5010755": "#96d5ef",
+        "6093519": "#96d5ef",
+        "6100528": "#96d5ef",
+        "6100534": "#96d5ef",
+        "6100679": "#96d5ef",
+        "6134472": "#96d5ef",
+        "6134466": "#96d5ef",
+        "5019487": "#dcb051",
+        "6093517": "#dcb051",
+        "6100531": "#d2b58d",
+        "6134479": "#d2b58d",
+        "6134464": "#d2b58d",
+        "6134473": "#a1d4cc",
+        "6134467": "#a1d4cc",
+        "6134465": "#ffb6c1",
+        "6134471": "#ffb6c1",
+        "6100529": "#ffb6c1",
+        "6098972": "#163cb0",
+        "6098969": "#163cb0",
+        "6098970": "#fd902d",
+        "6098971": "#fd902d",
+        "6101625": "#09a7bb",
+        "6101580": "#02a1c2"
+    }
     
     # Define os grupos fixos e a ordem desejada (os nomes devem estar em minúsculas)
     grupos = [
@@ -1246,6 +1285,7 @@ if "resultado" in params:
                                 f"{nome_fmt} | Quantidade: {qtd_fmt} &nbsp;&nbsp;&nbsp; ({cp})",
                                 unsafe_allow_html=True
                             )
+                            
                         else:
                             st.markdown(
                                 f"**{prod['nome']}** | Quantidade: **{prod['quantidade']}** &nbsp;&nbsp;&nbsp; ({cp})",
