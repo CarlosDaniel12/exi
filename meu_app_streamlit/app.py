@@ -1112,7 +1112,7 @@ if "resultado" in params:
     st.title("Resumo do Pedido - Organizado")
     st.markdown("---")
     
-    # Se houver SKUs não encontrados, exibe alerta fixo e um expander
+    # Alerta fixo e expander para SKUs não encontrados
     if st.session_state.nao_encontrados:
         qtd_nao = len(st.session_state.nao_encontrados)
         st.markdown(
@@ -1126,15 +1126,12 @@ if "resultado" in params:
             for entrada in st.session_state.nao_encontrados:
                 st.markdown(f"- {entrada}")
     
-    # Agrupa os pedidos por marca (normalizando para minúsculas) e armazena também a chave SKU
+    # Agrupa os pedidos por marca e inclui SKU
     agrupado_por_marca = {}
     for codigo, valores in params.items():
         if codigo == "resultado":
             continue
-        try:
-            quantidade = valores[0]
-        except IndexError:
-            quantidade = "0"
+        quantidade = valores[0] if valores else "0"
         produto = produtos_cadastrados.get(codigo)
         if produto:
             marca = produto["marca"].lower().strip()
@@ -1147,117 +1144,57 @@ if "resultado" in params:
                 "codigo_produto": produto.get("codigo_produto", "")
             })
     
-    # Dicionário para formatação personalizada para produtos da marca "ice"
-    ice_color_mapping = {
-        # Grupo 1 (amarelo – #faeba9)
-        "50277E_5": "#faeba9",
-        "51007E_5": "#faeba9",
-        "03846BR": "#faeba9",
-        "39937E_5": "#faeba9",
-        "51045E_5": "#faeba9",
-        "51052E_5": "#faeba9",
-        "39920E_5": "#faeba9",
-        "50260E_5": "#faeba9",
-        "51014E_5": "#faeba9",
-        "51038E_5": "#faeba9",
-        # Grupo 2 (rosa – #ecc7cc)
-        "51076E_5": "#ecc7cc",
-        "50291E_5": "#ecc7cc",
-        "03839BR": "#ecc7cc",
-        "39951E_5": "#ecc7cc",
-        "51083E_5": "#ecc7cc",
-        "39944E_5": "#ecc7cc",
-        "50284E_5": "#ecc7cc",
-        "51090E_5": "#ecc7cc",
-        # Grupo 3 (verde claro – #dbedd2)
-        "50215E_5": "#dbedd2",
-        "39890E_5": "#dbedd2",
-        "50208E_5": "#dbedd2",
-        # Grupo 4 (azul – #b6e1e0)
-        "39883E_5": "#b6e1e0",
-        "50192E_5": "#b6e1e0",
-        "50840E_5": "#b6e1e0",
-        "03853BR": "#b6e1e0",
-        "39876E_5": "#b6e1e0",
-        "50185E_5": "#b6e1e0",
-        "50857E_5": "#b6e1e0",
-        "50895E_5": "#b6e1e0",
-        # Grupo 5 (azul – #b31c4a)
-        "50253E_5": "#b31c4a",
-        "50956E_5": "#b31c4a",
-        "50963E_5": "#b31c4a",
-        "50246E_5": "#b31c4a",
-        "39913E_5": "#b31c4a",
-        "39906E_5": "#b31c4a",
-        # Grupo 6 (azul – #97b5f5)
-        "50239E_5": "#97b5f5",
-        "51151E_5": "#97b5f5",
-        "50222E_5": "#97b5f5",
-        "39852E_5": "#97b5f5"
+    # Mapeamento de cores para produtos específicos das marcas ICE, KERASYS e TSUBAKI
+    produto_color_mapping = {
+        # TSUBAKI
+        "10170558202": "#daa520",  # Dourado
+        "10170636202": "#faeba9",  # Amarelo
+        "10170634202": "#faeba9",  # Amarelo
+        "10170632202": "#ff0000",  # Vermelho
+        "10170630202": "#ff0000",  # Vermelho
+
+        # ICE
+        "50277E_5": "#faeba9", "51007E_5": "#faeba9", "03846BR": "#faeba9",
+        "39937E_5": "#faeba9", "51045E_5": "#faeba9", "51052E_5": "#faeba9",
+        "39920E_5": "#faeba9", "50260E_5": "#faeba9", "51014E_5": "#faeba9",
+        "51038E_5": "#faeba9", "51076E_5": "#ecc7cc", "50291E_5": "#ecc7cc",
+        "03839BR": "#ecc7cc", "39951E_5": "#ecc7cc", "51083E_5": "#ecc7cc",
+        "39944E_5": "#ecc7cc", "50284E_5": "#ecc7cc", "51090E_5": "#ecc7cc",
+        "50215E_5": "#dbedd2", "39890E_5": "#dbedd2", "50208E_5": "#dbedd2",
+        "39883E_5": "#b6e1e0", "50192E_5": "#b6e1e0", "50840E_5": "#b6e1e0",
+        "03853BR": "#b6e1e0", "39876E_5": "#b6e1e0", "50185E_5": "#b6e1e0",
+        "50857E_5": "#b6e1e0", "50895E_5": "#b6e1e0", "50253E_5": "#b31c4a",
+        "50956E_5": "#b31c4a", "50963E_5": "#b31c4a", "50246E_5": "#b31c4a",
+        "39913E_5": "#b31c4a", "39906E_5": "#b31c4a", "50239E_5": "#97b5f5",
+        "51151E_5": "#97b5f5", "50222E_5": "#97b5f5", "39852E_5": "#97b5f5",
+
+        # KERASYS
+        "6066191": "#e91e63", "6066716": "#e91e63", "6066192": "#e91e63",
+        "6066189": "#e91e63", "6066712": "#e91e63", "6066188": "#e91e63",
+        "6066186": "#1e90ff", "6066715": "#1e90ff", "6066185": "#1e90ff",
+        "6066183": "#1e90ff", "6066711": "#1e90ff", "6066182": "#1e90ff",
     }
     
-    # Define os grupos fixos e a ordem desejada (os nomes devem estar em minúsculas)
-    grupos = [
-        ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
-        ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
-        ("Corredor 3", ["tsubaki", "wella", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
-        ("Pinceis", ["real", "ecootols"]),
-        ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
-        ("sac", ["sac"])
-    ]
-    
-    # Filtra apenas os grupos que possuem algum pedido
-    grupos_filtrados = []
-    for titulo, marcas in grupos:
-        for m in marcas:
-            if m in agrupado_por_marca:
-                grupos_filtrados.append((titulo, marcas))
-                break
+    # Exibe pedidos em cada aba
+    for marca, produtos in agrupado_por_marca.items():
+        st.header(marca.upper())
+        for prod in produtos:
+            cp = prod.get("codigo_produto", "")
+            sku = prod.get("sku")
 
-    if not grupos_filtrados:
-        st.info("Nenhum produto encontrado.")
-        st.stop()
-    
-    # Cria as abas somente para os grupos filtrados
-    titulos_abas = [titulo for titulo, marcas in grupos_filtrados]
-    abas = st.tabs(titulos_abas)
-    
-    # Exibe os pedidos para cada grupo em sua aba
-    for (titulo, lista_marcas), aba in zip(grupos_filtrados, abas):
-        with aba:
-            st.header(titulo)
-            for marca in lista_marcas:
-                if marca in agrupado_por_marca:
-                    # Exibe a logo com fundo branco fixo
-                    try:
-                        logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
-                        with open(logo_path, "rb") as img_file:
-                            logo_encoded = base64.b64encode(img_file.read()).decode()
-                        st.markdown(
-                            f"<div style='background-color:white; display:inline-block; padding:5px;'>"
-                            f"<img src='data:image/png;base64,{logo_encoded}' width='150' style='margin-bottom: 10px;'>"
-                            f"</div>",
-                            unsafe_allow_html=True
-                        )
-                    except Exception:
-                        st.warning(f"Logo da marca **{marca}** não encontrada.")
-                    for prod in agrupado_por_marca[marca]:
-                        cp = prod.get("codigo_produto", "")
-                        # Para produtos da marca "ice", aplica formatação personalizada se o SKU estiver no mapping
-                        if marca == "ice" and prod.get("sku") in ice_color_mapping:
-                            cor = ice_color_mapping[prod.get("sku")]
-                            nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
-                            qtd_fmt = f"<strong>{prod['quantidade']}</strong>"
-                            st.markdown(
-                                f"{nome_fmt} | Quantidade: {qtd_fmt} &nbsp;&nbsp;&nbsp; ({cp})",
-                                unsafe_allow_html=True
-                            )
-                        else:
-                            st.markdown(
-                                f"**{prod['nome']}** | Quantidade: **{prod['quantidade']}** &nbsp;&nbsp;&nbsp; ({cp})",
-                                unsafe_allow_html=True
-                            )
-                    st.markdown("---")
+            # Se o SKU do produto estiver no mapeamento, aplica cor ao nome
+            if sku in produto_color_mapping:
+                cor = produto_color_mapping[sku]
+                nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
+            else:
+                nome_fmt = f"<strong>{prod['nome']}</strong>"
+
+            st.markdown(
+                f"{nome_fmt} | Código do Produto: **{cp}** | Quantidade: **{prod['quantidade']}**",
+                unsafe_allow_html=True
+            )
+
+        st.markdown("---")
     
     st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
     st.stop()
