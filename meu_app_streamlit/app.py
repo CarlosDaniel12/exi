@@ -1176,8 +1176,8 @@ if "resultado" in params:
                     for prod in agrupado_por_marca[marca]:
                         cp = prod.get("codigo_produto", "")
                         st.markdown(
-                            f"**{prod['nome']}** | Quantidade: **{prod['quantidade']}** &nbsp;&nbsp;&nbsp; ({cp})",
-                            unsafe_allow_html=True)
+                            f"**{prod['nome']}** | Código do Produto: **{cp}** | Quantidade: **{prod['quantidade']}**",
+                            unsafe_allow_html=True
                     st.markdown("---")
     
     st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
