@@ -1141,7 +1141,7 @@ if "resultado" in params:
                 "codigo_produto": produto.get("codigo_produto", "")
             })
     
-    # Dicionário para formatação personalizada para produtos da marca "ice"
+    # Dicionário para formatação personalizada para produtos da marca ice
     ice_color_mapping = {
         # Grupo 1 (amarelo – #faeba9)
         "50277E_5": "#faeba9",
@@ -1189,45 +1189,6 @@ if "resultado" in params:
         "50222E_5": "#97b5f5",
         "39852E_5": "#97b5f5"
     }
-
-    # Mapeamento de cores para produtos da marca "kerasys"
-    kerasys_color_mapping = {
-        "6066191": "#e91e63",
-        "6066716": "#e91e63",
-        "6066192": "#e91e63",
-        "6066189": "#e91e63",
-        "6066712": "#e91e63",
-        "6066188": "#e91e63",
-        "6066186": "#1e90ff",
-        "6066715": "#1e90ff",
-        "6066185": "#1e90ff",
-        "6066183": "#1e90ff",
-        "6066711": "#1e90ff",
-        "6066182": "#1e90ff",
-        "5010755": "#96d5ef",
-        "6093519": "#96d5ef",
-        "6100528": "#96d5ef",
-        "6100534": "#96d5ef",
-        "6100679": "#96d5ef",
-        "6134472": "#96d5ef",
-        "6134466": "#96d5ef",
-        "5019487": "#dcb051",
-        "6093517": "#dcb051",
-        "6100531": "#d2b58d",
-        "6134479": "#d2b58d",
-        "6134464": "#d2b58d",
-        "6134473": "#a1d4cc",
-        "6134467": "#a1d4cc",
-        "6134465": "#ffb6c1",
-        "6134471": "#ffb6c1",
-        "6100529": "#ffb6c1",
-        "6098972": "#163cb0",
-        "6098969": "#163cb0",
-        "6098970": "#fd902d",
-        "6098971": "#fd902d",
-        "6101625": "#09a7bb",
-        "6101580": "#02a1c2"
-    }
     
     # Define os grupos fixos e a ordem desejada (os nomes devem estar em minúsculas)
     grupos = [
@@ -1239,7 +1200,7 @@ if "resultado" in params:
         ("sac", ["sac"])
     ]
     
-    # Filtra apenas os grupos que possuem algum pedido
+    # Filtra apenas os grupos que possuem ao menos um pedido
     grupos_filtrados = []
     for titulo, marcas in grupos:
         for m in marcas:
@@ -1261,36 +1222,29 @@ if "resultado" in params:
             st.header(titulo)
             for marca in lista_marcas:
                 if marca in agrupado_por_marca:
-                    # Exibe a logo com fundo branco fixo
                     try:
                         logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
                         with open(logo_path, "rb") as img_file:
                             logo_encoded = base64.b64encode(img_file.read()).decode()
                         st.markdown(
-                            f"<div style='background-color:white; display:inline-block; padding:5px;'>"
-                            f"<img src='data:image/png;base64,{logo_encoded}' width='150' style='margin-bottom: 10px;'>"
-                            f"</div>",
-                            unsafe_allow_html=True
-                        )
+                            f"<img src='data:image/png;base64,{logo_encoded}' width='150' style='margin-bottom: 10px;'>",
+                            unsafe_allow_html=True)
                     except Exception:
                         st.warning(f"Logo da marca **{marca}** não encontrada.")
                     for prod in agrupado_por_marca[marca]:
                         cp = prod.get("codigo_produto", "")
-                        # Para produtos da marca "ice", aplica formatação personalizada se o SKU estiver no mapping
+                        # Se a marca for "ice", tenta aplicar a formatação personalizada, se o SKU estiver no mapping
                         if marca == "ice" and prod.get("sku") in ice_color_mapping:
                             cor = ice_color_mapping[prod.get("sku")]
                             nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
                             qtd_fmt = f"<strong>{prod['quantidade']}</strong>"
                             st.markdown(
                                 f"{nome_fmt} | Quantidade: {qtd_fmt} &nbsp;&nbsp;&nbsp; ({cp})",
-                                unsafe_allow_html=True
-                            )
-                            
+                                unsafe_allow_html=True)
                         else:
                             st.markdown(
                                 f"**{prod['nome']}** | Quantidade: **{prod['quantidade']}** &nbsp;&nbsp;&nbsp; ({cp})",
-                                unsafe_allow_html=True
-                            )
+                                unsafe_allow_html=True)
                     st.markdown("---")
     
     st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
@@ -1301,16 +1255,20 @@ if "resultado" in params:
 #################################
 st.title("Bipagem de Produtos")
 
+# Upload dos arquivos CSV
 uploaded_files = st.file_uploader("Envie os CSVs do pedido exportados do Bling:", type=["csv"], accept_multiple_files=True)
 if uploaded_files:
     st.session_state.uploaded_files = uploaded_files
 
+# Função cacheada para ler o CSV a partir dos bytes do arquivo
 @st.cache_data(show_spinner=True)
 def tentar_ler_csv_cache(file_bytes):
     try:
-        df = pd.read_csv(BytesIO(file_bytes), sep=";", dtype=str, encoding="utf-8", on_bad_lines="skip", engine="python")
+        df = pd.read_csv(BytesIO(file_bytes), sep=";", dtype=str, encoding="utf-8", 
+                         on_bad_lines="skip", engine="python")
     except UnicodeDecodeError:
-        df = pd.read_csv(BytesIO(file_bytes), sep=";", dtype=str, encoding="latin-1", on_bad_lines="skip", engine="python")
+        df = pd.read_csv(BytesIO(file_bytes), sep=";", dtype=str, encoding="latin-1", 
+                         on_bad_lines="skip", engine="python")
     df.columns = df.columns.str.strip().str.lower()
     return df
 
@@ -1365,10 +1323,8 @@ try:
     exi_logo_path = os.path.join(CAMINHO_LOGOS, "exi.png")
     with open(exi_logo_path, "rb") as image_file:
         encoded = base64.b64encode(image_file.read()).decode()
-    st.markdown(
-        f"<div style='text-align: center;'><img src='data:image/png;base64,{encoded}' width='200'></div>",
-        unsafe_allow_html=True
-    )
+    st.markdown(f"<div style='text-align: center;'><img src='data:image/png;base64,{encoded}' width='200'></div>",
+                unsafe_allow_html=True)
 except:
     st.markdown("<h2 style='text-align: center;'>EXI</h2>", unsafe_allow_html=True)
 
