@@ -11,7 +11,7 @@ import urllib.parse
 # Configura layout
 st.set_page_config(layout="wide")
 
-# Ajusta o caminho das logos automaticamente
+# Define o caminho das logos
 if os.path.exists("C:/meu_app_streamlit/logos"):
     CAMINHO_LOGOS = "C:/meu_app_streamlit/logos"
 else:
@@ -1104,14 +1104,15 @@ if "nao_encontrados" not in st.session_state:
 if "uploaded_files" not in st.session_state:
     st.session_state.uploaded_files = []
 
-#####################
-# ------------ Página de Resultados ------------
+#################################
+# Página de Resultados
+#################################
 params = st.query_params
 if "resultado" in params:
     st.title("Resumo do Pedido - Organizado")
     st.markdown("---")
     
-    # 1. Agrupar os pedidos por marca (normalizando para minúsculas)
+    # Agrupa os pedidos por marca (normalizando para minúsculas)
     agrupado_por_marca = {}
     for codigo, valores in params.items():
         if codigo == "resultado":
@@ -1131,29 +1132,27 @@ if "resultado" in params:
                 "codigo_produto": produto.get("codigo_produto", "")
             })
     
-    # 2. Definir os grupos fixos – (título da aba, lista de marcas na ordem desejada)
+    # Define os grupos fixos e a ordem desejada (os nomes devem estar em minúsculas)
     grupos = [
         ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
         ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
-        ("Corredor 3", ["tsubaki", "wella", "sebastian", "bedhead", "lee", "banila", "alfaparf"]),
+        ("Corredor 3", ["tsubaki", "wella", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
         ("Pinceis", ["real", "ecootols"]),
-        ("Dr.purederm", ["dr.pawpaw", "purederm"]),
+        ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
         ("sac", ["sac"])
     ]
     
-    # 3. Criar as abas fixas na ordem definida
+    # Cria as abas com os títulos fixos
     titulos_abas = [titulo for titulo, marcas in grupos]
     abas = st.tabs(titulos_abas)
     
-    # 4. Para cada aba, exibir os pedidos somente para as marcas definidas (na ordem fixa)
-    for (titulo_abas, lista_marcas), aba in zip(grupos, abas):
+    # Para cada grupo (aba), exibe as marcas na ordem definida e seus respectivos pedidos
+    for (titulo, lista_marcas), aba in zip(grupos, abas):
         with aba:
-            st.header(titulo_abas)
+            st.header(titulo)
             for marca in lista_marcas:
-                # Se a marca foi registrada (ou seja, há algum pedido para ela)
                 if marca in agrupado_por_marca:
                     try:
-                        # Tenta carregar a logo da marca; os arquivos devem estar com o nome da marca em minúsculas
                         logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
                         with open(logo_path, "rb") as img_file:
                             logo_encoded = base64.b64encode(img_file.read()).decode()
@@ -1162,7 +1161,6 @@ if "resultado" in params:
                             unsafe_allow_html=True)
                     except Exception:
                         st.warning(f"Logo da marca **{marca}** não encontrada.")
-                    # Listar cada produto da marca
                     for prod in agrupado_por_marca[marca]:
                         cp = prod.get("codigo_produto", "")
                         st.markdown(f"**{prod['nome']}** | Quantidade: {prod['quantidade']} {f'({cp})' if cp else ''}")
@@ -1173,13 +1171,11 @@ if "resultado" in params:
     st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
     st.stop()
 
-
-#####################
-# Página Principal (Interface de Entrada) 
-#####################
+#################################
+# Página Principal (Interface)
+#################################
 st.title("Bipagem de Produtos")
 
-# Upload CSVs
 uploaded_files = st.file_uploader("Envie os CSVs do pedido exportados do Bling:", type=["csv"], accept_multiple_files=True)
 if uploaded_files:
     st.session_state.uploaded_files = uploaded_files
@@ -1196,34 +1192,28 @@ def tentar_ler_csv(uploaded_file):
     except Exception as e:
         st.error(f"Erro ao ler o arquivo {uploaded_file.name}: {str(e)}")
         return None
-
     df.columns = df.columns.str.strip().str.lower()
     if "sku" not in df.columns or "número pedido" not in df.columns:
         st.error(f"CSV {uploaded_file.name} inválido. As colunas obrigatórias 'SKU' e 'Número pedido' não foram encontradas.")
         return None
-
     return df
 
 def processar():
     codigos_input = st.session_state.input_codigo.strip()
     if not codigos_input:
         return
-
     codigos = re.split(r'[\s,]+', codigos_input)
     uploaded_files = st.session_state.get('uploaded_files', [])
     if not uploaded_files:
         st.error("⚠️ Nenhum arquivo CSV carregado!")
         return
-
     for uploaded_file in uploaded_files:
         df = tentar_ler_csv(uploaded_file)
         if df is None:
             continue
-
         if "sku" not in df.columns or "número pedido" not in df.columns:
             st.error(f"CSV {uploaded_file.name} inválido. Colunas obrigatórias: 'SKU' e 'Número pedido'")
             return
-
         df["sku"] = df["sku"].apply(lambda x: str(int(float(str(x).replace(",", "").replace(" ", "").strip()))) if "E+" in str(x) else str(x).strip())
         for codigo in codigos:
             pedidos = df[df["número pedido"].astype(str).str.strip() == codigo]
@@ -1259,8 +1249,10 @@ try:
 except:
     st.markdown("<h2 style='text-align: center;'>EXI</h2>", unsafe_allow_html=True)
 
-st.markdown("<p style='font-weight: bold;'>Digite o(s) código(s) do pedido ou SKU direto:<br><small>Exemplo: 12345, 67890 111213</small></p>",
-            unsafe_allow_html=True)
+st.markdown(
+    "<p style='font-weight: bold;'>Digite o(s) código(s) do pedido ou SKU direto:<br><small>Exemplo: 12345, 67890 111213</small></p>",
+    unsafe_allow_html=True
+)
 st.text_input("", key="input_codigo", on_change=processar)
 
 if st.session_state.nao_encontrados:
@@ -1273,7 +1265,7 @@ for cod in st.session_state.contagem:
     produto = produtos_cadastrados.get(cod)
     if produto and produto["marca"] not in marcas_com_produtos:
         marcas_com_produtos.append(produto["marca"])
-
+        
 marcas_por_linha = 4
 linhas = math.ceil(len(marcas_com_produtos) / marcas_por_linha)
 for i in range(linhas):
@@ -1289,7 +1281,10 @@ for i in range(linhas):
             for cod, qtd in st.session_state.contagem.items():
                 produto = produtos_cadastrados.get(cod)
                 if produto and produto["marca"] == marca:
-                    st.markdown(f"<p style='margin-top: 0;'><strong>{produto['nome']}</strong> | Quantidade: {qtd}</p>", unsafe_allow_html=True)
+                    st.markdown(
+                        f"<p style='margin-top: 0;'><strong>{produto['nome']}</strong> | Quantidade: {qtd}</p>",
+                        unsafe_allow_html=True
+                    )
 
 if st.session_state.contagem:
     base_url = "https://cogpz234emkoeygixmfemn.streamlit.app/"
@@ -1298,6 +1293,7 @@ if st.session_state.contagem:
         params_dict[sku] = str(qtd)
     query_string = urllib.parse.urlencode(params_dict)
     full_url = f"{base_url}/?{query_string}"
+    
     qr = qrcode.QRCode(box_size=10, border=4)
     qr.add_data(full_url)
     qr.make(fit=True)
