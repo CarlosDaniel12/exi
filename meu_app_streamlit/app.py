@@ -1,6 +1,4 @@
 import streamlit as st
-st.set_page_config(layout="wide")
-
 import pandas as pd
 from PIL import Image
 import os, base64
@@ -9,6 +7,9 @@ import re
 import math
 import qrcode
 import urllib.parse
+
+# Configura layout
+st.set_page_config(layout="wide")
 
 # Define o caminho das logos
 if os.path.exists("C:/meu_app_streamlit/logos"):
@@ -1089,15 +1090,7 @@ lista_produtos = {
 
 }
 
-import streamlit as st
-import pandas as pd
-from PIL import Image
-import os, base64
-from io import BytesIO
-import re
-import math
-import qrcode
-import urllib.parse
+
 
 # Configura o layout
 st.set_page_config(layout="wide")
