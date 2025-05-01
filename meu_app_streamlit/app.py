@@ -1112,7 +1112,7 @@ if "resultado" in params:
     st.title("Resumo do Pedido - Organizado")
     st.markdown("---")
     
-    # Se houver SKUs não encontrados, exibe alerta fixo e um expander
+    # Alerta fixo e expander para SKUs não encontrados
     if st.session_state.nao_encontrados:
         qtd_nao = len(st.session_state.nao_encontrados)
         st.markdown(
@@ -1126,7 +1126,7 @@ if "resultado" in params:
             for entrada in st.session_state.nao_encontrados:
                 st.markdown(f"- {entrada}")
     
-    # Agrupa os pedidos por marca (normalizando para minúsculas) e armazena também a chave SKU
+    # Agrupa os pedidos por marca (convertendo os nomes para minúsculas) e armazena também o SKU
     agrupado_por_marca = {}
     for codigo, valores in params.items():
         if codigo == "resultado":
@@ -1147,9 +1147,8 @@ if "resultado" in params:
                 "codigo_produto": produto.get("codigo_produto", "")
             })
     
-    # Dicionário para formatação personalizada para produtos da marca ice
+    # Mapeamento de cores para produtos da marca "ice"
     ice_color_mapping = {
-        # Grupo 1 (amarelo – #faeba9)
         "50277E_5": "#faeba9",
         "51007E_5": "#faeba9",
         "03846BR": "#faeba9",
@@ -1160,7 +1159,6 @@ if "resultado" in params:
         "50260E_5": "#faeba9",
         "51014E_5": "#faeba9",
         "51038E_5": "#faeba9",
-        # Grupo 2 (rosa – #ecc7cc)
         "51076E_5": "#ecc7cc",
         "50291E_5": "#ecc7cc",
         "03839BR": "#ecc7cc",
@@ -1169,11 +1167,9 @@ if "resultado" in params:
         "39944E_5": "#ecc7cc",
         "50284E_5": "#ecc7cc",
         "51090E_5": "#ecc7cc",
-        # Grupo 3 (verde claro – #dbedd2)
         "50215E_5": "#dbedd2",
         "39890E_5": "#dbedd2",
         "50208E_5": "#dbedd2",
-        # Grupo 4 (azul – #b6e1e0)
         "39883E_5": "#b6e1e0",
         "50192E_5": "#b6e1e0",
         "50840E_5": "#b6e1e0",
@@ -1182,21 +1178,58 @@ if "resultado" in params:
         "50185E_5": "#b6e1e0",
         "50857E_5": "#b6e1e0",
         "50895E_5": "#b6e1e0",
-        # Grupo 5 (azul – #b31c4a)
         "50253E_5": "#b31c4a",
         "50956E_5": "#b31c4a",
         "50963E_5": "#b31c4a",
         "50246E_5": "#b31c4a",
         "39913E_5": "#b31c4a",
         "39906E_5": "#b31c4a",
-        # Grupo 6 (azul – #97b5f5)
         "50239E_5": "#97b5f5",
         "51151E_5": "#97b5f5",
         "50222E_5": "#97b5f5",
         "39852E_5": "#97b5f5"
     }
     
-    # Define os grupos fixos e a ordem desejada (os nomes devem estar em minúsculas)
+    # Mapeamento de cores para produtos da marca "kerasys"
+    kerasys_color_mapping = {
+        "6066191": "#e91e63",
+        "6066716": "#e91e63",
+        "6066192": "#e91e63",
+        "6066189": "#e91e63",
+        "6066712": "#e91e63",
+        "6066188": "#e91e63",
+        "6066186": "#1e90ff",
+        "6066715": "#1e90ff",
+        "6066185": "#1e90ff",
+        "6066183": "#1e90ff",
+        "6066711": "#1e90ff",
+        "6066182": "#1e90ff",
+        "5010755": "#96d5ef",
+        "6093519": "#96d5ef",
+        "6100528": "#96d5ef",
+        "6100534": "#96d5ef",
+        "6100679": "#96d5ef",
+        "6134472": "#96d5ef",
+        "6134466": "#96d5ef",
+        "5019487": "#dcb051",
+        "6093517": "#dcb051",
+        "6100531": "#d2b58d",
+        "6134479": "#d2b58d",
+        "6134464": "#d2b58d",
+        "6134473": "#a1d4cc",
+        "6134467": "#a1d4cc",
+        "6134465": "#ffb6c1",
+        "6134471": "#ffb6c1",
+        "6100529": "#ffb6c1",
+        "6098972": "#163cb0",
+        "6098969": "#163cb0",
+        "6098970": "#fd902d",
+        "6098971": "#fd902d",
+        "6101625": "#09a7bb",
+        "6101580": "#02a1c2"
+    }
+    
+    # Define os grupos fixos e a ordem desejada para as abas
     grupos = [
         ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
         ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
@@ -1206,7 +1239,7 @@ if "resultado" in params:
         ("sac", ["sac"])
     ]
     
-    # Filtra apenas os grupos que possuem algum pedido
+    # Filtra somente os grupos que possuem ao menos um pedido
     grupos_filtrados = []
     for titulo, marcas in grupos:
         for m in marcas:
@@ -1218,11 +1251,11 @@ if "resultado" in params:
         st.info("Nenhum produto encontrado.")
         st.stop()
     
-    # Cria as abas somente para os grupos filtrados
+    # Cria as abas para os grupos filtrados
     titulos_abas = [titulo for titulo, marcas in grupos_filtrados]
     abas = st.tabs(titulos_abas)
     
-    # Exibe os pedidos para cada grupo em sua aba
+    # Exibe os pedidos em cada aba
     for (titulo, lista_marcas), aba in zip(grupos_filtrados, abas):
         with aba:
             st.header(titulo)
@@ -1243,13 +1276,21 @@ if "resultado" in params:
                         st.warning(f"Logo da marca **{marca}** não encontrada.")
                     for prod in agrupado_por_marca[marca]:
                         cp = prod.get("codigo_produto", "")
-                        # Para produtos da marca "ice", aplica formatação personalizada se o SKU estiver no mapping
-                        if marca == "ice" and prod.get("sku") in ice_color_mapping:
-                            cor = ice_color_mapping[prod.get("sku")]
+                        sku = prod.get("sku")
+                        # Para produtos da marca "ice"
+                        if marca == "ice" and sku in ice_color_mapping:
+                            cor = ice_color_mapping[sku]
                             nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
-                            qtd_fmt = f"<strong>{prod['quantidade']}</strong>"
                             st.markdown(
-                                f"{nome_fmt} | Quantidade: {qtd_fmt} &nbsp;&nbsp;&nbsp; ({cp})",
+                                f"{nome_fmt} | Quantidade: **{prod['quantidade']}** &nbsp;&nbsp;&nbsp; ({cp})",
+                                unsafe_allow_html=True
+                            )
+                        # Para produtos da marca "kerasys"
+                        elif marca == "kerasys" and sku in kerasys_color_mapping:
+                            cor = kerasys_color_mapping[sku]
+                            nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
+                            st.markdown(
+                                f"{nome_fmt} | Quantidade: **{prod['quantidade']}** &nbsp;&nbsp;&nbsp; ({cp})",
                                 unsafe_allow_html=True
                             )
                         else:
@@ -1266,21 +1307,16 @@ if "resultado" in params:
 # Página Principal (Interface)
 #################################
 st.title("Bipagem de Produtos")
-
-# Upload dos arquivos CSV
 uploaded_files = st.file_uploader("Envie os CSVs do pedido exportados do Bling:", type=["csv"], accept_multiple_files=True)
 if uploaded_files:
     st.session_state.uploaded_files = uploaded_files
 
-# Função cacheada para ler o CSV a partir dos bytes do arquivo
 @st.cache_data(show_spinner=True)
 def tentar_ler_csv_cache(file_bytes):
     try:
-        df = pd.read_csv(BytesIO(file_bytes), sep=";", dtype=str, encoding="utf-8", 
-                         on_bad_lines="skip", engine="python")
+        df = pd.read_csv(BytesIO(file_bytes), sep=";", dtype=str, encoding="utf-8", on_bad_lines="skip", engine="python")
     except UnicodeDecodeError:
-        df = pd.read_csv(BytesIO(file_bytes), sep=";", dtype=str, encoding="latin-1", 
-                         on_bad_lines="skip", engine="python")
+        df = pd.read_csv(BytesIO(file_bytes), sep=";", dtype=str, encoding="latin-1", on_bad_lines="skip", engine="python")
     df.columns = df.columns.str.strip().str.lower()
     return df
 
@@ -1335,8 +1371,10 @@ try:
     exi_logo_path = os.path.join(CAMINHO_LOGOS, "exi.png")
     with open(exi_logo_path, "rb") as image_file:
         encoded = base64.b64encode(image_file.read()).decode()
-    st.markdown(f"<div style='text-align: center;'><img src='data:image/png;base64,{encoded}' width='200'></div>",
-                unsafe_allow_html=True)
+    st.markdown(
+        f"<div style='text-align: center;'><img src='data:image/png;base64,{encoded}' width='200'></div>",
+        unsafe_allow_html=True
+    )
 except:
     st.markdown("<h2 style='text-align: center;'>EXI</h2>", unsafe_allow_html=True)
 
