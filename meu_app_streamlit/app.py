@@ -1146,7 +1146,7 @@ if "resultado" in params:
     titulos_abas = [titulo for titulo, marcas in grupos]
     abas = st.tabs(titulos_abas)
     
-    # Para cada grupo (aba), exibe as marcas na ordem definida e seus respectivos pedidos
+    # Para cada grupo (aba), exibe os pedidos para as marcas definidas na ordem fixa
     for (titulo, lista_marcas), aba in zip(grupos, abas):
         with aba:
             st.header(titulo)
@@ -1165,8 +1165,6 @@ if "resultado" in params:
                         cp = prod.get("codigo_produto", "")
                         st.markdown(f"**{prod['nome']}** | Quantidade: {prod['quantidade']} {f'({cp})' if cp else ''}")
                     st.markdown("---")
-                else:
-                    st.info(f"Sem pedidos para a marca **{marca}**.")
     
     st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
     st.stop()
