@@ -1229,14 +1229,17 @@ if "resultado" in params:
             for marca in lista_marcas:
                 if marca in agrupado_por_marca:
                     try:
-                        logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
-                        with open(logo_path, "rb") as img_file:
-                            logo_encoded = base64.b64encode(img_file.read()).decode()
-                        st.markdown(
-                            f"<img src='data:image/png;base64,{logo_encoded}' width='150' style='margin-bottom: 10px;'>",
-                            unsafe_allow_html=True)
-                    except Exception:
-                        st.warning(f"Logo da marca **{marca}** não encontrada.")
+    logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
+    with open(logo_path, "rb") as img_file:
+        logo_encoded = base64.b64encode(img_file.read()).decode()
+    st.markdown(
+        f"<div style='background-color:white; display:inline-block; padding:5px;'>"
+        f"<img src='data:image/png;base64,{logo_encoded}' width='150' style='margin-bottom: 10px;'>"
+        f"</div>",
+        unsafe_allow_html=True)
+except Exception:
+    st.warning(f"Logo da marca **{marca}** não encontrada.")
+
                     for prod in agrupado_por_marca[marca]:
                         cp = prod.get("codigo_produto", "")
                         # Se a marca for "ice", tenta aplicar a formatação personalizada, se o SKU estiver no mapping
