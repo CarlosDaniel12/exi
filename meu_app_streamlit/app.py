@@ -1267,12 +1267,12 @@ st.text_input("", key="input_codigo", on_change=processar)
 
 if st.session_state.nao_encontrados:
     qtd_nao = len(st.session_state.nao_encontrados)
-    # Cria um título com HTML para exibição em vermelho, indicando a quantidade de códigos não encontrados
-    titulo_expander = f"<span style='color:red;'>❗ {qtd_nao} código(s) não cadastrados - Clique para visualizar</span>"
-    # Expander começa fechado (expanded=False)
-    with st.expander(titulo_expander, expanded=False):
-        for entrada in st.session_state.nao_encontrados:
-            st.markdown(f"- {entrada}")
+    st.markdown(
+        f"<div style='background-color:#ffcccc; padding:10px; border-radius:5px; color:red; text-align:center;'>"
+        f"⚠️ ATENÇÃO: {qtd_nao} pedido(s) não foram lidos!"
+        f"</div>",
+        unsafe_allow_html=True
+    )
 
 
 marcas_com_produtos = []
