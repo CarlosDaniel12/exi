@@ -1112,7 +1112,7 @@ if "resultado" in params:
     st.title("Resumo do Pedido - Organizado")
     st.markdown("---")
     
-    # Exibe alerta para SKUs não encontrados, se houver
+    # Se houver SKUs não encontrados, exibe alerta fixo e um expander
     if st.session_state.nao_encontrados:
         qtd_nao = len(st.session_state.nao_encontrados)
         st.markdown(
@@ -1121,13 +1121,12 @@ if "resultado" in params:
             f"</div>",
             unsafe_allow_html=True
         )
-        
         titulo_expander = f"<span style='color:red;'>Clique aqui para visualizar os {qtd_nao} pedidos não lidos.</span>"
         with st.expander(titulo_expander, expanded=False):
             for entrada in st.session_state.nao_encontrados:
                 st.markdown(f"- {entrada}")
     
-    # Agrupa os pedidos por marca (normalizando para minúsculas)
+    # Agrupa os pedidos por marca (normalizando para minúsculas) e armazena também a chave SKU
     agrupado_por_marca = {}
     for codigo, valores in params.items():
         if codigo == "resultado":
@@ -1142,10 +1141,60 @@ if "resultado" in params:
             if marca not in agrupado_por_marca:
                 agrupado_por_marca[marca] = []
             agrupado_por_marca[marca].append({
+                "sku": codigo,
                 "nome": produto["nome"],
                 "quantidade": quantidade,
                 "codigo_produto": produto.get("codigo_produto", "")
             })
+    
+    # Dicionário para formatação personalizada para produtos da marca ice
+    ice_color_mapping = {
+        # Grupo 1 (amarelo – #faeba9)
+        "50277E_5": "#faeba9",
+        "51007E_5": "#faeba9",
+        "03846BR": "#faeba9",
+        "39937E_5": "#faeba9",
+        "51045E_5": "#faeba9",
+        "51052E_5": "#faeba9",
+        "39920E_5": "#faeba9",
+        "50260E_5": "#faeba9",
+        "51014E_5": "#faeba9",
+        "51038E_5": "#faeba9",
+        # Grupo 2 (rosa – #ecc7cc)
+        "51076E_5": "#ecc7cc",
+        "50291E_5": "#ecc7cc",
+        "03839BR": "#ecc7cc",
+        "39951E_5": "#ecc7cc",
+        "51083E_5": "#ecc7cc",
+        "39944E_5": "#ecc7cc",
+        "50284E_5": "#ecc7cc",
+        "51090E_5": "#ecc7cc",
+        # Grupo 3 (verde claro – #dbedd2)
+        "50215E_5": "#dbedd2",
+        "39890E_5": "#dbedd2",
+        "50208E_5": "#dbedd2",
+        # Grupo 4 (azul – #b6e1e0)
+        "39883E_5": "#b6e1e0",
+        "50192E_5": "#b6e1e0",
+        "50840E_5": "#b6e1e0",
+        "03853BR": "#b6e1e0",
+        "39876E_5": "#b6e1e0",
+        "50185E_5": "#b6e1e0",
+        "50857E_5": "#b6e1e0",
+        "50895E_5": "#b6e1e0",
+        # Grupo 5 (azul – #b31c4a)
+        "50253E_5": "#b31c4a",
+        "50956E_5": "#b31c4a",
+        "50963E_5": "#b31c4a",
+        "50246E_5": "#b31c4a",
+        "39913E_5": "#b31c4a",
+        "39906E_5": "#b31c4a",
+        # Grupo 6 (azul – #97b5f5)
+        "50239E_5": "#97b5f5",
+        "51151E_5": "#97b5f5",
+        "50222E_5": "#97b5f5",
+        "39852E_5": "#97b5f5"
+    }
     
     # Define os grupos fixos e a ordem desejada (os nomes devem estar em minúsculas)
     grupos = [
@@ -1157,7 +1206,7 @@ if "resultado" in params:
         ("sac", ["sac"])
     ]
     
-    # Filtra apenas os grupos que possuem ao menos um pedido para alguma das marcas
+    # Filtra apenas os grupos que possuem ao menos um pedido
     grupos_filtrados = []
     for titulo, marcas in grupos:
         for m in marcas:
@@ -1173,34 +1222,10 @@ if "resultado" in params:
     titulos_abas = [titulo for titulo, marcas in grupos_filtrados]
     abas = st.tabs(titulos_abas)
     
-    # Função para formatar produtos TSUBAKI conforme especificado
-    def format_tsubaki_produto(prod):
-        nome = prod["nome"].strip()
-        quantidade = prod["quantidade"]
-        lower_nome = nome.lower()
-        cor = None
-        if "moist repair conditioner" in lower_nome:
-            cor = "red"
-        elif "moist repair shampoo" in lower_nome:
-            cor = "red"
-        elif "volume repair conditioner" in lower_nome:
-            cor = "yellow"
-        elif "volume repair shampoo" in lower_nome:
-            cor = "yellow"
-        elif "repair mask" in lower_nome:
-            cor = "goldenrod"
-        if cor:
-            nome_formatado = f"<span style='color:{cor};'><strong>{nome}</strong></span>"
-            qtd_formatado = f"<span style='color:{cor};'><strong>{quantidade}</strong></span>"
-            return nome_formatado, qtd_formatado
-        else:
-            return f"<strong>{nome}</strong>", f"<strong>{quantidade}</strong>"
-    
-    # Para cada grupo (aba), exibe os pedidos para as marcas definidas na ordem fixa
+    # Exibe os pedidos para cada grupo em sua aba
     for (titulo, lista_marcas), aba in zip(grupos_filtrados, abas):
         with aba:
             st.header(titulo)
-            # Para cada marca do grupo, se houver pedidos, exibe a logo e os itens
             for marca in lista_marcas:
                 if marca in agrupado_por_marca:
                     try:
@@ -1214,9 +1239,11 @@ if "resultado" in params:
                         st.warning(f"Logo da marca **{marca}** não encontrada.")
                     for prod in agrupado_por_marca[marca]:
                         cp = prod.get("codigo_produto", "")
-                        # Se a marca for tsubaki, verifica para aplicar formatação especial
-                        if marca == "tsubaki":
-                            nome_fmt, qtd_fmt = format_tsubaki_produto(prod)
+                        # Se a marca for "ice", tenta aplicar a formatação personalizada, se o SKU estiver no mapping
+                        if marca == "ice" and prod.get("sku") in ice_color_mapping:
+                            cor = ice_color_mapping[prod.get("sku")]
+                            nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
+                            qtd_fmt = f"<strong>{prod['quantidade']}</strong>"
                             st.markdown(
                                 f"{nome_fmt} | Quantidade: {qtd_fmt} &nbsp;&nbsp;&nbsp; ({cp})",
                                 unsafe_allow_html=True)
@@ -1234,6 +1261,7 @@ if "resultado" in params:
 #################################
 st.title("Bipagem de Produtos")
 
+# Upload dos arquivos CSV
 uploaded_files = st.file_uploader("Envie os CSVs do pedido exportados do Bling:", type=["csv"], accept_multiple_files=True)
 if uploaded_files:
     st.session_state.uploaded_files = uploaded_files
@@ -1314,21 +1342,9 @@ st.markdown(
 st.text_input("", key="input_codigo", on_change=processar)
 
 if st.session_state.nao_encontrados:
-    qtd_nao = len(st.session_state.nao_encontrados)
-    # Mensagem de alerta persistente
-    st.markdown(
-        f"<div style='background-color:#ffcccc; padding:10px; border-radius:5px; color:red; text-align:center;'>"
-        f"⚠️ ATENÇÃO: {qtd_nao} pedido(s) não foram lidos!"
-        f"</div>",
-        unsafe_allow_html=True
-    )
-    
-    # Expander para visualizar os SKUs não lidos
-    titulo_expander = f"<span style='color:red;'>Clique aqui para visualizar os {qtd_nao} pedidos não lidos.</span>"
-    with st.expander(titulo_expander, expanded=False):
+    with st.expander("❗ Códigos não cadastrados no sistema"):
         for entrada in st.session_state.nao_encontrados:
             st.markdown(f"- {entrada}")
-
 
 marcas_com_produtos = []
 for cod in st.session_state.contagem:
