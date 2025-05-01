@@ -1090,6 +1090,29 @@ lista_produtos = {
 
 }
 
+import streamlit as st
+import pandas as pd
+from PIL import Image
+import os, base64
+from io import BytesIO
+import re
+import math
+import qrcode
+import urllib.parse
+
+# Configura o layout
+st.set_page_config(layout="wide")
+
+# Define o caminho das logos
+if os.path.exists("C:/meu_app_streamlit/logos"):
+    CAMINHO_LOGOS = "C:/meu_app_streamlit/logos"
+else:
+    CAMINHO_LOGOS = "meu_app_streamlit/logos"
+
+# INSIRA SUA BASE DE PRODUTOS AQUI (exemplo – substitua pela sua base)
+lista_produtos = {
+    # "SKU001": {"nome": "Produto Exemplo 1", "marca": "loreal", "codigo_produto": "1234567890"},
+}
 produtos_cadastrados = {codigo: produto for codigo, produto in lista_produtos.items()}
 
 # Inicializa variáveis na sessão
@@ -1149,6 +1172,7 @@ if "resultado" in params:
     
     # Mapeamento de cores para produtos da marca "ice"
     ice_color_mapping = {
+        # Grupo 1 (amarelo – #faeba9)
         "50277E_5": "#faeba9",
         "51007E_5": "#faeba9",
         "03846BR": "#faeba9",
@@ -1159,6 +1183,7 @@ if "resultado" in params:
         "50260E_5": "#faeba9",
         "51014E_5": "#faeba9",
         "51038E_5": "#faeba9",
+        # Grupo 2 (rosa – #ecc7cc)
         "51076E_5": "#ecc7cc",
         "50291E_5": "#ecc7cc",
         "03839BR": "#ecc7cc",
@@ -1167,9 +1192,11 @@ if "resultado" in params:
         "39944E_5": "#ecc7cc",
         "50284E_5": "#ecc7cc",
         "51090E_5": "#ecc7cc",
+        # Grupo 3 (verde claro – #dbedd2)
         "50215E_5": "#dbedd2",
         "39890E_5": "#dbedd2",
         "50208E_5": "#dbedd2",
+        # Grupo 4 (azul – #b6e1e0)
         "39883E_5": "#b6e1e0",
         "50192E_5": "#b6e1e0",
         "50840E_5": "#b6e1e0",
@@ -1178,12 +1205,14 @@ if "resultado" in params:
         "50185E_5": "#b6e1e0",
         "50857E_5": "#b6e1e0",
         "50895E_5": "#b6e1e0",
+        # Grupo 5 (azul – #b31c4a)
         "50253E_5": "#b31c4a",
         "50956E_5": "#b31c4a",
         "50963E_5": "#b31c4a",
         "50246E_5": "#b31c4a",
         "39913E_5": "#b31c4a",
         "39906E_5": "#b31c4a",
+        # Grupo 6 (azul – #97b5f5)
         "50239E_5": "#97b5f5",
         "51151E_5": "#97b5f5",
         "50222E_5": "#97b5f5",
@@ -1277,7 +1306,7 @@ if "resultado" in params:
                     for prod in agrupado_por_marca[marca]:
                         cp = prod.get("codigo_produto", "")
                         sku = prod.get("sku")
-                        # Para produtos da marca "ice"
+                        # Para produtos da marca "ice" se o SKU estiver mapeado
                         if marca == "ice" and sku in ice_color_mapping:
                             cor = ice_color_mapping[sku]
                             nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
@@ -1285,7 +1314,7 @@ if "resultado" in params:
                                 f"{nome_fmt} | Quantidade: **{prod['quantidade']}** &nbsp;&nbsp;&nbsp; ({cp})",
                                 unsafe_allow_html=True
                             )
-                        # Para produtos da marca "kerasys"
+                        # Para produtos da marca "kerasys" se o SKU estiver mapeado
                         elif marca == "kerasys" and sku in kerasys_color_mapping:
                             cor = kerasys_color_mapping[sku]
                             nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
