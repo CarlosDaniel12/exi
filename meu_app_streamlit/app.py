@@ -1105,126 +1105,74 @@ if "uploaded_files" not in st.session_state:
     st.session_state.uploaded_files = []
 
 #####################
-# Página de Resultados
-#####################
+# ------------ Página de Resultados ------------
 params = st.query_params
 if "resultado" in params:
-    st.title("Resumo do Pedido - Organizado por Corredores")
+    st.title("Resumo do Pedido - Organizado")
     st.markdown("---")
     
-    # 1. Agrupar pedidos por marca a partir dos parâmetros (fornecidos via URL)
-    produtos_por_marca = {}
+    # 1. Agrupar os pedidos por marca (normalizando para minúsculas)
+    agrupado_por_marca = {}
     for codigo, valores in params.items():
         if codigo == "resultado":
             continue
-        quantidade = valores[0]
+        try:
+            quantidade = valores[0]
+        except IndexError:
+            quantidade = "0"
         produto = produtos_cadastrados.get(codigo)
         if produto:
-            # Padronizamos para minúsculas
             marca = produto["marca"].lower().strip()
-            if marca not in produtos_por_marca:
-                produtos_por_marca[marca] = []
-            produtos_por_marca[marca].append({
+            if marca not in agrupado_por_marca:
+                agrupado_por_marca[marca] = []
+            agrupado_por_marca[marca].append({
                 "nome": produto["nome"],
                 "quantidade": quantidade,
                 "codigo_produto": produto.get("codigo_produto", "")
             })
     
-    # 2. Mapeamento das marcas para os corredores e lados
-    mapa_corredores = {
-        # Corredor 1
-        "kerastase": (1, "esquerdo"),
-        "fino": (1, "esquerdo"),
-        "redken": (1, "esquerdo"),
-        "loreal": (1, "esquerdo"),
-        "senscience": (1, "esquerdo"),
-        "carol": (1, "esquerdo"), 
-        "kerasys": (1, "direito"),
-        
-        # Corredor 2
-        "kerasys": (2, "esquerdo"),  # espelhado
-        "mise in scene": (2, "direito"),
-        "ice": (2, "direito"),
-        "image": (2, "direito"),
-        
-        # Corredor 3
-        "mise in scene": (3, "esquerdo"),
-        "ice": (3, "esquerdo"),
-        "image": (3, "esquerdo"),
-        "tsubaki": (3, "direito"),
-        "wella": (3, "direito"),
-        "sebastian": (3, "direito"),
-        "bedhead": (3, "direito"),
-        "lee stafford": (3, "direito"),
-        "banila": (3, "direito"),
-        "alfapart": (3, "direito"),
-        
-        # Corredor 4
-        "pinceis": (4, "centro"),
-        
-        # Prateleiras (frente) - note que usam uma chave especial
-        "dr.pawpaw": ("frente", None),
-        "purederm": ("frente", None)
-    }
+    # 2. Definir os grupos fixos – (título da aba, lista de marcas na ordem desejada)
+    grupos = [
+        ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
+        ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
+        ("Corredor 3", ["tsubaki", "wella", "sebastian", "bedhead", "lee", "banila", "alfaparf"]),
+        ("Pinceis", ["real", "ecootols"]),
+        ("Dr.purederm", ["dr.pawpaw", "purederm"]),
+        ("sac", ["sac"])
+    ]
     
-    # 3. Reagrupar os produtos por corredor e lado com base no mapa
-    produtos_por_corredor = {}
-    for marca, lista_prod in produtos_por_marca.items():
-        # Se o mapeamento não existir para a marca, agrupamos em "Outros"
-        if marca not in mapa_corredores:
-            corredor, lado = ("Outros", None)
-        else:
-            corredor, lado = mapa_corredores[marca]
-        
-        if corredor not in produtos_por_corredor:
-            produtos_por_corredor[corredor] = {}
-        if lado not in produtos_por_corredor[corredor]:
-            produtos_por_corredor[corredor][lado] = {}
-        if marca not in produtos_por_corredor[corredor][lado]:
-            produtos_por_corredor[corredor][lado][marca] = []
-        produtos_por_corredor[corredor][lado][marca].extend(lista_prod)
+    # 3. Criar as abas fixas na ordem definida
+    titulos_abas = [titulo for titulo, marcas in grupos]
+    abas = st.tabs(titulos_abas)
     
-    # 4. Exibir os dados organizados usando abas
-    abas = st.tabs(["Corredor 1", "Corredor 2", "Corredor 3", "Corredor 4", "Prateleiras"])
-    
-    # Exibição para os Corredores (chaves numéricas)
-    for corredor in [1, 2, 3, 4]:
-        with abas[corredor-1]:
-            st.header(f"Corredor {corredor}")
-            # Verifica os lados disponíveis para esse corredor
-            for lado in ["esquerdo", "direito", "centro"]:
-                if lado in produtos_por_corredor.get(corredor, {}):
-                    st.subheader(f"Lado {lado.capitalize()}")
-                    for marca in sorted(produtos_por_corredor[corredor][lado].keys()):
-                        try:
-                            logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
-                            with open(logo_path, "rb") as img_file:
-                                logo_encoded = base64.b64encode(img_file.read()).decode()
-                            st.markdown(f"<img src='data:image/png;base64,{logo_encoded}' width='150' style='margin-bottom: 10px;'>", unsafe_allow_html=True)
-                        except Exception:
-                            st.warning(f"Logo da marca **{marca}** não encontrada.")
-                        for prod in produtos_por_corredor[corredor][lado][marca]:
-                            st.markdown(f"**{prod['nome']}** | Quantidade: {prod['quantidade']} ({prod['codigo_produto']})")
-                        st.markdown("---")
-    
-    # Exibição para Prateleiras (chave "frente")
-    with abas[-1]:
-        st.header("Prateleiras")
-        if "frente" in produtos_por_corredor:
-            for marca in sorted(produtos_por_corredor["frente"].keys()):
-                try:
-                    logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
-                    with open(logo_path, "rb") as img_file:
-                        logo_encoded = base64.b64encode(img_file.read()).decode()
-                    st.markdown(f"<img src='data:image/png;base64,{logo_encoded}' width='150' style='margin-bottom: 10px;'>", unsafe_allow_html=True)
-                except Exception:
-                    st.warning(f"Logo da marca **{marca}** não encontrada.")
-                for prod in produtos_por_corredor["frente"][marca]:
-                    st.markdown(f"**{prod['nome']}** | Quantidade: {prod['quantidade']} ({prod['codigo_produto']})")
-                st.markdown("---")
+    # 4. Para cada aba, exibir os pedidos somente para as marcas definidas (na ordem fixa)
+    for (titulo_abas, lista_marcas), aba in zip(grupos, abas):
+        with aba:
+            st.header(titulo_abas)
+            for marca in lista_marcas:
+                # Se a marca foi registrada (ou seja, há algum pedido para ela)
+                if marca in agrupado_por_marca:
+                    try:
+                        # Tenta carregar a logo da marca; os arquivos devem estar com o nome da marca em minúsculas
+                        logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
+                        with open(logo_path, "rb") as img_file:
+                            logo_encoded = base64.b64encode(img_file.read()).decode()
+                        st.markdown(
+                            f"<img src='data:image/png;base64,{logo_encoded}' width='150' style='margin-bottom: 10px;'>", 
+                            unsafe_allow_html=True)
+                    except Exception:
+                        st.warning(f"Logo da marca **{marca}** não encontrada.")
+                    # Listar cada produto da marca
+                    for prod in agrupado_por_marca[marca]:
+                        cp = prod.get("codigo_produto", "")
+                        st.markdown(f"**{prod['nome']}** | Quantidade: {prod['quantidade']} {f'({cp})' if cp else ''}")
+                    st.markdown("---")
+                else:
+                    st.info(f"Sem pedidos para a marca **{marca}**.")
     
     st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
     st.stop()
+
 
 #####################
 # Página Principal (Interface de Entrada) 
