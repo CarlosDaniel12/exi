@@ -1206,8 +1206,6 @@ def processar():
         df["sku"] = df["sku"].apply(lambda x: str(int(float(str(x).replace(",", "").replace(" ", "").strip()))) if "E+" in str(x) else str(x).strip())
 
         for codigo in codigos:
-        if codigo not in st.session_state.pedidos_bipados:
-            st.session_state.pedidos_bipados.append(codigo)
             pedidos = df[df["número pedido"].astype(str).str.strip() == codigo]
             if not pedidos.empty:
                 for sku in pedidos["sku"]:
@@ -1283,6 +1281,46 @@ for i in range(linhas):
                         f"<p style='margin-top: 0;'><strong>{produto['nome']}</strong> | Quantidade: {qtd}</p>",
                         unsafe_allow_html=True
                     )
+# Exemplo de uso de abas para os 4 corredores e uma aba adicional para as prateleiras
+
+# Supondo que já temos o dicionário 'produtos_por_corredor' organizado conforme o mapeamento previamente definido...
+abas = st.tabs(["Corredor 1", "Corredor 2", "Corredor 3", "Corredor 4", "Prateleiras"])
+
+# Exibição para cada corredor (aqui, em cada aba, você organiza os itens por lado).
+for i, aba in enumerate(abas[:4], start=1):
+    with aba:
+        st.header(f"Corredor {i}")
+        # Por exemplo, use st.subheader para os lados
+        for lado in ["esquerdo", "direito", "centro"]:
+            if lado in produtos_por_corredor.get(i, {}):
+                st.subheader(f"Lado {lado.capitalize()}")
+                for marca in sorted(produtos_por_corredor[i][lado].keys()):
+                    try:
+                        logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
+                        with open(logo_path, "rb") as img_file:
+                            logo_encoded = base64.b64encode(img_file.read()).decode()
+                        st.markdown(f"<img src='data:image/png;base64,{logo_encoded}' width='150'>", unsafe_allow_html=True)
+                    except Exception:
+                        st.warning(f"Logo da marca **{marca}** não encontrada.")
+                    for prod in produtos_por_corredor[i][lado][marca]:
+                        st.markdown(f"**{prod['nome']}** | Quantidade: {prod['quantidade']}")
+                    st.markdown("---")
+
+# Exibição para a parte da frente (prateleiras)
+with abas[-1]:
+    st.header("Prateleiras")
+    if "frente" in produtos_por_corredor:
+        for marca in sorted(produtos_por_corredor["frente"].keys()):
+            try:
+                logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
+                with open(logo_path, "rb") as img_file:
+                    logo_encoded = base64.b64encode(img_file.read()).decode()
+                st.markdown(f"<img src='data:image/png;base64,{logo_encoded}' width='150'>", unsafe_allow_html=True)
+            except Exception:
+                st.warning(f"Logo da marca **{marca}** não encontrada.")
+            for prod in produtos_por_corredor["frente"][marca]:
+                st.markdown(f"**{prod['nome']}** | Quantidade: {prod['quantidade']}")
+            st.markdown("---")
 
 # Gerar QR Code para página de resultados
 if st.session_state.contagem:
@@ -1304,10 +1342,3 @@ if st.session_state.contagem:
 else:
     st.info("Nenhum produto bipado ainda!")
 
-
-
-
-if "pedidos_bipados" in st.session_state and st.session_state.pedidos_bipados:
-    with st.expander("📋 Pedidos já bipados"):
-        for pedido in st.session_state.pedidos_bipados:
-            st.markdown(f"- {pedido}")
