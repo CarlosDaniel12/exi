@@ -1112,6 +1112,21 @@ if "resultado" in params:
     st.title("Resumo do Pedido - Organizado")
     st.markdown("---")
     
+    # Exibe alerta para SKUs não encontrados, se houver
+    if st.session_state.nao_encontrados:
+        qtd_nao = len(st.session_state.nao_encontrados)
+        st.markdown(
+            f"<div style='background-color:#ffcccc; padding:10px; border-radius:5px; color:red; text-align:center;'>"
+            f"⚠️ ATENÇÃO: {qtd_nao} pedido(s) não foram lidos!"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+        
+        titulo_expander = f"<span style='color:red;'>Clique aqui para visualizar os {qtd_nao} pedidos não lidos.</span>"
+        with st.expander(titulo_expander, expanded=False):
+            for entrada in st.session_state.nao_encontrados:
+                st.markdown(f"- {entrada}")
+    
     # Agrupa os pedidos por marca (normalizando para minúsculas)
     agrupado_por_marca = {}
     for codigo, valores in params.items():
@@ -1142,7 +1157,7 @@ if "resultado" in params:
         ("sac", ["sac"])
     ]
     
-    # Filtra apenas os grupos que possuem algum pedido para pelo menos uma marca
+    # Filtra apenas os grupos que possuem ao menos um pedido para alguma das marcas
     grupos_filtrados = []
     for titulo, marcas in grupos:
         for m in marcas:
@@ -1154,14 +1169,38 @@ if "resultado" in params:
         st.info("Nenhum produto encontrado.")
         st.stop()
     
-    # Cria as abas apenas para os grupos filtrados, mantendo a ordem fixa
+    # Cria as abas somente para os grupos filtrados
     titulos_abas = [titulo for titulo, marcas in grupos_filtrados]
     abas = st.tabs(titulos_abas)
     
-    # Exibe os pedidos para cada grupo (aba)
+    # Função para formatar produtos TSUBAKI conforme especificado
+    def format_tsubaki_produto(prod):
+        nome = prod["nome"].strip()
+        quantidade = prod["quantidade"]
+        lower_nome = nome.lower()
+        cor = None
+        if "moist repair conditioner" in lower_nome:
+            cor = "red"
+        elif "moist repair shampoo" in lower_nome:
+            cor = "red"
+        elif "volume repair conditioner" in lower_nome:
+            cor = "yellow"
+        elif "volume repair shampoo" in lower_nome:
+            cor = "yellow"
+        elif "repair mask" in lower_nome:
+            cor = "goldenrod"
+        if cor:
+            nome_formatado = f"<span style='color:{cor};'><strong>{nome}</strong></span>"
+            qtd_formatado = f"<span style='color:{cor};'><strong>{quantidade}</strong></span>"
+            return nome_formatado, qtd_formatado
+        else:
+            return f"<strong>{nome}</strong>", f"<strong>{quantidade}</strong>"
+    
+    # Para cada grupo (aba), exibe os pedidos para as marcas definidas na ordem fixa
     for (titulo, lista_marcas), aba in zip(grupos_filtrados, abas):
         with aba:
             st.header(titulo)
+            # Para cada marca do grupo, se houver pedidos, exibe a logo e os itens
             for marca in lista_marcas:
                 if marca in agrupado_por_marca:
                     try:
@@ -1175,9 +1214,16 @@ if "resultado" in params:
                         st.warning(f"Logo da marca **{marca}** não encontrada.")
                     for prod in agrupado_por_marca[marca]:
                         cp = prod.get("codigo_produto", "")
-                        st.markdown(
-                            f"**{prod['nome']}** | Quantidade: **{prod['quantidade']}** &nbsp;&nbsp;&nbsp; ({cp})",
-                            unsafe_allow_html=True)
+                        # Se a marca for tsubaki, verifica para aplicar formatação especial
+                        if marca == "tsubaki":
+                            nome_fmt, qtd_fmt = format_tsubaki_produto(prod)
+                            st.markdown(
+                                f"{nome_fmt} | Quantidade: {qtd_fmt} &nbsp;&nbsp;&nbsp; ({cp})",
+                                unsafe_allow_html=True)
+                        else:
+                            st.markdown(
+                                f"**{prod['nome']}** | Quantidade: **{prod['quantidade']}** &nbsp;&nbsp;&nbsp; ({cp})",
+                                unsafe_allow_html=True)
                     st.markdown("---")
     
     st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
@@ -1188,22 +1234,22 @@ if "resultado" in params:
 #################################
 st.title("Bipagem de Produtos")
 
-# Upload dos arquivos CSV
 uploaded_files = st.file_uploader("Envie os CSVs do pedido exportados do Bling:", type=["csv"], accept_multiple_files=True)
 if uploaded_files:
     st.session_state.uploaded_files = uploaded_files
 
-# Função cacheada para ler o CSV dos bytes do arquivo
+# Função cacheada para ler o CSV a partir dos bytes do arquivo
 @st.cache_data(show_spinner=True)
 def tentar_ler_csv_cache(file_bytes):
     try:
-        df = pd.read_csv(BytesIO(file_bytes), sep=";", dtype=str, encoding="utf-8", on_bad_lines="skip", engine="python")
+        df = pd.read_csv(BytesIO(file_bytes), sep=";", dtype=str, encoding="utf-8", 
+                         on_bad_lines="skip", engine="python")
     except UnicodeDecodeError:
-        df = pd.read_csv(BytesIO(file_bytes), sep=";", dtype=str, encoding="latin-1", on_bad_lines="skip", engine="python")
+        df = pd.read_csv(BytesIO(file_bytes), sep=";", dtype=str, encoding="latin-1", 
+                         on_bad_lines="skip", engine="python")
     df.columns = df.columns.str.strip().str.lower()
     return df
 
-# Função para ler CSV utilizando o cache
 def tentar_ler_csv(uploaded_file):
     file_bytes = uploaded_file.getvalue()
     return tentar_ler_csv_cache(file_bytes)
@@ -1255,33 +1301,22 @@ try:
     exi_logo_path = os.path.join(CAMINHO_LOGOS, "exi.png")
     with open(exi_logo_path, "rb") as image_file:
         encoded = base64.b64encode(image_file.read()).decode()
-    st.markdown(f"<div style='text-align: center;'><img src='data:image/png;base64,{encoded}' width='200'></div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align: center;'><img src='data:image/png;base64,{encoded}' width='200'></div>",
+                unsafe_allow_html=True)
 except:
     st.markdown("<h2 style='text-align: center;'>EXI</h2>", unsafe_allow_html=True)
 
 st.markdown(
-    "<p style='font-weight: bold;'>Digite o(s) código(s) do pedido ou SKU direto:<br><small>Exemplo: 12345, 67890 111213</small></p>",
+    "<p style='font-weight: bold;'>Digite o(s) código(s) do pedido ou SKU direto:<br>"
+    "<small>Exemplo: 12345, 67890 111213</small></p>",
     unsafe_allow_html=True
 )
 st.text_input("", key="input_codigo", on_change=processar)
 
 if st.session_state.nao_encontrados:
-    qtd_nao = len(st.session_state.nao_encontrados)
-    # Mensagem de alerta persistente
-    st.markdown(
-        f"<div style='background-color:#ffcccc; padding:10px; border-radius:5px; color:red; text-align:center;'>"
-        f"⚠️ ATENÇÃO: {qtd_nao} pedido(s) não foram lidos!"
-        f"</div>",
-        unsafe_allow_html=True
-    )
-    
-    # Expander para visualizar os SKUs não lidos
-    titulo_expander = f"<span style='color:red;'>Clique aqui para visualizar os {qtd_nao} pedidos não lidos.</span>"
-    with st.expander(titulo_expander, expanded=False):
+    with st.expander("❗ Códigos não cadastrados no sistema"):
         for entrada in st.session_state.nao_encontrados:
             st.markdown(f"- {entrada}")
-
-
 
 marcas_com_produtos = []
 for cod in st.session_state.contagem:
