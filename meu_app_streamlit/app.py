@@ -1330,4 +1330,3 @@ if st.session_state.contagem:
     st.markdown(f"[Clique aqui para acessar a página de resultados]({full_url})", unsafe_allow_html=True)
 else:
     st.info("Nenhum produto bipado ainda!")
-
