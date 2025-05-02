@@ -1142,8 +1142,7 @@ if "resultado" in params:
                 "nome": produto["nome"],
                 "quantidade": quantidade,
                 "codigo_produto": produto.get("codigo_produto", "")
-            })
-    
+            })    
     # Mapeamento de cores para produtos específicos das marcas ICE, KERASYS e TSUBAKI
     produto_color_mapping = {
         # TSUBAKI
@@ -1174,7 +1173,7 @@ if "resultado" in params:
         "6101625": "#09a7bb", "6101580": "#02a1c2"
     }
     
-    # Exibe pedidos em cada aba
+   # Exibe pedidos em cada aba
     for marca, produtos in agrupado_por_marca.items():
         st.header(marca.upper())
         for prod in produtos:
@@ -1330,3 +1329,4 @@ if st.session_state.contagem:
     st.markdown(f"[Clique aqui para acessar a página de resultados]({full_url})", unsafe_allow_html=True)
 else:
     st.info("Nenhum produto bipado ainda!")
+
