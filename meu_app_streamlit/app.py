@@ -1172,7 +1172,43 @@ if "resultado" in params:
         "6098969": "#163cb0", "6098970": "#fd902d", "6098971": "#fd902d",
         "6101625": "#09a7bb", "6101580": "#02a1c2"
     }
-    
+    params = st.query_params
+
+if "resultado" in params:
+    st.title("Resumo do Pedido - Organizado")
+    st.markdown("---")
+
+    # Alerta fixo e expander para SKUs não encontrados
+    if st.session_state.nao_encontrados:
+        qtd_nao = len(st.session_state.nao_encontrados)
+        st.markdown(
+            f"<div style='background-color:#ffcccc; padding:10px; border-radius:5px; color:red; text-align:center;'>"
+            f"⚠️ ATENÇÃO: {qtd_nao} pedido(s) não foram lidos!"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+        titulo_expander = f"<span style='color:red;'>Clique aqui para visualizar os {qtd_nao} pedidos não lidos.</span>"
+        with st.expander(titulo_expander, expanded=False):
+            for entrada in st.session_state.nao_encontrados:
+                st.markdown(f"- {entrada}")
+
+    # Agrupa os pedidos por marca
+    agrupado_por_marca = {}
+    for codigo, valores in params.items():
+        if codigo == "resultado":
+            continue
+        quantidade = valores[0] if valores else "0"
+        produto = produtos_cadastrados.get(codigo)
+        if produto:
+            marca = produto["marca"].lower().strip()
+            if marca not in agrupado_por_marca:
+                agrupado_por_marca[marca] = []
+            agrupado_por_marca[marca].append({
+                "sku": codigo,
+                "nome": produto["nome"],
+                "quantidade": quantidade,
+                "codigo_produto": produto.get("codigo_produto", "")
+            })
    # Define os corredores e suas marcas
 grupos = [
     ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
