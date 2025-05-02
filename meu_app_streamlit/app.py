@@ -1173,30 +1173,51 @@ if "resultado" in params:
         "6101625": "#09a7bb", "6101580": "#02a1c2"
     }
     
-   # Exibe pedidos em cada aba
-    for marca, produtos in agrupado_por_marca.items():
-        st.header(marca.upper())
-        for prod in produtos:
-            cp = prod.get("codigo_produto", "")
-            sku = prod.get("sku")
+   # Define os corredores e suas marcas
+grupos = [
+    ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
+    ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
+    ("Corredor 3", ["tsubaki", "wella", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
+    ("Pinceis", ["real", "ecootols"]),
+    ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
+    ("sac", ["sac"])
+]
 
-            # Se o SKU do produto estiver no mapeamento, aplica cor ao nome
-            if sku in produto_color_mapping:
-                cor = produto_color_mapping[sku]
-                nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
-            else:
-                nome_fmt = f"<strong>{prod['nome']}</strong>"
+# Filtra grupos que possuem marcas presentes
+grupos_filtrados = []
+for titulo, marcas in grupos:
+    for m in marcas:
+        if m in agrupado_por_marca:
+            grupos_filtrados.append((titulo, marcas))
+            break
 
-            st.markdown(
-                f"{nome_fmt} | Código do Produto: **{cp}** | Quantidade: **{prod['quantidade']}**",
-                unsafe_allow_html=True
-            )
+# Cria abas para cada corredor com marcas encontradas
+abas = st.tabs([titulo for titulo, _ in grupos_filtrados])
 
-        st.markdown("---")
-    
-    st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
-    st.stop()
+for (titulo, marcas), aba in zip(grupos_filtrados, abas):
+    with aba:
+        st.header(titulo)
+        for marca in marcas:
+            if marca in agrupado_por_marca:
+                st.subheader(marca.upper())
+                for prod in agrupado_por_marca[marca]:
+                    sku = prod.get("sku", "")
+                    cp = prod.get("codigo_produto", "")
+                    cor = produto_color_mapping.get(sku)
+                    
+                    if cor:
+                        nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
+                    else:
+                        nome_fmt = f"<strong>{prod['nome']}</strong>"
+                    
+                    st.markdown(
+                        f"{nome_fmt} | Código: **{cp}** | Quantidade: **{prod['quantidade']}**",
+                        unsafe_allow_html=True
+                    )
+                st.markdown("---")
 
+st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
+st.stop()
 #################################
 # Página Principal (Interface)
 #################################
