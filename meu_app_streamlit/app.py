@@ -1219,26 +1219,28 @@ if "resultado" in params:
                         )
                     except Exception:
                         st.warning(f"Logo da marca **{marca}** não encontrada.")
-                    for prod in agrupado_por_marca[marca]:
-                        cp = prod.get("codigo_produto", "")
-                        # Para produtos da marca "ice", aplica formatação personalizada se o SKU estiver no mapping
-                        if marca == "ice" and prod.get("sku") in ice_color_mapping:
-                            cor = ice_color_mapping[prod.get("sku")]
-                            nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
-                            qtd_fmt = f"<strong>{prod['quantidade']}</strong>"
-                            st.markdown(
-                                f"{nome_fmt} | Quantidade: {qtd_fmt} &nbsp;&nbsp;&nbsp; ({cp})",
-                                unsafe_allow_html=True
-                            )
-                        else:
-                            st.markdown(
-                                f"**{prod['nome']}** | Quantidade: **{prod['quantidade']}** &nbsp;&nbsp;&nbsp; ({cp})",
-                                unsafe_allow_html=True
-                            )
-                    st.markdown("---")
-    
-    st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
-    st.stop()
+                                    # Lista os produtos
+                for prod in agrupado_por_marca[marca]:
+                    sku = prod.get("sku", "")
+                    cp = prod.get("codigo_produto", "")
+                    cor = produto_color_mapping.get(sku)
+
+                    if cor:
+                        nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
+                    else:
+                        nome_fmt = f"<strong>{prod['nome']}</strong>"
+
+                    qtd_fmt = f"<strong>{prod['quantidade']}</strong>"
+
+                    st.markdown(
+                        f"{nome_fmt} | Quantidade: {qtd_fmt} &nbsp;&nbsp;&nbsp; ({cp})",
+                        unsafe_allow_html=True
+                    )
+
+                st.markdown("---")
+
+st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
+st.stop()
 
 #################################
 # Página Principal (Interface)
