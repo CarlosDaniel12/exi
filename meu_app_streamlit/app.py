@@ -1313,7 +1313,7 @@ for i in range(linhas):
                     )
 
 if st.session_state.contagem:
-    base_url = "https://cogpz234emkoeygixmfemn.streamlit.app/"
+    base_url = "https://nwombnwhtrvui6nyi2qxyk.streamlit.app/"
     params_dict = {"resultado": "1"}
     for sku, qtd in st.session_state.contagem.items():
         params_dict[sku] = str(qtd)
@@ -1330,3 +1330,4 @@ if st.session_state.contagem:
     st.markdown(f"[Clique aqui para acessar a página de resultados]({full_url})", unsafe_allow_html=True)
 else:
     st.info("Nenhum produto bipado ainda!")
+
