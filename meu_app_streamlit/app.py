@@ -1145,60 +1145,54 @@ if "resultado" in params:
             })
     
     # Mapeamento de cores para produtos específicos das marcas ICE, KERASYS e TSUBAKI
-   produto_color_mapping = {
-    # TSUBAKI (mantém categorização anterior)
-    "10170558202": "#daa520",  # Dourado
-    "10170636202": "#faeba9",  # Amarelo
-    "10170634202": "#faeba9",  # Amarelo
-    "10170632202": "#ff0000",  # Vermelho
-    "10170630202": "#ff0000",  # Vermelho
+    produto_color_mapping = {
+        # TSUBAKI
+        "10170558202": "#daa520",  # Dourado
+        "10170636202": "#faeba9",  # Amarelo
+        "10170634202": "#faeba9",  # Amarelo
+        "10170632202": "#ff0000",  # Vermelho
+        "10170630202": "#ff0000",  # Vermelho
 
-    # ICE (mantém categorização anterior)
-    "50277E_5": "#faeba9", "51007E_5": "#faeba9", "03846BR": "#faeba9",
-    "39937E_5": "#faeba9", "51045E_5": "#faeba9", "51052E_5": "#faeba9",
-    "39920E_5": "#faeba9", "50260E_5": "#faeba9", "51014E_5": "#faeba9",
-    "51038E_5": "#faeba9", "51076E_5": "#ecc7cc", "50291E_5": "#ecc7cc",
-    "03839BR": "#ecc7cc", "39951E_5": "#ecc7cc", "51083E_5": "#ecc7cc",
-    "39944E_5": "#ecc7cc", "50284E_5": "#ecc7cc", "51090E_5": "#ecc7cc",
+        # ICE
+        "50277E_5": "#faeba9", "51007E_5": "#faeba9", "03846BR": "#faeba9",
+        "39937E_5": "#faeba9", "51045E_5": "#faeba9", "51052E_5": "#faeba9",
+        "39920E_5": "#faeba9", "50260E_5": "#faeba9", "51014E_5": "#faeba9",
+        "51038E_5": "#faeba9", "51076E_5": "#ecc7cc", "50291E_5": "#ecc7cc",
+        "03839BR": "#ecc7cc", "39951E_5": "#ecc7cc", "51083E_5": "#ecc7cc",
+        "39944E_5": "#ecc7cc", "50284E_5": "#ecc7cc", "51090E_5": "#ecc7cc",
 
-    # KERASYS (mantém categorização anterior)
-    "6066186": "#1e90ff", "6066715": "#1e90ff", "6066185": "#1e90ff",
-    "6066183": "#1e90ff", "6066711": "#1e90ff", "6066182": "#1e90ff",
-    "5010755": "#96d5ef", "6093519": "#96d5ef", "6100528": "#96d5ef",
-    "6100534": "#96d5ef", "6100679": "#96d5ef", "6134472": "#96d5ef",
-    "6134466": "#96d5ef", "5019487": "#dcb051", "6093517": "#dcb051",
-    "6100531": "#d2b58d", "6134479": "#d2b58d", "6134464": "#d2b58d",
-    "6134473": "#a1d4cc", "6134467": "#a1d4cc", "6134465": "#ffb6c1",
-    "6134471": "#ffb6c1", "6100529": "#ffb6c1", "6098972": "#163cb0",
-    "6098969": "#163cb0", "6098970": "#fd902d", "6098971": "#fd902d",
-    "6101625": "#09a7bb", "6101580": "#02a1c2",
-
-    # BANILA (categorizado dentro de ICE, KERASYS, TSUBAKI)
-    "B-ASCL01-033A": "#ecc7cc", "B-ASCL01-042A": "#ecc7cc", "B-ASCL01-123A": "#ecc7cc",
-    "B-DENS01-123B": "#ecc7cc", "B-ASFC02-045A": "#ecc7cc",
-    "B-ASCL01-020B": "#faeb42", "B-DENS01-344A": "#faeb42",
-    "B-ASCL01-086A": "#fd902d", "B-ASCL09-006A": "#fd902d",
-    "B-ASCL01-045A": "#09a7bb", "B-ASCL01-126A": "#09a7bb", "B-ASCL02-029A": "#09a7bb",
-    "B-DENS01-342A": "#09a7bb", "B-ASFC13-001A": "#09a7bb", "B-ASCL09-008A": "#09a7bb",
-    "B-DENS01-349A": "#09a7bb",  # Mini Enriching Butter 7ml (Avocado+)
-    "B-ASCL02-036A": "#6a0dad", "B-ASCL01-022B": "#6a0dad"
-}    
+        # KERASYS
+        "6066186": "#1e90ff", "6066715": "#1e90ff", "6066185": "#1e90ff",
+        "6066183": "#1e90ff", "6066711": "#1e90ff", "6066182": "#1e90ff",
+        "5010755": "#96d5ef", "6093519": "#96d5ef", "6100528": "#96d5ef",
+        "6100534": "#96d5ef", "6100679": "#96d5ef", "6134472": "#96d5ef",
+        "6134466": "#96d5ef", "5019487": "#dcb051", "6093517": "#dcb051",
+        "6100531": "#d2b58d", "6134479": "#d2b58d", "6134464": "#d2b58d",
+        "6134473": "#a1d4cc", "6134467": "#a1d4cc", "6134465": "#ffb6c1",
+        "6134471": "#ffb6c1", "6100529": "#ffb6c1", "6098972": "#163cb0",
+        "6098969": "#163cb0", "6098970": "#fd902d", "6098971": "#fd902d",
+        "6101625": "#09a7bb", "6101580": "#02a1c2"
+    }
+    
     # Exibe pedidos em cada aba
-    for prod in agrupado_por_marca[marca]:
-    cp = prod.get("codigo_produto", "")
-    sku = prod.get("sku")
+    for marca, produtos in agrupado_por_marca.items():
+        st.header(marca.upper())
+        for prod in produtos:
+            cp = prod.get("codigo_produto", "")
+            sku = prod.get("sku")
 
-    # Aplica a cor ao nome do produto, se estiver no mapeamento
-    if sku in produto_color_mapping:
-        cor = produto_color_mapping[sku]
-        nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
-    else:
-        nome_fmt = f"<strong>{prod['nome']}</strong>"
+            # Se o SKU do produto estiver no mapeamento, aplica cor ao nome
+            if sku in produto_color_mapping:
+                cor = produto_color_mapping[sku]
+                nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
+            else:
+                nome_fmt = f"<strong>{prod['nome']}</strong>"
 
-    st.markdown(
-        f"{nome_fmt} | Código do Produto: **{cp}** | Quantidade: **{prod['quantidade']}**",
-        unsafe_allow_html=True
-    )
+            st.markdown(
+                f"{nome_fmt} | Código do Produto: **{cp}** | Quantidade: **{prod['quantidade']}**",
+                unsafe_allow_html=True
+            )
+
         st.markdown("---")
     
     st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
