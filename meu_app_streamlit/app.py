@@ -1184,24 +1184,21 @@ if "resultado" in params:
     "B-ASCL02-036A": "#6a0dad", "B-ASCL01-022B": "#6a0dad"
 }    
     # Exibe pedidos em cada aba
-    for marca, produtos in agrupado_por_marca.items():
-        st.header(marca.upper())
-        for prod in produtos:
-            cp = prod.get("codigo_produto", "")
-            sku = prod.get("sku")
+    for prod in agrupado_por_marca[marca]:
+    cp = prod.get("codigo_produto", "")
+    sku = prod.get("sku")
 
-            # Se o SKU do produto estiver no mapeamento, aplica cor ao nome
-            if sku in produto_color_mapping:
-                cor = produto_color_mapping[sku]
-                nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
-            else:
-                nome_fmt = f"<strong>{prod['nome']}</strong>"
+    # Aplica a cor ao nome do produto, se estiver no mapeamento
+    if sku in produto_color_mapping:
+        cor = produto_color_mapping[sku]
+        nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
+    else:
+        nome_fmt = f"<strong>{prod['nome']}</strong>"
 
-            st.markdown(
-                f"{nome_fmt} | Código do Produto: **{cp}** | Quantidade: **{prod['quantidade']}**",
-                unsafe_allow_html=True
-            )
-
+    st.markdown(
+        f"{nome_fmt} | Código do Produto: **{cp}** | Quantidade: **{prod['quantidade']}**",
+        unsafe_allow_html=True
+    )
         st.markdown("---")
     
     st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
