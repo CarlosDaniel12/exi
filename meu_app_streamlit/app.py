@@ -1172,6 +1172,16 @@ if "resultado" in params:
         "6134471": "#ffb6c1", "6100529": "#ffb6c1", "6098972": "#163cb0",
         "6098969": "#163cb0", "6098970": "#fd902d", "6098971": "#fd902d",
         "6101625": "#09a7bb", "6101580": "#02a1c2"
+        
+        # BANILA
+        "B-ASCL01-033A": "#ecc7cc", "B-ASCL01-042A": "#ecc7cc", "B-ASCL01-123A": "#ecc7cc",
+        "B-DENS01-123B": "#ecc7cc", "B-ASFC02-045A": "#ecc7cc",
+        "B-ASCL01-020B": "#faeb42", "B-DENS01-344A": "#faeb42",
+        "B-ASCL01-086A": "#fd902d", "B-ASCL09-006A": "#fd902d",
+        "B-ASCL01-045A": "#09a7bb", "B-ASCL01-126A": "#09a7bb", "B-ASCL02-029A": "#09a7bb",
+        "B-DENS01-342A": "#09a7bb", "B-ASFC13-001A": "#09a7bb", "B-ASCL09-008A": "#09a7bb",
+        "B-DENS01-349A": "#09a7bb",  # Mini Enriching Butter 7ml (Avocado+)
+        "B-ASCL02-036A": "#6a0dad", "B-ASCL01-022B": "#6a0dad"
     }
     
     # Exibe pedidos em cada aba
@@ -1330,3 +1340,4 @@ if st.session_state.contagem:
     st.markdown(f"[Clique aqui para acessar a página de resultados]({full_url})", unsafe_allow_html=True)
 else:
     st.info("Nenhum produto bipado ainda!")
+
