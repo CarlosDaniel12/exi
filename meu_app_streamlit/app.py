@@ -1171,7 +1171,7 @@ if "resultado" in params:
         "6134473": "#a1d4cc", "6134467": "#a1d4cc", "6134465": "#ffb6c1",
         "6134471": "#ffb6c1", "6100529": "#ffb6c1", "6098972": "#163cb0",
         "6098969": "#163cb0", "6098970": "#fd902d", "6098971": "#fd902d",
-        "6101625": "#09a7bb", "6101580": "#02a1c2""6066191": "#483D8B"
+        "6101625": "#09a7bb", "6101580": "#02a1c2", "6066191": "#483D8B"
     }
     
     # Define os grupos fixos e a ordem desejada (os nomes devem estar em minúsculas)
