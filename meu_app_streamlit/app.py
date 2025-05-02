@@ -1126,7 +1126,11 @@ if "resultado" in params:
             for entrada in st.session_state.nao_encontrados:
                 st.markdown(f"- {entrada}")
     
-    # Agrupa os pedidos por marca e inclui SKU
+    
+
+
+
+# Agrupa os pedidos por marca e inclui SKU
     agrupado_por_marca = {}
     for codigo, valores in params.items():
         if codigo == "resultado":
