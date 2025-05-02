@@ -1171,107 +1171,32 @@ if "resultado" in params:
         "6134473": "#a1d4cc", "6134467": "#a1d4cc", "6134465": "#ffb6c1",
         "6134471": "#ffb6c1", "6100529": "#ffb6c1", "6098972": "#163cb0",
         "6098969": "#163cb0", "6098970": "#fd902d", "6098971": "#fd902d",
-        "6101625": "#09a7bb", "6101580": "#02a1c2", "6066191": "#483D8B"
+        "6101625": "#09a7bb", "6101580": "#02a1c2"
     }
     
-    # Função para carregar o arquivo Excel
-def carregar_arquivo_excel(arquivo):
-    try:
-        # Lê o arquivo Excel
-        df = pd.read_excel(arquivo)
-        df.columns = df.columns.str.lower()  # Normaliza os nomes das colunas
-        return df
-    except Exception as e:
-        st.error(f"Erro ao carregar ou processar o arquivo Excel: {e}")
-        return None
+    # Exibe pedidos em cada aba
+    for marca, produtos in agrupado_por_marca.items():
+        st.header(marca.upper())
+        for prod in produtos:
+            cp = prod.get("codigo_produto", "")
+            sku = prod.get("sku")
 
-# Função para agrupar os dados por marca
-def agrupar_por_marca(df):
-    agrupado = {}
-    for _, row in df.iterrows():
-        marca = row['marca']
-        if marca not in agrupado:
-            agrupado[marca] = []
-        agrupado[marca].append(row.to_dict())
-    return agrupado
+            # Se o SKU do produto estiver no mapeamento, aplica cor ao nome
+            if sku in produto_color_mapping:
+                cor = produto_color_mapping[sku]
+                nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
+            else:
+                nome_fmt = f"<strong>{prod['nome']}</strong>"
 
-# Define os grupos fixos e a ordem desejada (os nomes devem estar em minúsculas)
-grupos = [
-    ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
-    ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
-    ("Corredor 3", ["tsubaki", "wella", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
-    ("Pinceis", ["real", "ecootols"]),
-    ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
-    ("sac", ["sac"])
-]
+            st.markdown(
+                f"{nome_fmt} | Código do Produto: **{cp}** | Quantidade: **{prod['quantidade']}**",
+                unsafe_allow_html=True
+            )
 
-# Carregar o arquivo Excel via uploader
-arquivo = st.file_uploader("Selecione o arquivo Excel com os pedidos", type=["xlsx"])
-if arquivo is None:
+        st.markdown("---")
+    
+    st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
     st.stop()
-
-# Carregar dados do arquivo Excel
-df = carregar_arquivo_excel(arquivo)
-if df is None:
-    st.stop()
-
-# Agrupar os dados por marca
-agrupado_por_marca = agrupar_por_marca(df)
-
-# Filtra os grupos que possuem pelo menos uma marca presente
-grupos_filtrados = []
-for titulo, marcas in grupos:
-    for m in marcas:
-        if m in agrupado_por_marca:
-            grupos_filtrados.append((titulo, marcas))
-            break
-
-# Caso não existam produtos para exibir
-if not grupos_filtrados:
-    st.info("Nenhum produto encontrado.")
-    st.stop()
-
-# Cria as abas para os grupos filtrados
-titulos_abas = [titulo for titulo, _ in grupos_filtrados]
-abas = st.tabs(titulos_abas)
-
-# Exibe os pedidos para cada grupo em sua aba
-for (titulo, lista_marcas), aba in zip(grupos_filtrados, abas):
-    with aba:
-        st.header(titulo)
-        for marca in lista_marcas:
-            if marca in agrupado_por_marca:
-                # Exibe a logo da marca com fundo branco
-                try:
-                    logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
-                    with open(logo_path, "rb") as img_file:
-                        logo_encoded = base64.b64encode(img_file.read()).decode()
-                    st.markdown(
-                        f"<div style='background-color:white; display:inline-block; padding:5px;'>"
-                        f"<img src='data:image/png;base64,{logo_encoded}' width='150' style='margin-bottom: 10px;'>"
-                        f"</div>",
-                        unsafe_allow_html=True
-                    )
-                except Exception:
-                    st.warning(f"Logo da marca **{marca}** não encontrada.")
-
-                # Exibe os produtos da marca
-                for prod in agrupado_por_marca[marca]:
-                    sku = prod.get("sku", "")
-                    cp = prod.get("codigo_produto", "")
-                    cor = produto_color_mapping.get(sku)
-
-                    nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>" if cor else f"<strong>{prod['nome']}</strong>"
-                    qtd_fmt = f"<strong>{prod['quantidade']}</strong>"
-                    st.markdown(
-                        f"{nome_fmt} | Quantidade: {qtd_fmt} &nbsp;&nbsp;&nbsp; ({cp})",
-                        unsafe_allow_html=True
-                    )
-
-                st.markdown("---")
-
-st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
-st.stop()
 
 #################################
 # Página Principal (Interface)
