@@ -1201,44 +1201,47 @@ if "resultado" in params:
     abas = st.tabs(titulos_abas)
     
     # Exibe os pedidos para cada grupo em sua aba
-    for (titulo, lista_marcas), aba in zip(grupos_filtrados, abas):
-        with aba:
-            st.header(titulo)
-            for marca in lista_marcas:
-                if marca in agrupado_por_marca:
-                    # Exibe a logo com fundo branco fixo
-                    try:
-                        logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
-                        with open(logo_path, "rb") as img_file:
-                            logo_encoded = base64.b64encode(img_file.read()).decode()
-                        st.markdown(
-                            f"<div style='background-color:white; display:inline-block; padding:5px;'>"
-                            f"<img src='data:image/png;base64,{logo_encoded}' width='150' style='margin-bottom: 10px;'>"
-                            f"</div>",
-                            unsafe_allow_html=True
-                        )
-                    except Exception:
-                        st.warning(f"Logo da marca **{marca}** não encontrada.")
-                    for prod in agrupado_por_marca[marca]:
-                        cp = prod.get("codigo_produto", "")
-                        # Para produtos da marca "ice", aplica formatação personalizada se o SKU estiver no mapping
-                        if marca == "ice" and prod.get("sku") in ice_color_mapping:
-                            cor = ice_color_mapping[prod.get("sku")]
-                            nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
-                            qtd_fmt = f"<strong>{prod['quantidade']}</strong>"
-                            st.markdown(
-                                f"{nome_fmt} | Quantidade: {qtd_fmt} &nbsp;&nbsp;&nbsp; ({cp})",
-                                unsafe_allow_html=True
-                            )
-                        else:
-                            st.markdown(
-                                f"**{prod['nome']}** | Quantidade: **{prod['quantidade']}** &nbsp;&nbsp;&nbsp; ({cp})",
-                                unsafe_allow_html=True
-                            )
-                    st.markdown("---")
-    
-    st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
-    st.stop()
+for (titulo, lista_marcas), aba in zip(grupos_filtrados, abas):
+    with aba:
+        st.header(titulo)
+        for marca in lista_marcas:
+            if marca in agrupado_por_marca:
+                # Exibe a logo da marca com fundo branco
+                try:
+                    logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
+                    with open(logo_path, "rb") as img_file:
+                        logo_encoded = base64.b64encode(img_file.read()).decode()
+                    st.markdown(
+                        f"<div style='background-color:white; display:inline-block; padding:5px;'>"
+                        f"<img src='data:image/png;base64,{logo_encoded}' width='150' style='margin-bottom: 10px;'>"
+                        f"</div>",
+                        unsafe_allow_html=True
+                    )
+                except Exception:
+                    st.warning(f"Logo da marca **{marca}** não encontrada.")
+
+                # Lista os produtos
+                for prod in agrupado_por_marca[marca]:
+                    sku = prod.get("sku", "")
+                    cp = prod.get("codigo_produto", "")
+                    cor = produto_color_mapping.get(sku)
+
+                    if cor:
+                        nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
+                    else:
+                        nome_fmt = f"<strong>{prod['nome']}</strong>"
+
+                    qtd_fmt = f"<strong>{prod['quantidade']}</strong>"
+
+                    st.markdown(
+                        f"{nome_fmt} | Quantidade: {qtd_fmt} &nbsp;&nbsp;&nbsp; ({cp})",
+                        unsafe_allow_html=True
+                    )
+
+                st.markdown("---")
+
+st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
+st.stop()
 
 #################################
 # Página Principal (Interface)
