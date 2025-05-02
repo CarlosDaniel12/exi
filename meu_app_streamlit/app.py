@@ -1174,26 +1174,68 @@ if "resultado" in params:
         "6101625": "#09a7bb", "6101580": "#02a1c2"
     }
     
-    # Exibe pedidos em cada aba
-    for marca, produtos in agrupado_por_marca.items():
-        st.header(marca.upper())
-        for prod in produtos:
-            cp = prod.get("codigo_produto", "")
-            sku = prod.get("sku")
+    # Define os grupos fixos e a ordem desejada (os nomes devem estar em minúsculas)
+    grupos = [
+        ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
+        ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
+        ("Corredor 3", ["tsubaki", "wella", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
+        ("Pinceis", ["real", "ecootols"]),
+        ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
+        ("sac", ["sac"])
+    ]
+    
+    # Filtra apenas os grupos que possuem algum pedido
+    grupos_filtrados = []
+    for titulo, marcas in grupos:
+        for m in marcas:
+            if m in agrupado_por_marca:
+                grupos_filtrados.append((titulo, marcas))
+                break
 
-            # Se o SKU do produto estiver no mapeamento, aplica cor ao nome
-            if sku in produto_color_mapping:
-                cor = produto_color_mapping[sku]
-                nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
-            else:
-                nome_fmt = f"<strong>{prod['nome']}</strong>"
-
-            st.markdown(
-                f"{nome_fmt} | Código do Produto: **{cp}** | Quantidade: **{prod['quantidade']}**",
-                unsafe_allow_html=True
-            )
-
-        st.markdown("---")
+    if not grupos_filtrados:
+        st.info("Nenhum produto encontrado.")
+        st.stop()
+    
+    # Cria as abas somente para os grupos filtrados
+    titulos_abas = [titulo for titulo, marcas in grupos_filtrados]
+    abas = st.tabs(titulos_abas)
+    
+    # Exibe os pedidos para cada grupo em sua aba
+    for (titulo, lista_marcas), aba in zip(grupos_filtrados, abas):
+        with aba:
+            st.header(titulo)
+            for marca in lista_marcas:
+                if marca in agrupado_por_marca:
+                    # Exibe a logo com fundo branco fixo
+                    try:
+                        logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
+                        with open(logo_path, "rb") as img_file:
+                            logo_encoded = base64.b64encode(img_file.read()).decode()
+                        st.markdown(
+                            f"<div style='background-color:white; display:inline-block; padding:5px;'>"
+                            f"<img src='data:image/png;base64,{logo_encoded}' width='150' style='margin-bottom: 10px;'>"
+                            f"</div>",
+                            unsafe_allow_html=True
+                        )
+                    except Exception:
+                        st.warning(f"Logo da marca **{marca}** não encontrada.")
+                    for prod in agrupado_por_marca[marca]:
+                        cp = prod.get("codigo_produto", "")
+                        # Para produtos da marca "ice", aplica formatação personalizada se o SKU estiver no mapping
+                        if marca == "ice" and prod.get("sku") in ice_color_mapping:
+                            cor = ice_color_mapping[prod.get("sku")]
+                            nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
+                            qtd_fmt = f"<strong>{prod['quantidade']}</strong>"
+                            st.markdown(
+                                f"{nome_fmt} | Quantidade: {qtd_fmt} &nbsp;&nbsp;&nbsp; ({cp})",
+                                unsafe_allow_html=True
+                            )
+                        else:
+                            st.markdown(
+                                f"**{prod['nome']}** | Quantidade: **{prod['quantidade']}** &nbsp;&nbsp;&nbsp; ({cp})",
+                                unsafe_allow_html=True
+                            )
+                    st.markdown("---")
     
     st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
     st.stop()
@@ -1330,3 +1372,4 @@ if st.session_state.contagem:
     st.markdown(f"[Clique aqui para acessar a página de resultados]({full_url})", unsafe_allow_html=True)
 else:
     st.info("Nenhum produto bipado ainda!")
+
