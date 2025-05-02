@@ -1190,7 +1190,8 @@ for (titulo, lista_marcas), aba in zip(grupos_filtrados, abas):
                     st.markdown(
                         f"{nome_fmt} | Código do Produto: **{cp}** | Quantidade: **{prod['quantidade']}**",
                         unsafe_allow_html=True
-                    )                    st.markdown("---")
+                    )                    
+                    st.markdown("---")
 
     st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
     st.stop()
