@@ -1083,6 +1083,36 @@ lista_produtos = {
 
 produtos_cadastrados = {codigo: produto for codigo, produto in lista_produtos.items()}
 
+# Mapeamento de cores para ICE, KERASYS, TSUBAKI e BANILA
+produto_color_mapping = {
+    # TSUBAKI
+    "10170558202": "#daa520",
+    "10170636202": "#faeba9",
+    "10170634202": "#faeba9",
+    "10170632202": "#ff0000",
+    "10170630202": "#ff0000",
+
+    # ICE
+    "50277E_5": "#faeba9", "51007E_5": "#faeba9", "03846BR": "#faeba9",
+    "39937E_5": "#faeba9", "51045E_5": "#faeba9", "51052E_5": "#faeba9",
+    "39920E_5": "#faeba9", "50260E_5": "#faeba9", "51014E_5": "#faeba9",
+    "51038E_5": "#faeba9", "51076E_5": "#ecc7cc", "50291E_5": "#ecc7cc",
+    "03839BR": "#ecc7cc", "39951E_5": "#ecc7cc", "51083E_5": "#ecc7cc",
+    "39944E_5": "#ecc7cc", "50284E_5": "#ecc7cc", "51090E_5": "#ecc7cc",
+
+    # KERASYS
+    "6066186": "#1e90ff", "6066715": "#1e90ff", "6066185": "#1e90ff",
+    "6066183": "#1e90ff", "6066711": "#1e90ff", "6066182": "#1e90ff",
+    "5010755": "#96d5ef", "6093519": "#96d5ef", "6100528": "#96d5ef",
+    "6100534": "#96d5ef", "6100679": "#96d5ef", "6134472": "#96d5ef",
+    "6134466": "#96d5ef", "5019487": "#dcb051", "6093517": "#dcb051",
+    "6100531": "#d2b58d", "6134479": "#d2b58d", "6134464": "#d2b58d",
+    "6134473": "#a1d4cc", "6134467": "#a1d4cc", "6134465": "#ffb6c1",
+    "6134471": "#ffb6c1", "6100529": "#ffb6c1", "6098972": "#163cb0",
+    "6098969": "#163cb0", "6098970": "#fd902d", "6098971": "#fd902d",
+    "6101625": "#09a7bb", "6101580": "#02a1c2"
+}
+
 # Inicializa variáveis na sessão
 if "contagem" not in st.session_state:
     st.session_state.contagem = {}
@@ -1103,21 +1133,7 @@ if "resultado" in params:
     st.title("Resumo do Pedido - Organizado")
     st.markdown("---")
 
-    # Alerta fixo e expander para SKUs não encontrados
-    if st.session_state.nao_encontrados:
-        qtd_nao = len(st.session_state.nao_encontrados)
-        st.markdown(
-            f"<div style='background-color:#ffcccc; padding:10px; border-radius:5px; color:red; text-align:center;'>"
-            f"⚠️ ATENÇÃO: {qtd_nao} pedido(s) não foram lidos!"
-            f"</div>",
-            unsafe_allow_html=True
-        )
-        titulo_expander = f"<span style='color:red;'>Clique aqui para visualizar os {qtd_nao} pedidos não lidos.</span>"
-        with st.expander(titulo_expander, expanded=False):
-            for entrada in st.session_state.nao_encontrados:
-                st.markdown(f"- {entrada}")
-
-    # Agrupa os pedidos por marca e inclui SKU
+    # Agrupa os pedidos por marca
     agrupado_por_marca = {}
     for codigo, valores in params.items():
         if codigo == "resultado":
@@ -1135,7 +1151,7 @@ if "resultado" in params:
                 "codigo_produto": produto.get("codigo_produto", "")
             })
 
-    # Define os grupos fixos e a ordem desejada para os corredores
+    # Define grupos de corredores
     grupos = [
         ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
         ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
@@ -1145,52 +1161,19 @@ if "resultado" in params:
         ("Sac", ["sac"])
     ]
 
-    # Filtra apenas os grupos que possuem algum pedido
+    # Filtra grupos com pedidos
     grupos_filtrados = [(titulo, marcas) for titulo, marcas in grupos if any(m in agrupado_por_marca for m in marcas)]
-
-    if not grupos_filtrados:
-        st.info("Nenhum produto encontrado.")
-        st.stop()
 
     # Cria abas para os grupos filtrados
     abas = st.tabs([titulo for titulo, _ in grupos_filtrados])
-    
- # Mapeamento de cores para produtos específicos das marcas ICE, KERASYS e TSUBAKI
-    produto_color_mapping = {
-        # TSUBAKI
-        "10170558202": "#daa520",  # Dourado
-        "10170636202": "#faeba9",  # Amarelo
-        "10170634202": "#faeba9",  # Amarelo
-        "10170632202": "#ff0000",  # Vermelho
-        "10170630202": "#ff0000",  # Vermelho
 
-        # ICE
-        "50277E_5": "#faeba9", "51007E_5": "#faeba9", "03846BR": "#faeba9",
-        "39937E_5": "#faeba9", "51045E_5": "#faeba9", "51052E_5": "#faeba9",
-        "39920E_5": "#faeba9", "50260E_5": "#faeba9", "51014E_5": "#faeba9",
-        "51038E_5": "#faeba9", "51076E_5": "#ecc7cc", "50291E_5": "#ecc7cc",
-        "03839BR": "#ecc7cc", "39951E_5": "#ecc7cc", "51083E_5": "#ecc7cc",
-        "39944E_5": "#ecc7cc", "50284E_5": "#ecc7cc", "51090E_5": "#ecc7cc",
-
-        # KERASYS
-        "6066186": "#1e90ff", "6066715": "#1e90ff", "6066185": "#1e90ff",
-        "6066183": "#1e90ff", "6066711": "#1e90ff", "6066182": "#1e90ff",
-        "5010755": "#96d5ef", "6093519": "#96d5ef", "6100528": "#96d5ef",
-        "6100534": "#96d5ef", "6100679": "#96d5ef", "6134472": "#96d5ef",
-        "6134466": "#96d5ef", "5019487": "#dcb051", "6093517": "#dcb051",
-        "6100531": "#d2b58d", "6134479": "#d2b58d", "6134464": "#d2b58d",
-        "6134473": "#a1d4cc", "6134467": "#a1d4cc", "6134465": "#ffb6c1",
-        "6134471": "#ffb6c1", "6100529": "#ffb6c1", "6098972": "#163cb0",
-        "6098969": "#163cb0", "6098970": "#fd902d", "6098971": "#fd902d",
-        "6101625": "#09a7bb", "6101580": "#02a1c2"
-    }
-    # Exibe pedidos em cada aba
+    # Exibe pedidos por corredor
     for (titulo, lista_marcas), aba in zip(grupos_filtrados, abas):
         with aba:
             st.header(titulo)
             for marca in lista_marcas:
                 if marca in agrupado_por_marca:
-                    # Exibe a logo da marca antes dos produtos
+                    # Exibe a logo da marca
                     try:
                         logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
                         with open(logo_path, "rb") as img_file:
@@ -1201,17 +1184,19 @@ if "resultado" in params:
                             f"</div>",
                             unsafe_allow_html=True
                         )
-                    except Exception:
+                    except:
                         st.warning(f"Logo da marca **{marca}** não encontrada.")
 
-                    # Lista os produtos daquela marca dentro do corredor
+                    # Exibe produtos
                     for prod in agrupado_por_marca[marca]:
                         cp = prod.get("codigo_produto", "")
-                        nome_fmt = f"<strong>{prod['nome']}</strong>"
-                        st.markdown(
-                            f"{nome_fmt} | Código do Produto: **{cp}** | Quantidade: **{prod['quantidade']}**",
-                            unsafe_allow_html=True
-                        )
+                        sku = prod.get("sku")
+
+                        # Aplica cor ao nome do produto
+                        nome_fmt = f"<span style='color:{produto_color_mapping.get(sku, '#000000')};'><strong>{prod['nome']}</strong></span>"
+
+                        st.markdown(f"{nome_fmt} | Código do Produto: **{cp}** | Quantidade: **{prod['quantidade']}**", unsafe_allow_html=True)
+
                     st.markdown("---")
 
     st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
