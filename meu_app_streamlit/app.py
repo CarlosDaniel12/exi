@@ -1174,33 +1174,68 @@ if "resultado" in params:
         "6101625": "#09a7bb", "6101580": "#02a1c2", "6066191": "#483D8B"
     }
     
-    # Define os grupos fixos e a ordem desejada (os nomes devem estar em minúsculas)
-    grupos = [
-        ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
-        ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
-        ("Corredor 3", ["tsubaki", "wella", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
-        ("Pinceis", ["real", "ecootols"]),
-        ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
-        ("sac", ["sac"])
-    ]
-    
-    # Filtra apenas os grupos que possuem algum pedido
-    grupos_filtrados = []
-    for titulo, marcas in grupos:
-        for m in marcas:
-            if m in agrupado_por_marca:
-                grupos_filtrados.append((titulo, marcas))
-                break
+    # Função para carregar o arquivo Excel
+def carregar_arquivo_excel(arquivo):
+    try:
+        # Lê o arquivo Excel
+        df = pd.read_excel(arquivo)
+        df.columns = df.columns.str.lower()  # Normaliza os nomes das colunas
+        return df
+    except Exception as e:
+        st.error(f"Erro ao carregar ou processar o arquivo Excel: {e}")
+        return None
 
-    if not grupos_filtrados:
-        st.info("Nenhum produto encontrado.")
-        st.stop()
-    
-    # Cria as abas somente para os grupos filtrados
-    titulos_abas = [titulo for titulo, marcas in grupos_filtrados]
-    abas = st.tabs(titulos_abas)
-    
-    # Exibe os pedidos para cada grupo em sua aba
+# Função para agrupar os dados por marca
+def agrupar_por_marca(df):
+    agrupado = {}
+    for _, row in df.iterrows():
+        marca = row['marca']
+        if marca not in agrupado:
+            agrupado[marca] = []
+        agrupado[marca].append(row.to_dict())
+    return agrupado
+
+# Define os grupos fixos e a ordem desejada (os nomes devem estar em minúsculas)
+grupos = [
+    ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
+    ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
+    ("Corredor 3", ["tsubaki", "wella", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
+    ("Pinceis", ["real", "ecootols"]),
+    ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
+    ("sac", ["sac"])
+]
+
+# Carregar o arquivo Excel via uploader
+arquivo = st.file_uploader("Selecione o arquivo Excel com os pedidos", type=["xlsx"])
+if arquivo is None:
+    st.stop()
+
+# Carregar dados do arquivo Excel
+df = carregar_arquivo_excel(arquivo)
+if df is None:
+    st.stop()
+
+# Agrupar os dados por marca
+agrupado_por_marca = agrupar_por_marca(df)
+
+# Filtra os grupos que possuem pelo menos uma marca presente
+grupos_filtrados = []
+for titulo, marcas in grupos:
+    for m in marcas:
+        if m in agrupado_por_marca:
+            grupos_filtrados.append((titulo, marcas))
+            break
+
+# Caso não existam produtos para exibir
+if not grupos_filtrados:
+    st.info("Nenhum produto encontrado.")
+    st.stop()
+
+# Cria as abas para os grupos filtrados
+titulos_abas = [titulo for titulo, _ in grupos_filtrados]
+abas = st.tabs(titulos_abas)
+
+# Exibe os pedidos para cada grupo em sua aba
 for (titulo, lista_marcas), aba in zip(grupos_filtrados, abas):
     with aba:
         st.header(titulo)
@@ -1220,19 +1255,14 @@ for (titulo, lista_marcas), aba in zip(grupos_filtrados, abas):
                 except Exception:
                     st.warning(f"Logo da marca **{marca}** não encontrada.")
 
-                # Lista os produtos
+                # Exibe os produtos da marca
                 for prod in agrupado_por_marca[marca]:
                     sku = prod.get("sku", "")
                     cp = prod.get("codigo_produto", "")
                     cor = produto_color_mapping.get(sku)
 
-                    if cor:
-                        nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
-                    else:
-                        nome_fmt = f"<strong>{prod['nome']}</strong>"
-
+                    nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>" if cor else f"<strong>{prod['nome']}</strong>"
                     qtd_fmt = f"<strong>{prod['quantidade']}</strong>"
-
                     st.markdown(
                         f"{nome_fmt} | Quantidade: {qtd_fmt} &nbsp;&nbsp;&nbsp; ({cp})",
                         unsafe_allow_html=True
