@@ -11,7 +11,7 @@ import urllib.parse
 # Configura layout
 st.set_page_config(layout="wide")
 
-# Ajusta o caminho das logos automaticamente
+# Define o caminho das logos
 if os.path.exists("C:/meu_app_streamlit/logos"):
     CAMINHO_LOGOS = "C:/meu_app_streamlit/logos"
 else:
@@ -1090,9 +1090,7 @@ lista_produtos = {
 
 
 }
-
 produtos_cadastrados = {codigo: produto for codigo, produto in lista_produtos.items()}
-# Continua o seu código daqui em diante normalmente...
 
 # Inicializa variáveis na sessão
 if "contagem" not in st.session_state:
@@ -1106,105 +1104,139 @@ if "nao_encontrados" not in st.session_state:
 if "uploaded_files" not in st.session_state:
     st.session_state.uploaded_files = []
 
-# ------------ Página de Resultados ------------
+#################################
+# Página de Resultados
+#################################
 params = st.query_params
 if "resultado" in params:
-    st.title("Resumo do Pedido")
+    st.title("Resumo do Pedido - Organizado")
     st.markdown("---")
-
-    # Organiza produtos por marca
-    produtos_por_marca = {}
+    
+    # Alerta fixo e expander para SKUs não encontrados
+    if st.session_state.nao_encontrados:
+        qtd_nao = len(st.session_state.nao_encontrados)
+        st.markdown(
+            f"<div style='background-color:#ffcccc; padding:10px; border-radius:5px; color:red; text-align:center;'>"
+            f"⚠️ ATENÇÃO: {qtd_nao} pedido(s) não foram lidos!"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+        titulo_expander = f"<span style='color:red;'>Clique aqui para visualizar os {qtd_nao} pedidos não lidos.</span>"
+        with st.expander(titulo_expander, expanded=False):
+            for entrada in st.session_state.nao_encontrados:
+                st.markdown(f"- {entrada}")
+    
+    # Agrupa os pedidos por marca e inclui SKU
+    agrupado_por_marca = {}
     for codigo, valores in params.items():
         if codigo == "resultado":
             continue
-        quantidade = valores[0]
+        quantidade = valores[0] if valores else "0"
         produto = produtos_cadastrados.get(codigo)
         if produto:
-            marca = produto['marca']
-            if marca not in produtos_por_marca:
-                produtos_por_marca[marca] = []
-            produtos_por_marca[marca].append({
-                "nome": produto['nome'],
+            marca = produto["marca"].lower().strip()
+            if marca not in agrupado_por_marca:
+                agrupado_por_marca[marca] = []
+            agrupado_por_marca[marca].append({
+                "sku": codigo,
+                "nome": produto["nome"],
                 "quantidade": quantidade,
-                "codigo_produto": produto.get('codigo_produto', '')
+                "codigo_produto": produto.get("codigo_produto", "")
             })
+    
+    # Mapeamento de cores para produtos específicos das marcas ICE, KERASYS e TSUBAKI
+    produto_color_mapping = {
+        # TSUBAKI
+        "10170558202": "#daa520",  # Dourado
+        "10170636202": "#faeba9",  # Amarelo
+        "10170634202": "#faeba9",  # Amarelo
+        "10170632202": "#ff0000",  # Vermelho
+        "10170630202": "#ff0000",  # Vermelho
 
-    # Exibe agrupado
-    for marca, lista_produtos in produtos_por_marca.items():
-        try:
-            logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
-            with open(logo_path, "rb") as img_file:
-                logo_encoded = base64.b64encode(img_file.read()).decode()
-            st.markdown(f"<img src='data:image/png;base64,{logo_encoded}' width='150' style='margin-bottom: 20px;'>", unsafe_allow_html=True)
-        except:
-            st.warning(f"⚠️ Logo da marca **{marca}** não encontrada.")
+        # ICE
+        "50277E_5": "#faeba9", "51007E_5": "#faeba9", "03846BR": "#faeba9",
+        "39937E_5": "#faeba9", "51045E_5": "#faeba9", "51052E_5": "#faeba9",
+        "39920E_5": "#faeba9", "50260E_5": "#faeba9", "51014E_5": "#faeba9",
+        "51038E_5": "#faeba9", "51076E_5": "#ecc7cc", "50291E_5": "#ecc7cc",
+        "03839BR": "#ecc7cc", "39951E_5": "#ecc7cc", "51083E_5": "#ecc7cc",
+        "39944E_5": "#ecc7cc", "50284E_5": "#ecc7cc", "51090E_5": "#ecc7cc",
 
-        for produto in lista_produtos:
-            codigo_produto = produto.get('codigo_produto', '')
-            st.markdown(f"**{produto['nome']}** | Quantidade: {produto['quantidade']} ({codigo_produto})" if codigo_produto else f"**{produto['nome']}** | Quantidade: {produto['quantidade']}")
+        # KERASYS
+        "6066186": "#1e90ff", "6066715": "#1e90ff", "6066185": "#1e90ff",
+        "6066183": "#1e90ff", "6066711": "#1e90ff", "6066182": "#1e90ff",
+        "5010755": "#96d5ef", "6093519": "#96d5ef", "6100528": "#96d5ef",
+        "6100534": "#96d5ef", "6100679": "#96d5ef", "6134472": "#96d5ef",
+        "6134466": "#96d5ef", "5019487": "#dcb051", "6093517": "#dcb051",
+        "6100531": "#d2b58d", "6134479": "#d2b58d", "6134464": "#d2b58d",
+        "6134473": "#a1d4cc", "6134467": "#a1d4cc", "6134465": "#ffb6c1",
+        "6134471": "#ffb6c1", "6100529": "#ffb6c1", "6098972": "#163cb0",
+        "6098969": "#163cb0", "6098970": "#fd902d", "6098971": "#fd902d",
+        "6101625": "#09a7bb", "6101580": "#02a1c2"
+    }
+    
+    # Exibe pedidos em cada aba
+    for marca, produtos in agrupado_por_marca.items():
+        st.header(marca.upper())
+        for prod in produtos:
+            cp = prod.get("codigo_produto", "")
+            sku = prod.get("sku")
+
+            # Se o SKU do produto estiver no mapeamento, aplica cor ao nome
+            if sku in produto_color_mapping:
+                cor = produto_color_mapping[sku]
+                nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
+            else:
+                nome_fmt = f"<strong>{prod['nome']}</strong>"
+
+            st.markdown(
+                f"{nome_fmt} | Código do Produto: **{cp}** | Quantidade: **{prod['quantidade']}**",
+                unsafe_allow_html=True
+            )
 
         st.markdown("---")
-
+    
     st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
     st.stop()
 
-# ------------ Página Principal (Interface) ------------
+#################################
+# Página Principal (Interface)
+#################################
 st.title("Bipagem de Produtos")
 
-# Upload CSVs
 uploaded_files = st.file_uploader("Envie os CSVs do pedido exportados do Bling:", type=["csv"], accept_multiple_files=True)
-
-# Salva os arquivos no session_state
 if uploaded_files:
     st.session_state.uploaded_files = uploaded_files
 
-# Função para ler CSV corretamente
-def tentar_ler_csv(uploaded_file):
+@st.cache_data(show_spinner=True)
+def tentar_ler_csv_cache(file_bytes):
     try:
-        df = pd.read_csv(uploaded_file, sep=";", dtype=str, encoding="utf-8", on_bad_lines="skip", engine="python")
+        df = pd.read_csv(BytesIO(file_bytes), sep=";", dtype=str, encoding="utf-8", on_bad_lines="skip", engine="python")
     except UnicodeDecodeError:
-        try:
-            df = pd.read_csv(uploaded_file, sep=";", dtype=str, encoding="latin-1", on_bad_lines="skip", engine="python")
-        except Exception as e:
-            st.error(f"Erro ao ler o arquivo {uploaded_file.name}: {str(e)}")
-            return None
-    except Exception as e:
-        st.error(f"Erro ao ler o arquivo {uploaded_file.name}: {str(e)}")
-        return None
-
-    # Corrige os nomes das colunas
+        df = pd.read_csv(BytesIO(file_bytes), sep=";", dtype=str, encoding="latin-1", on_bad_lines="skip", engine="python")
     df.columns = df.columns.str.strip().str.lower()
-
-    # Verifica se as colunas obrigatórias existem
-    if "sku" not in df.columns or "número pedido" not in df.columns:
-        st.error(f"CSV {uploaded_file.name} inválido. As colunas obrigatórias 'SKU' e 'Número pedido' não foram encontradas.")
-        return None
-
     return df
+
+def tentar_ler_csv(uploaded_file):
+    file_bytes = uploaded_file.getvalue()
+    return tentar_ler_csv_cache(file_bytes)
 
 def processar():
     codigos_input = st.session_state.input_codigo.strip()
     if not codigos_input:
         return
-
     codigos = re.split(r'[\s,]+', codigos_input)
-
     uploaded_files = st.session_state.get('uploaded_files', [])
     if not uploaded_files:
         st.error("⚠️ Nenhum arquivo CSV carregado!")
         return
-
     for uploaded_file in uploaded_files:
         df = tentar_ler_csv(uploaded_file)
         if df is None:
             continue
-
         if "sku" not in df.columns or "número pedido" not in df.columns:
-            st.error(f"CSV {uploaded_file.name} inválido. Colunas obrigatórias: 'SKU' e 'Número pedido'")
+            st.error(f"CSV {uploaded_file.name} inválido. As colunas obrigatórias 'SKU' e 'Número pedido' não foram encontradas.")
             return
-
         df["sku"] = df["sku"].apply(lambda x: str(int(float(str(x).replace(",", "").replace(" ", "").strip()))) if "E+" in str(x) else str(x).strip())
-
         for codigo in codigos:
             pedidos = df[df["número pedido"].astype(str).str.strip() == codigo]
             if not pedidos.empty:
@@ -1224,44 +1256,42 @@ def processar():
                     entrada = f"Código direto → SKU: {codigo}"
                     if entrada not in st.session_state.nao_encontrados:
                         st.session_state.nao_encontrados.append(entrada)
-
     st.session_state.input_codigo = ""
 
-# Botão de limpar
 if st.button("🔄 Limpar pedidos bipados"):
     st.session_state.pedidos_bipados.clear()
     st.session_state.contagem.clear()
     st.session_state.nao_encontrados.clear()
 
-# Logo EXI
 try:
     exi_logo_path = os.path.join(CAMINHO_LOGOS, "exi.png")
     with open(exi_logo_path, "rb") as image_file:
         encoded = base64.b64encode(image_file.read()).decode()
-    st.markdown(f"<div style='text-align: center;'><img src='data:image/png;base64,{encoded}' width='200'></div>", unsafe_allow_html=True)
+    st.markdown(
+        f"<div style='text-align: center;'><img src='data:image/png;base64,{encoded}' width='200'></div>",
+        unsafe_allow_html=True
+    )
 except:
     st.markdown("<h2 style='text-align: center;'>EXI</h2>", unsafe_allow_html=True)
 
-# Input para códigos
 st.markdown(
-    "<p style='font-weight: bold;'>Digite o(s) código(s) do pedido ou SKU direto:<br><small>Exemplo: 12345, 67890 111213</small></p>",
+    "<p style='font-weight: bold;'>Digite o(s) código(s) do pedido ou SKU direto:<br>"
+    "<small>Exemplo: 12345, 67890 111213</small></p>",
     unsafe_allow_html=True
 )
 st.text_input("", key="input_codigo", on_change=processar)
 
-# Mostrar não encontrados
 if st.session_state.nao_encontrados:
     with st.expander("❗ Códigos não cadastrados no sistema"):
         for entrada in st.session_state.nao_encontrados:
             st.markdown(f"- {entrada}")
 
-# Mostrar produtos encontrados
 marcas_com_produtos = []
 for cod in st.session_state.contagem:
     produto = produtos_cadastrados.get(cod)
     if produto and produto["marca"] not in marcas_com_produtos:
         marcas_com_produtos.append(produto["marca"])
-
+        
 marcas_por_linha = 4
 linhas = math.ceil(len(marcas_com_produtos) / marcas_por_linha)
 for i in range(linhas):
@@ -1281,48 +1311,7 @@ for i in range(linhas):
                         f"<p style='margin-top: 0;'><strong>{produto['nome']}</strong> | Quantidade: {qtd}</p>",
                         unsafe_allow_html=True
                     )
-# Exemplo de uso de abas para os 4 corredores e uma aba adicional para as prateleiras
 
-# Supondo que já temos o dicionário 'produtos_por_corredor' organizado conforme o mapeamento previamente definido...
-abas = st.tabs(["Corredor 1", "Corredor 2", "Corredor 3", "Corredor 4", "Prateleiras"])
-
-# Exibição para cada corredor (aqui, em cada aba, você organiza os itens por lado).
-for i, aba in enumerate(abas[:4], start=1):
-    with aba:
-        st.header(f"Corredor {i}")
-        # Por exemplo, use st.subheader para os lados
-        for lado in ["esquerdo", "direito", "centro"]:
-            if lado in produtos_por_corredor.get(i, {}):
-                st.subheader(f"Lado {lado.capitalize()}")
-                for marca in sorted(produtos_por_corredor[i][lado].keys()):
-                    try:
-                        logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
-                        with open(logo_path, "rb") as img_file:
-                            logo_encoded = base64.b64encode(img_file.read()).decode()
-                        st.markdown(f"<img src='data:image/png;base64,{logo_encoded}' width='150'>", unsafe_allow_html=True)
-                    except Exception:
-                        st.warning(f"Logo da marca **{marca}** não encontrada.")
-                    for prod in produtos_por_corredor[i][lado][marca]:
-                        st.markdown(f"**{prod['nome']}** | Quantidade: {prod['quantidade']}")
-                    st.markdown("---")
-
-# Exibição para a parte da frente (prateleiras)
-with abas[-1]:
-    st.header("Prateleiras")
-    if "frente" in produtos_por_corredor:
-        for marca in sorted(produtos_por_corredor["frente"].keys()):
-            try:
-                logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
-                with open(logo_path, "rb") as img_file:
-                    logo_encoded = base64.b64encode(img_file.read()).decode()
-                st.markdown(f"<img src='data:image/png;base64,{logo_encoded}' width='150'>", unsafe_allow_html=True)
-            except Exception:
-                st.warning(f"Logo da marca **{marca}** não encontrada.")
-            for prod in produtos_por_corredor["frente"][marca]:
-                st.markdown(f"**{prod['nome']}** | Quantidade: {prod['quantidade']}")
-            st.markdown("---")
-
-# Gerar QR Code para página de resultados
 if st.session_state.contagem:
     base_url = "https://cogpz234emkoeygixmfemn.streamlit.app/"
     params_dict = {"resultado": "1"}
@@ -1330,7 +1319,7 @@ if st.session_state.contagem:
         params_dict[sku] = str(qtd)
     query_string = urllib.parse.urlencode(params_dict)
     full_url = f"{base_url}/?{query_string}"
-
+    
     qr = qrcode.QRCode(box_size=10, border=4)
     qr.add_data(full_url)
     qr.make(fit=True)
@@ -1341,4 +1330,3 @@ if st.session_state.contagem:
     st.markdown(f"[Clique aqui para acessar a página de resultados]({full_url})", unsafe_allow_html=True)
 else:
     st.info("Nenhum produto bipado ainda!")
-
