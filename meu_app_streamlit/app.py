@@ -1155,47 +1155,38 @@ if "resultado" in params:
     # Cria abas para os grupos filtrados
     abas = st.tabs([titulo for titulo, _ in grupos_filtrados])
 
-# Exibe pedidos em cada aba
-for (titulo, lista_marcas), aba in zip(grupos_filtrados, abas):
-    with aba:
-        st.header(titulo)
-        for marca in lista_marcas:
-            if marca in agrupado_por_marca:
-                # Exibe a logo da marca antes dos produtos
-                try:
-                    logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
-                    with open(logo_path, "rb") as img_file:
-                        logo_encoded = base64.b64encode(img_file.read()).decode()
-                    st.markdown(
-                        f"<div style='background-color:white; display:inline-block; padding:5px;'>"
-                        f"<img src='data:image/png;base64,{logo_encoded}' width='150' style='margin-bottom: 10px;'>"
-                        f"</div>",
-                        unsafe_allow_html=True
-                    )
-                except Exception:
-                    st.warning(f"Logo da marca **{marca}** não encontrada.")
+    # Exibe pedidos em cada aba
+    for (titulo, lista_marcas), aba in zip(grupos_filtrados, abas):
+        with aba:
+            st.header(titulo)
+            for marca in lista_marcas:
+                if marca in agrupado_por_marca:
+                    # Exibe a logo da marca antes dos produtos
+                    try:
+                        logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
+                        with open(logo_path, "rb") as img_file:
+                            logo_encoded = base64.b64encode(img_file.read()).decode()
+                        st.markdown(
+                            f"<div style='background-color:white; display:inline-block; padding:5px;'>"
+                            f"<img src='data:image/png;base64,{logo_encoded}' width='150' style='margin-bottom: 10px;'>"
+                            f"</div>",
+                            unsafe_allow_html=True
+                        )
+                    except Exception:
+                        st.warning(f"Logo da marca **{marca}** não encontrada.")
 
-                # Lista os produtos daquela marca dentro do corredor
-                for prod in agrupado_por_marca[marca]:
-                    cp = prod.get("codigo_produto", "")
-                    sku = prod.get("sku")
-
-                    # Aplica cor ao nome do produto, se estiver no mapeamento
-                    if sku in produto_color_mapping:
-                        cor = produto_color_mapping[sku]
-                        nome_fmt = f"<span style='color:{cor};'><strong>{prod['nome']}</strong></span>"
-                    else:
+                    # Lista os produtos daquela marca dentro do corredor
+                    for prod in agrupado_por_marca[marca]:
+                        cp = prod.get("codigo_produto", "")
                         nome_fmt = f"<strong>{prod['nome']}</strong>"
-
-                    st.markdown(
-                        f"{nome_fmt} | Código do Produto: **{cp}** | Quantidade: **{prod['quantidade']}**",
-                        unsafe_allow_html=True
-                    )                    
+                        st.markdown(
+                            f"{nome_fmt} | Código do Produto: **{cp}** | Quantidade: **{prod['quantidade']}**",
+                            unsafe_allow_html=True
+                        )
                     st.markdown("---")
 
     st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
     st.stop()
-
 #################################
 # Página Principal (Interface)
 #################################
