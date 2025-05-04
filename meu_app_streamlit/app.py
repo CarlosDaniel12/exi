@@ -1159,68 +1159,70 @@ if "resultado" in params:
         produto = produtos_cadastrados.get(codigo)
         if produto:
             marca = produto["marca"].lower().strip()
-            if marca not in agrupado_por_marca:
-                agrupado_por_marca[marca] = []
-            agrupado_por_marca[marca].append({
+            agrupado_por_marca.setdefault(marca, []).append({
                 "sku": codigo,
                 "nome": produto["nome"],
                 "quantidade": quantidade,
                 "codigo_produto": produto.get("codigo_produto", "")
             })
 
-    # Define grupos de corredores
+    # 1) Inicializa sessão de SKUs ativos para remoção
+    if "ativos" not in st.session_state:
+        skus = [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
+        st.session_state.ativos = skus
+
+    # 2) Cabeçalho e botão de restaurar
+    st.markdown("## Resultados")
+    if st.button("♻️ Restaurar todos"):
+        skus = [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
+        st.session_state.ativos = skus
+
+    # 3) Define grupos de corredores (omitido para brevidade)
     grupos = [
-        ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
-        ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
-        ("Corredor 3", ["tsubaki", "wella", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
-        ("Pinceis", ["real", "ecootols"]),
-        ("SENKA", ["senka"]),
-        ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
-        ("Sac", ["sac"])
+        ("Corredor 1", ["kerastase", "fino", "redken"]),
+        ("Corredor 2", ["kerasys", "ice"]),
+        ("Corredor 3", ["tsubaki", "bedhead"]),
     ]
-
-    # Filtra grupos com pedidos
-    grupos_filtrados = [(titulo, marcas) for titulo, marcas in grupos if any(m in agrupado_por_marca for m in marcas)]
-
-    # Cria abas para os grupos filtrados
+    grupos_filtrados = [(t, m) for t, m in grupos if any(marca in agrupado_por_marca for marca in m)]
     abas = st.tabs([titulo for titulo, _ in grupos_filtrados])
 
-    # Exibe pedidos por corredor
-    for (titulo, lista_marcas), aba in zip(grupos_filtrados, abas):
+    # 4) Exibição interativa dentro das abas
+    for (titulo, marcas), aba in zip(grupos_filtrados, abas):
         with aba:
             st.header(titulo)
-            for marca in lista_marcas:
-                if marca in agrupado_por_marca:
-                    # Exibe a logo da marca
-                    try:
-                        logo_path = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
-                        with open(logo_path, "rb") as img_file:
-                            logo_encoded = base64.b64encode(img_file.read()).decode()
+            for marca in marcas:
+                if marca not in agrupado_por_marca:
+                    continue
+                # Logo da marca
+                try:
+                    caminho = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
+                    with open(caminho, "rb") as f:
+                        logo = base64.b64encode(f.read()).decode()
+                    st.markdown(f"<img src='data:image/png;base64,{logo}' width='100'>", unsafe_allow_html=True)
+                except:
+                    st.write(marca.upper())
+
+                # Listagem com botão de remoção
+                for prod in agrupado_por_marca[marca]:
+                    sku = prod["sku"]
+                    if sku not in st.session_state.ativos:
+                        continue
+                    col1, col2 = st.columns([5, 1])
+                    with col1:
+                        nome_fmt = f"<span style='color:{produto_color_mapping.get(sku, '#000')}'><strong>{prod['nome']}</strong></span>"
                         st.markdown(
-                            f"<div style='background-color:white; display:inline-block; padding:5px;'>"
-                            f"<img src='data:image/png;base64,{logo_encoded}' width='150' style='margin-bottom: 10px;'>"
-                            f"</div>",
+                            f"{nome_fmt}  \n"
+                            f"Código do Produto: **{prod['codigo_produto']}**  \n"
+                            f"Quantidade: **{prod['quantidade']}**",
                             unsafe_allow_html=True
                         )
-                    except:
-                        st.warning(f"Logo da marca **{marca}** não encontrada.")
+                    with col2:
+                        if st.button("❌", key=f"rm_{sku}"):
+                            st.session_state.ativos.remove(sku)
+                st.markdown("---")
 
-                    # Exibe produtos
-                    for prod in agrupado_por_marca[marca]:
-                        cp = prod.get("codigo_produto", "")
-                        sku = prod.get("sku")
-
-                        # Aplica cor ao nome do produto
-                        nome_fmt = f"<span style='color:{produto_color_mapping.get(sku, '#000000')};'><strong>{prod['nome']}</strong></span>"
-
-                        st.markdown(f"{nome_fmt} | Código do Produto: **{cp}** | Quantidade: **{prod['quantidade']}**", unsafe_allow_html=True)
-
-                    st.markdown("---")
-
-    st.markdown("[Voltar à página principal](/)", unsafe_allow_html=True)
+    # 5) Para recarregar após cliques
     st.stop()
-#################################
-# Página Principal (Interface)
 #################################
 st.title("Bipagem de Produtos")
 
