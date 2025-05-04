@@ -1131,16 +1131,9 @@ produto_color_mapping = {
 }
 
 # Inicializa variáveis na sessão
-if "contagem" not in st.session_state:
-    st.session_state.contagem = {}
-if "pedidos_bipados" not in st.session_state:
-    st.session_state.pedidos_bipados = []
-if "input_codigo" not in st.session_state:
-    st.session_state.input_codigo = ""
-if "nao_encontrados" not in st.session_state:
-    st.session_state.nao_encontrados = []
-if "uploaded_files" not in st.session_state:
-    st.session_state.uploaded_files = []
+for var in ["contagem", "pedidos_bipados", "input_codigo", "nao_encontrados", "uploaded_files"]:
+    if var not in st.session_state:
+        st.session_state[var] = [] if var not in ["input_codigo"] else ""
 
 #################################
 # Página de Resultados
@@ -1176,7 +1169,6 @@ if "resultado" in params:
     if st.button("♻️ Restaurar todos"):
         skus = [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
         st.session_state.ativos = skus
-        st.experimental_rerun()
 
     # 3) Define grupos de corredores (omitido para brevidade)
     grupos = [
@@ -1230,7 +1222,6 @@ if "resultado" in params:
                     with col2:
                         if st.button("❌", key=f"rm_{sku}"):
                             st.session_state.ativos.remove(sku)
-                            st.experimental_rerun()
                 st.markdown("---")
 
     # 5) Para recarregar após cliques
