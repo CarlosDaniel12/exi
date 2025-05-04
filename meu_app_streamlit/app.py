@@ -1130,10 +1130,17 @@ produto_color_mapping = {
     "6101625": "#09a7bb", "6101580": "#02a1c2"
 }
 
-# Inicializa variáveis na sessão
+# Funções de callback para remoção e restauração
+def remove_sku(sku):
+    """Remove o SKU da lista ativa"""
+    ativos = st.session_state.ativos
+    if sku in ativos:
+        ativos.remove(sku)
+
+# Inicializa variáveis na sessão básicas
 for var in ["contagem", "pedidos_bipados", "input_codigo", "nao_encontrados", "uploaded_files"]:
     if var not in st.session_state:
-        st.session_state[var] = [] if var not in ["input_codigo"] else ""
+        st.session_state[var] = [] if var != "input_codigo" else ""
 
 #################################
 # Página de Resultados
@@ -1161,14 +1168,16 @@ if "resultado" in params:
 
     # 1) Inicializa sessão de SKUs ativos para remoção
     if "ativos" not in st.session_state:
-        skus = [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
-        st.session_state.ativos = skus
+        st.session_state.ativos = [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
 
-    # 2) Cabeçalho e botão de restaurar
+    # 2) Cabeçalho e botão de restaurar com callback
     st.markdown("## Resultados")
-    if st.button("♻️ Restaurar todos"):
-        skus = [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
-        st.session_state.ativos = skus
+    st.button(
+        "♻️ Restaurar todos",
+        on_click=lambda: st.session_state.ativos.clear() or st.session_state.ativos.extend(
+            [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
+        )
+    )
 
     # 3) Define grupos de corredores (omitido para brevidade)
     grupos = [
@@ -1199,7 +1208,7 @@ if "resultado" in params:
                 except FileNotFoundError:
                     st.write(marca.upper())
 
-                # Listagem com botão de remoção
+                # Listagem com botão de remoção (usando callback)
                 for prod in agrupado_por_marca[marca]:
                     sku = prod["sku"]
                     if sku not in st.session_state.ativos:
@@ -1220,11 +1229,15 @@ if "resultado" in params:
                             unsafe_allow_html=True
                         )
                     with col2:
-                        if st.button("❌", key=f"rm_{sku}"):
-                            st.session_state.ativos.remove(sku)
+                        st.button(
+                            "❌",
+                            key=f"rm_{sku}",
+                            on_click=remove_sku,
+                            args=(sku,)
+                        )
                 st.markdown("---")
 
-    # 5) Para recarregar após cliques
+    # 5) Finaliza para que o Streamlit atualize após callbacks
     st.stop()
 #################################
 st.title("Bipagem de Produtos")
