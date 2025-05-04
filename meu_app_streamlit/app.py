@@ -16,8 +16,20 @@ CAMINHO_LOGOS = "C:/meu_app_streamlit/logos" if os.path.exists("C:/meu_app_strea
 
 # INSIRA SUA BASE DE PRODUTOS AQUI
 lista_produtos = {
-    "H0270321": {"nome": "Oxidante Creme 75ml 20 Vol", "marca": "loreal", "codigo_produto": "7896014179541"},
-      "E3825500": {"nome": "Curl Expression Gelée Lavante Anti-résidus 300ml", "marca": "loreal", "codigo_produto": "3474637069087"},
+
+ "10170578202": {"nome": " White Clay 120g", "marca": "senka", "codigo_produto": "4550516474636"}, 
+ "10170584202": {"nome": " Whip Speedy 150ml", "marca": "senka", "codigo_produto": "4550516705846"},
+ "10170766201": {"nome": " Low PH Calming Cica 100g", "marca": "senka", "codigo_produto": "4550516707666"}, 
+ "10170588202": {"nome": " Whip Fresh 100", "marca": "senka", "codigo_produto": "4550516705884"}, 
+ "10170583202": {"nome": " Whip Collagen In 50g", "marca": "senka", "codigo_produto": "4550516705839"}, 
+ "10170581202": {"nome": " Whip Collagen 120g", "marca": "senka", "codigo_produto": "4550516474582"},
+ "10170577202": {"nome": " Whip A 50G", "marca": "senka", "codigo_produto": "4550516705778"}, 
+ "10170573202": {"nome": " Whip 120g", "marca": "senka", "codigo_produto": "4550516474568"},
+ "5D267": {"nome": " Foamy Foam Maker 100ml", "marca": "senka", "codigo_produto": "2114284531193"},
+
+  
+  "H0270321": {"nome": "Oxidante Creme 75ml 20 Vol", "marca": "loreal", "codigo_produto": "7896014179541"},
+  "E3825500": {"nome": "Curl Expression Gelée Lavante Anti-résidus 300ml", "marca": "loreal", "codigo_produto": "3474637069087"},
   "E3564101": {"nome": "Absolut Repair - Mask 250ml", "marca": "loreal", "codigo_produto": "3474636975310"},
   "E3574500": {"nome": "Absolut Repair - Oil 90ml", "marca": "loreal", "codigo_produto": "3474636977369"},
   "E3795000": {"nome": "Absolut Repair - Óleo 10 em 1 30ml", "marca": "loreal", "codigo_produto": "3474637052263"},
@@ -1099,7 +1111,12 @@ produto_color_mapping = {
     "51038E_5": "#faeba9", "51076E_5": "#ecc7cc", "50291E_5": "#ecc7cc",
     "03839BR": "#ecc7cc", "39951E_5": "#ecc7cc", "51083E_5": "#ecc7cc",
     "39944E_5": "#ecc7cc", "50284E_5": "#ecc7cc", "51090E_5": "#ecc7cc",
-
+    
+    # SENKA
+    "10170578202": "#ffffff", "5D267": "#ffffff", "10170584202": "#0190cb",
+    "10170573202": "#0190cb", "10170577202": "#0190cb", "10170581202": "#dc9fac",
+    "10170583202": "#dc9fac", "10170766201": "#27a584", "10170588202": "#acc674",
+    
     # KERASYS
     "6066186": "#1e90ff", "6066715": "#1e90ff", "6066185": "#1e90ff",
     "6066183": "#1e90ff", "6066711": "#1e90ff", "6066182": "#1e90ff",
@@ -1157,6 +1174,7 @@ if "resultado" in params:
         ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
         ("Corredor 3", ["tsubaki", "wella", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
         ("Pinceis", ["real", "ecootols"]),
+        ("SENKA", ["senka"]),
         ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
         ("Sac", ["sac"])
     ]
@@ -1285,10 +1303,20 @@ st.markdown(
 st.text_input("", key="input_codigo", on_change=processar)
 
 if st.session_state.nao_encontrados:
-    with st.expander("❗ Códigos não cadastrados no sistema"):
+    qtd_nao = len(st.session_state.nao_encontrados)
+    # Mensagem de alerta persistente
+    st.markdown(
+        f"<div style='background-color:#ffcccc; padding:10px; border-radius:5px; color:red; text-align:center;'>"
+        f"⚠️ ATENÇÃO: {qtd_nao} pedido(s) não foram lidos!"
+        f"</div>",
+        unsafe_allow_html=True
+    )
+    
+    # Expander para visualizar os SKUs não lidos
+    titulo_expander = f"<span style='color:red;'>Clique aqui para visualizar os {qtd_nao} pedidos não lidos.</span>"
+    with st.expander(titulo_expander, expanded=False):
         for entrada in st.session_state.nao_encontrados:
             st.markdown(f"- {entrada}")
-
 marcas_com_produtos = []
 for cod in st.session_state.contagem:
     produto = produtos_cadastrados.get(cod)
