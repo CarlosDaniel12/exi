@@ -1172,7 +1172,7 @@ if "resultado" in params:
         st.session_state.ativos = skus
 
     # 2) Cabeçalho e botão de restaurar
-     st.markdown("## Resultados")
+    st.markdown("## Resultados")
     if st.button("♻️ Restaurar todos"):
         skus = [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
         st.session_state.ativos = skus
@@ -1194,13 +1194,17 @@ if "resultado" in params:
             for marca in marcas:
                 if marca not in agrupado_por_marca:
                     continue
+
                 # Logo da marca
                 try:
                     caminho = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
                     with open(caminho, "rb") as f:
                         logo = base64.b64encode(f.read()).decode()
-                    st.markdown(f"<img src='data:image/png;base64,{logo}' width='100'>", unsafe_allow_html=True)
-                except:
+                    st.markdown(
+                        f"<img src='data:image/png;base64,{logo}' width='100'>",
+                        unsafe_allow_html=True
+                    )
+                except FileNotFoundError:
                     st.write(marca.upper())
 
                 # Listagem com botão de remoção
@@ -1208,9 +1212,15 @@ if "resultado" in params:
                     sku = prod["sku"]
                     if sku not in st.session_state.ativos:
                         continue
+
                     col1, col2 = st.columns([5, 1])
                     with col1:
-                        nome_fmt = f"<span style='color:{produto_color_mapping.get(sku, '#000')}'><strong>{prod['nome']}</strong></span>"
+                        color = produto_color_mapping.get(sku, "#000")
+                        nome_fmt = (
+                            f"<span style='color:{color};'>"
+                            f"<strong>{prod['nome']}</strong>"
+                            f"</span>"
+                        )
                         st.markdown(
                             f"{nome_fmt}  \n"
                             f"Código do Produto: **{prod['codigo_produto']}**  \n"
