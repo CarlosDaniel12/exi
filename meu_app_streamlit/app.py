@@ -1172,10 +1172,11 @@ if "resultado" in params:
         st.session_state.ativos = skus
 
     # 2) Cabeçalho e botão de restaurar
-    st.markdown("## Resultados")
+     st.markdown("## Resultados")
     if st.button("♻️ Restaurar todos"):
         skus = [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
         st.session_state.ativos = skus
+        st.experimental_rerun()
 
     # 3) Define grupos de corredores (omitido para brevidade)
     grupos = [
@@ -1219,6 +1220,7 @@ if "resultado" in params:
                     with col2:
                         if st.button("❌", key=f"rm_{sku}"):
                             st.session_state.ativos.remove(sku)
+                            st.experimental_rerun()
                 st.markdown("---")
 
     # 5) Para recarregar após cliques
