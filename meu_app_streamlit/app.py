@@ -1292,14 +1292,24 @@ def tentar_ler_csv(uploaded_file):
     return tentar_ler_csv_cache(file_bytes)
 
 def processar():
+    # ─────────── Inicialização segura ───────────
+    # Contagem deve ser dict
+    if "contagem" not in st.session_state or not isinstance(st.session_state.contagem, dict):
+        st.session_state.contagem = {}
+    # nao_encontrados deve ser lista
+    if "nao_encontrados" not in st.session_state or not isinstance(st.session_state.nao_encontrados, list):
+        st.session_state.nao_encontrados = []
+
     codigos_input = st.session_state.input_codigo.strip()
     if not codigos_input:
         return
+
     codigos = re.split(r'[\s,]+', codigos_input)
     uploaded_files = st.session_state.get('uploaded_files', [])
     if not uploaded_files:
         st.error("⚠️ Nenhum arquivo CSV carregado!")
         return
+
     for uploaded_file in uploaded_files:
         df = tentar_ler_csv(uploaded_file)
         if df is None:
@@ -1307,7 +1317,12 @@ def processar():
         if "sku" not in df.columns or "número pedido" not in df.columns:
             st.error(f"CSV {uploaded_file.name} inválido. As colunas obrigatórias 'SKU' e 'Número pedido' não foram encontradas.")
             return
-        df["sku"] = df["sku"].apply(lambda x: str(int(float(str(x).replace(",", "").replace(" ", "").strip()))) if "E+" in str(x) else str(x).strip())
+
+        df["sku"] = df["sku"].apply(
+            lambda x: str(int(float(str(x).replace(",", "").replace(" ", "").strip())))
+            if "E+" in str(x) else str(x).strip()
+        )
+
         for codigo in codigos:
             pedidos = df[df["número pedido"].astype(str).str.strip() == codigo]
             if not pedidos.empty:
@@ -1315,18 +1330,26 @@ def processar():
                     for sku_individual in str(sku).split("+"):
                         sku_individual = sku_individual.strip()
                         if sku_individual in produtos_cadastrados:
-                            st.session_state.contagem[sku_individual] = st.session_state.contagem.get(sku_individual, 0) + 1
+                            # aqui contagem é dict, get vai funcionar
+                            st.session_state.contagem[sku_individual] = (
+                                st.session_state.contagem.get(sku_individual, 0) + 1
+                            )
                         else:
                             entrada = f"Pedido {codigo} → SKU: {sku_individual}"
                             if entrada not in st.session_state.nao_encontrados:
                                 st.session_state.nao_encontrados.append(entrada)
             else:
+                # código direto (sem pedido)
                 if codigo in produtos_cadastrados:
-                    st.session_state.contagem[codigo] = st.session_state.contagem.get(codigo, 0) + 1
+                    st.session_state.contagem[codigo] = (
+                        st.session_state.contagem.get(codigo, 0) + 1
+                    )
                 else:
                     entrada = f"Código direto → SKU: {codigo}"
                     if entrada not in st.session_state.nao_encontrados:
                         st.session_state.nao_encontrados.append(entrada)
+
+    # limpa input
     st.session_state.input_codigo = ""
 
 if st.button("🔄 Limpar pedidos bipados"):
