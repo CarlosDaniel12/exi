@@ -1213,9 +1213,12 @@ if "resultado" in params:
 
     # 3) Define grupos de corredores (omitido para brevidade)
     grupos = [
-        ("Corredor 1", ["kerastase", "fino", "redken"]),
-        ("Corredor 2", ["kerasys", "ice"]),
-        ("Corredor 3", ["tsubaki", "bedhead"]),
+        ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
+        ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
+        ("Corredor 3", ["tsubaki", "wella", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
+        ("Pinceis", ["real", "ecootols"]),
+        ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
+        ("Sac", ["sac"])
     ]
     grupos_filtrados = [(t, m) for t, m in grupos if any(marca in agrupado_por_marca for marca in m)]
     abas = st.tabs([titulo for titulo, _ in grupos_filtrados])
