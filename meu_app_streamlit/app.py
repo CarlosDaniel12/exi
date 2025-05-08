@@ -827,7 +827,7 @@ lista_produtos = {
   "111316081": {"nome": "ROYAL JELLY PROTEIN CONDI TREATMENT 1000ml", "marca": "mise","codigo_produto": "8809803586481"},
   "111316080": {"nome": "ROYAL JELLY PROTEIN SHAMPOO 1000ml", "marca": "mise","codigo_produto": "8809803586474"},
   "111316295": {"nome": "SALON 10 DAMAGED HAIR 250ml", "marca": "mise","codigo_produto": "8809685832560" },
-  "111316055": {"nome": "SALON 10 DAMAGED HAIR 250ml", "marca": "mise","codigo_produto": "8809925152816"},
+  "111316215": {"nome": "SALON 10 DAMAGED HAIR 250ml", "marca": "mise","codigo_produto": "8809925152816"},
   "111316297": {"nome": "SALON 10  DAMAGED HAIR 990ml", "marca": "mise","codigo_produto": "8809685797050"},
   "111316296": {"nome": "SALON 10  EXTREMELY DAMAGED HAIR 250ml", "marca": "mise","codigo_produto": "8809685832577"},
   "111316056": {"nome": "SALON 10  EXTREMELY DAMAGED HAIR 250ml", "marca": "mise","codigo_produto": "8809925152816"  },
@@ -1434,5 +1434,4 @@ if st.session_state.contagem:
     st.markdown(f"[Clique aqui para acessar a página de resultados]({full_url})", unsafe_allow_html=True)
 else:
     st.info("Nenhum produto bipado ainda!")
-
 
