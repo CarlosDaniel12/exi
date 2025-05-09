@@ -25,9 +25,7 @@ lista_produtos = {
  "10170581202": {"nome": " Whip Collagen 120g", "marca": "senka", "codigo_produto": "4550516474582"},
  "10170577202": {"nome": " Whip A 50G", "marca": "senka", "codigo_produto": "4550516705778"}, 
  "10170573202": {"nome": " Whip 120g", "marca": "senka", "codigo_produto": "4550516474568"},
- "5D267": {"nome": " Foamy Foam Maker 100ml", "marca": "senka", "codigo_produto": "2114284531193"},
-
-  
+ "5D267": {"nome": " Foamy Foam Maker 100ml", "marca": "senka", "codigo_produto": "2114284531193"}, 
   "H0270321": {"nome": "Oxidante Creme 75ml 20 Vol", "marca": "loreal", "codigo_produto": "7896014179541"},
   "E3825500": {"nome": "Curl Expression Gelée Lavante Anti-résidus 300ml", "marca": "loreal", "codigo_produto": "3474637069087"},
   "E3564101": {"nome": "Absolut Repair - Mask 250ml", "marca": "loreal", "codigo_produto": "3474636975310"},
@@ -595,6 +593,8 @@ lista_produtos = {
   "ADS 200": {"nome": "ADS 200", "marca": "purederm","codigo_produto": "8809052582593"},
   "ADS 822": {"nome": "ADS 822 PUREDERM TROUBLE CLEAR SPOT 22 PATCHES", "marca": "purederm","codigo_produto": "8809738321089"},
   "PR 413": {"nome": "PR 413 - DAILYMOSTURE HANDCREAM 50ML", "marca": "purederm","codigo_produto": "8809738320365"},
+  "PR 537": {"nome": "PR 537 - PUREDERM PRRETI PH BALANCING  HYALURONIC CLEANSING OIL 200ML", "marca": "purederm","codigo_produto": "8809738320365"},
+
   "PR 408": {"nome": "PR 408 - PUREDERM HONEY & BERRY LIP SLEEPING MASK 15G", "marca": "purederm","codigo_produto": "8809411188657"},
   "PR 419": {"nome": "PR 419 - PUREDERM Prreti: Biome Collagen Eye Cream 30ml", "marca": "purederm","codigo_produto": "8809738323694"},
   "PR 420": {"nome": "PR 420 - PUREDERM P/R REPAIR CERAMIDE CREAM 50ML", "marca": "purederm","codigo_produto": "8809738323700"},
@@ -827,7 +827,7 @@ lista_produtos = {
   "111316081": {"nome": "ROYAL JELLY PROTEIN CONDI TREATMENT 1000ml", "marca": "mise","codigo_produto": "8809803586481"},
   "111316080": {"nome": "ROYAL JELLY PROTEIN SHAMPOO 1000ml", "marca": "mise","codigo_produto": "8809803586474"},
   "111316295": {"nome": "SALON 10 DAMAGED HAIR 250ml", "marca": "mise","codigo_produto": "8809685832560" },
-  "111316215": {"nome": "SALON 10 DAMAGED HAIR 250ml", "marca": "mise","codigo_produto": "8809925152816"},
+  "111316055": {"nome": "SALON 10 DAMAGED HAIR 250ml", "marca": "mise","codigo_produto": "8809925152816"},
   "111316297": {"nome": "SALON 10  DAMAGED HAIR 990ml", "marca": "mise","codigo_produto": "8809685797050"},
   "111316296": {"nome": "SALON 10  EXTREMELY DAMAGED HAIR 250ml", "marca": "mise","codigo_produto": "8809685832577"},
   "111316056": {"nome": "SALON 10  EXTREMELY DAMAGED HAIR 250ml", "marca": "mise","codigo_produto": "8809925152816"  },
@@ -888,6 +888,9 @@ lista_produtos = {
   "E4068200": {"nome": "Acidic Color Gloss - Condicionador 300ml", "marca": "redken","codigo_produto": "3474637173463"},
   "E4069500": {"nome": "Acidic Color Gloss - Leave-in 190ml", "marca": "redken","codigo_produto": "3474637174170"},
   "E4068500": {"nome": "Acidic Color Gloss - Shampoo 300ml", "marca": "redken","codigo_produto": "3474637173494"},
+  
+  "E4195600": {"nome": "Acidic Bonding Concentrate - 24/7 Night & Day Serum 100ml", "marca": "redken","codigo_produto": "884486532879"},
+  
   "P2567800": {"nome": "Acidic Color Gloss - Tratamento 237ml", "marca": "redken","codigo_produto": "0884486516732"},
   "P1997303": {"nome": "All Soft - Argan Oil 111ml", "marca": "redken","codigo_produto": "0884486452993"},
   "H2273502": {"nome": "All Soft - Condicionador 1L", "marca": "redken","codigo_produto": "7899706170956"},
@@ -1214,11 +1217,11 @@ if "resultado" in params:
     # 3) Define grupos de corredores (omitido para brevidade)
     grupos = [
         ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
-        ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
+        ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "senka" "image"]),
         ("Corredor 3", ["tsubaki", "wella", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
-        ("Pinceis", ["real", "ecootols"]),
-        ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
-        ("Sac", ["sac"])
+        ("Pinceis", ["real", "Ecootols"]),
+        ("Dr.purederm", ["dr.pawpaw", "purederm"]),
+        ("sac", ["sac"])
     ]
     grupos_filtrados = [(t, m) for t, m in grupos if any(marca in agrupado_por_marca for marca in m)]
     abas = st.tabs([titulo for titulo, _ in grupos_filtrados])
@@ -1437,4 +1440,5 @@ if st.session_state.contagem:
     st.markdown(f"[Clique aqui para acessar a página de resultados]({full_url})", unsafe_allow_html=True)
 else:
     st.info("Nenhum produto bipado ainda!")
+
 
