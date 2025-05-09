@@ -1298,13 +1298,13 @@ def tentar_ler_csv(uploaded_file):
     return tentar_ler_csv_cache(file_bytes)
 
 def processar():
-    # ─────────── Inicializa estruturas da sessão ───────────
+    # ───────── Inicializa estruturas da sessão ─────────
     if "contagem" not in st.session_state or not isinstance(st.session_state.contagem, dict):
         st.session_state.contagem = {}
     if "nao_encontrados" not in st.session_state or not isinstance(st.session_state.nao_encontrados, list):
         st.session_state.nao_encontrados = []
 
-    # ─────────── Captura e valida entrada ───────────
+    # ───────── Captura e valida entrada ─────────
     codigos_input = st.session_state.input_codigo.strip()
     if not codigos_input:
         return
@@ -1315,7 +1315,7 @@ def processar():
         st.error("⚠️ Nenhum arquivo CSV carregado!")
         return
 
-    # ─────────── Processa cada arquivo enviado ───────────
+    # ───────── Processa cada arquivo enviado ─────────
     for uploaded_file in uploaded_files:
         df = tentar_ler_csv(uploaded_file)
         if df is None:
@@ -1330,11 +1330,14 @@ def processar():
             if "E+" in str(x) else str(x).strip()
         )
 
-        # ─────────── Processa os códigos digitados ───────────
+        # ───────── Processa os códigos digitados ─────────
         for codigo in codigos:
             pedidos = df[df["número pedido"].astype(str).str.strip() == codigo]
             if not pedidos.empty:
                 for sku in pedidos["sku"]:
+                    if pd.isna(sku) or str(sku).strip().lower() in ["", "nan"]:
+                        continue  # ignora SKU vazio ou NaN
+
                     skus_nao_encontrados = []
                     for sku_individual in str(sku).split("+"):
                         sku_individual = sku_individual.strip()
@@ -1360,7 +1363,7 @@ def processar():
                     if entrada not in st.session_state.nao_encontrados:
                         st.session_state.nao_encontrados.append(entrada)
 
-    # ─────────── Limpa o campo de entrada para novo uso ───────────
+    # ───────── Limpa o campo de entrada para novo uso ─────────
     st.session_state.input_codigo = ""
 
 if st.button("🔄 Limpar pedidos bipados"):
