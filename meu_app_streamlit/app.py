@@ -840,6 +840,11 @@ lista_produtos = {
   "111316411": {"nome": "Perfect Serum Styling Kit 110ml + 30ml", "marca": "mise","codigo_produto": "8809925175099"},
   "111316405": {"nome": "Perfect Serum Super Rich Kit 110ml + 30ml", "marca": "mise","codigo_produto": "8809925172708"},
   "111316406": {"nome": "Perfect Serum Watery Kit 110ml + 30ml", "marca": "mise","codigo_produto": "8809925173910"},
+
+"KD1100": {"nome": "MES PERFECTS. sérum original 110ml", "marca": "mise","codigo_produto": "00000000"},
+
+
+
   "111316308": {"nome": "Salon 10 Professional Cica Protein Mask 215ml", "marca": "mise","codigo_produto": "8809925152809"},
   "111316171": {"nome": "MES PERFECT S. ORIGINAL SERUM 30ML", "marca": "mise","codigo_produto": "8809803574921"},
   "111316351": {"nome": "Magic Straight Shampoo 530m", "marca": "mise","codigo_produto": "8809925164741"},
