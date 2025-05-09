@@ -847,7 +847,8 @@ lista_produtos = {
   "111316405": {"nome": "Perfect Serum Super Rich Kit 110ml + 30ml", "marca": "mise","codigo_produto": "8809925172708"},
   "111316406": {"nome": "Perfect Serum Watery Kit 110ml + 30ml", "marca": "mise","codigo_produto": "8809925173910"},
 
-"KD1100": {"nome": "MES PERFECTS. sérum original 110ml", "marca": "mise","codigo_produto": "00000000"},
+"KD1100": {"nome": "MES PERFECTS. serum original 110ml", "marca": "mise","codigo_produto": "00000000"},
+"111315566 110ml": {"nome": "MES PERFECTS. serum styling 110ml", "marca": "mise","codigo_produto": "00000000"},
 
 
 
