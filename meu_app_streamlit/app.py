@@ -1176,37 +1176,34 @@ def remove_sku(sku):
 # Inicializa variáveis na sessão básicas
 for var in ["contagem", "pedidos_bipados", "input_codigo", "nao_encontrados", "uploaded_files"]:
     if var not in st.session_state:
-        st.session_state[var] = [] if var != "input_codigo" else ""
+        st.session_state[var] = {} if var == "contagem" else [] if var != "input_codigo" else ""
 
 #################################
 # Página de Resultados
 #################################
-params = st.query_params
-if "resultado" in params:
+if st.session_state.contagem:
     st.title("Resumo do Pedido - Organizado")
     st.markdown("---")
 
-    # Agrupa os pedidos por marca
+    # Agrupa os pedidos por marca usando session_state.contagem
     agrupado_por_marca = {}
-    for codigo, valores in params.items():
-        if codigo == "resultado":
+    for sku, qtd in st.session_state.contagem.items():
+        produto = produtos_cadastrados.get(sku)
+        if not produto:
             continue
-        quantidade = valores[0] if valores else "0"
-        produto = produtos_cadastrados.get(codigo)
-        if produto:
-            marca = produto["marca"].lower().strip()
-            agrupado_por_marca.setdefault(marca, []).append({
-                "sku": codigo,
-                "nome": produto["nome"],
-                "quantidade": quantidade,
-                "codigo_produto": produto.get("codigo_produto", "")
-            })
+        marca = produto["marca"].lower().strip()
+        agrupado_por_marca.setdefault(marca, []).append({
+            "sku": sku,
+            "nome": produto["nome"],
+            "quantidade": str(qtd),
+            "codigo_produto": produto.get("codigo_produto", "")
+        })
 
-    # 1) Inicializa sessão de SKUs ativos para remoção
+    # Inicializa sessão de SKUs ativos para remoção
     if "ativos" not in st.session_state:
         st.session_state.ativos = [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
 
-    # 2) Cabeçalho e botão de restaurar com callback
+    # Cabeçalho e botão de restaurar com callback
     st.markdown("## Resultados")
     st.button(
         "♻️ Restaurar todos",
@@ -1215,7 +1212,7 @@ if "resultado" in params:
         )
     )
 
-    # 3) Define grupos de corredores (omitido para brevidade)
+    # Define grupos de corredores
     grupos = [
         ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
         ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "senka", "image"]),
@@ -1224,15 +1221,18 @@ if "resultado" in params:
         ("Dr.purederm", ["dr.pawpaw", "purederm"]),
         ("sac", ["sac"])
     ]
-    grupos_filtrados = [(t, m) for t, m in grupos if any(marca in agrupado_por_marca for marca in m)]
+    # Se quiser exibir sempre todas as abas, use diretamente 'grupos'
+    grupos_filtrados = grupos
     abas = st.tabs([titulo for titulo, _ in grupos_filtrados])
 
-    # 4) Exibição interativa dentro das abas
+    # Exibição interativa dentro das abas
     for (titulo, marcas), aba in zip(grupos_filtrados, abas):
         with aba:
             st.header(titulo)
             for marca in marcas:
-                if marca not in agrupado_por_marca:
+                itens_marca = agrupado_por_marca.get(marca)
+                if not itens_marca:
+                    st.write("Nenhum item para esta marca.")
                     continue
 
                 # Logo da marca
@@ -1247,8 +1247,8 @@ if "resultado" in params:
                 except FileNotFoundError:
                     st.write(marca.upper())
 
-                # Listagem com botão de remoção (usando callback)
-                for prod in agrupado_por_marca[marca]:
+                # Listagem com botão de remoção
+                for prod in itens_marca:
                     sku = prod["sku"]
                     if sku not in st.session_state.ativos:
                         continue
@@ -1257,14 +1257,12 @@ if "resultado" in params:
                     with col1:
                         color = produto_color_mapping.get(sku, "#000")
                         nome_fmt = (
-                            f"<span style='color:{color};'>"
-                            f"<strong>{prod['nome']}</strong>"
-                            f"</span>"
+                            f"<span style='color:{color};'><strong>{prod['nome']}</strong></span>"
                         )
                         st.markdown(
                             f"{nome_fmt}  \n"
-                            f"Código do Produto: **{prod['codigo_produto']}**  \n"
-                            f"Quantidade: **{prod['quantidade']}**",
+                            f"Código do Produto: *{prod['codigo_produto']}*  \n"
+                            f"Quantidade: *{prod['quantidade']}*",
                             unsafe_allow_html=True
                         )
                     with col2:
@@ -1276,38 +1274,50 @@ if "resultado" in params:
                         )
                 st.markdown("---")
 
-    # 5) Finaliza para que o Streamlit atualize após callbacks
+    # Para que o Streamlit atualize após callbacks
     st.stop()
+
+#################################
+# Página de Bipagem de Produtos
 #################################
 st.title("Bipagem de Produtos")
 
-uploaded_files = st.file_uploader("Envie os CSVs do pedido exportados do Bling:", type=["csv"], accept_multiple_files=True)
+uploaded_files = st.file_uploader(
+    "Envie os CSVs do pedido exportados do Bling:",
+    type=["csv"],
+    accept_multiple_files=True
+)
 if uploaded_files:
     st.session_state.uploaded_files = uploaded_files
 
 @st.cache_data(show_spinner=True)
 def tentar_ler_csv_cache(file_bytes):
     try:
-        df = pd.read_csv(BytesIO(file_bytes), sep=";", dtype=str, encoding="utf-8", on_bad_lines="skip", engine="python")
+        df = pd.read_csv(
+            BytesIO(file_bytes), sep=";", dtype=str,
+            encoding="utf-8", on_bad_lines="skip", engine="python"
+        )
     except UnicodeDecodeError:
-        df = pd.read_csv(BytesIO(file_bytes), sep=";", dtype=str, encoding="latin-1", on_bad_lines="skip", engine="python")
+        df = pd.read_csv(
+            BytesIO(file_bytes), sep=";", dtype=str,
+            encoding="latin-1", on_bad_lines="skip", engine="python"
+        )
     df.columns = df.columns.str.strip().str.lower()
     return df
 
+
 def tentar_ler_csv(uploaded_file):
-    file_bytes = uploaded_file.getvalue()
-    return tentar_ler_csv_cache(file_bytes)
+    return tentar_ler_csv_cache(uploaded_file.getvalue())
+
 
 def processar():
-    # ─────────── Inicializa estruturas da sessão ───────────
-    # ───────── Inicializa estruturas da sessão ─────────
+    # Inicializa estruturas da sessão
     if "contagem" not in st.session_state or not isinstance(st.session_state.contagem, dict):
         st.session_state.contagem = {}
     if "nao_encontrados" not in st.session_state or not isinstance(st.session_state.nao_encontrados, list):
         st.session_state.nao_encontrados = []
 
-    # ─────────── Captura e valida entrada ───────────
-    # ───────── Captura e valida entrada ─────────
+    # Captura e valida entrada
     codigos_input = st.session_state.input_codigo.strip()
     if not codigos_input:
         return
@@ -1318,47 +1328,45 @@ def processar():
         st.error("⚠️ Nenhum arquivo CSV carregado!")
         return
 
-    # ─────────── Processa cada arquivo enviado ───────────
-    # ───────── Processa cada arquivo enviado ─────────
+    # Processa cada arquivo enviado
     for uploaded_file in uploaded_files:
         df = tentar_ler_csv(uploaded_file)
         if df is None:
             continue
         if "sku" not in df.columns or "número pedido" not in df.columns:
-            st.error(f"CSV {uploaded_file.name} inválido. As colunas obrigatórias 'SKU' e 'Número pedido' não foram encontradas.")
+            st.error(
+                f"CSV {uploaded_file.name} inválido. As colunas obrigatórias 'SKU' e 'Número pedido' não foram encontradas."
+            )
             return
 
-        # Trata o campo SKU
         df["sku"] = df["sku"].apply(
-            lambda x: str(int(float(str(x).replace(",", "").replace(" ", "").strip())))
+            lambda x: str(int(float(str(x).replace(",", "").replace(" \n", "").strip())))
             if "E+" in str(x) else str(x).strip()
         )
 
-        # ─────────── Processa os códigos digitados ───────────
-        # ───────── Processa os códigos digitados ─────────
+        # Processa os códigos digitados
         for codigo in codigos:
             pedidos = df[df["número pedido"].astype(str).str.strip() == codigo]
             if not pedidos.empty:
                 for sku in pedidos["sku"]:
                     if pd.isna(sku) or str(sku).strip().lower() in ["", "nan"]:
-                        continue  # ignora SKU vazio ou NaN
+                        continue
 
-                    skus_nao_encontrados = []
+                    skus_nao = []
                     for sku_individual in str(sku).split("+"):
-                        sku_individual = sku_individual.strip()
-                        if sku_individual in produtos_cadastrados:
-                            st.session_state.contagem[sku_individual] = (
-                                st.session_state.contagem.get(sku_individual, 0) + 1
+                        sku_i = sku_individual.strip()
+                        if sku_i in produtos_cadastrados:
+                            st.session_state.contagem[sku_i] = (
+                                st.session_state.contagem.get(sku_i, 0) + 1
                             )
                         else:
-                            skus_nao_encontrados.append(sku_individual)
+                            skus_nao.append(sku_i)
 
-                    if skus_nao_encontrados:
-                        entrada = f"Pedido {codigo} → SKU(s) não encontrado(s): {', '.join(skus_nao_encontrados)}"
+                    if skus_nao:
+                        entrada = f"Pedido {codigo} → SKU(s) não encontrado(s): {', '.join(skus_nao)}"
                         if entrada not in st.session_state.nao_encontrados:
                             st.session_state.nao_encontrados.append(entrada)
             else:
-                # Código direto (sem pedido)
                 if codigo in produtos_cadastrados:
                     st.session_state.contagem[codigo] = (
                         st.session_state.contagem.get(codigo, 0) + 1
@@ -1368,21 +1376,22 @@ def processar():
                     if entrada not in st.session_state.nao_encontrados:
                         st.session_state.nao_encontrados.append(entrada)
 
-    # ─────────── Limpa o campo de entrada para novo uso ───────────
-    # ───────── Limpa o campo de entrada para novo uso ─────────
+    # Limpa o campo de entrada
     st.session_state.input_codigo = ""
+
 
 if st.button("🔄 Limpar pedidos bipados"):
     st.session_state.pedidos_bipados.clear()
     st.session_state.contagem.clear()
     st.session_state.nao_encontrados.clear()
 
+# Exibe logo EXI
 try:
-    exi_logo_path = os.path.join(CAMINHO_LOGOS, "exi.png")
-    with open(exi_logo_path, "rb") as image_file:
-        encoded = base64.b64encode(image_file.read()).decode()
+    path_exi = os.path.join(CAMINHO_LOGOS, "exi.png")
+    with open(path_exi, "rb") as img:
+        enc = base64.b64encode(img.read()).decode()
     st.markdown(
-        f"<div style='text-align: center;'><img src='data:image/png;base64,{encoded}' width='200'></div>",
+        f"<div style='text-align: center;'><img src='data:image/png;base64,{enc}' width='200'></div>",
         unsafe_allow_html=True
     )
 except:
@@ -1395,33 +1404,32 @@ st.markdown(
 )
 st.text_input("", key="input_codigo", on_change=processar)
 
+# Alerta para SKUs não encontrados
 if st.session_state.nao_encontrados:
     qtd_nao = len(st.session_state.nao_encontrados)
-    # Mensagem de alerta persistente
     st.markdown(
         f"<div style='background-color:#ffcccc; padding:10px; border-radius:5px; color:red; text-align:center;'>"
         f"⚠️ ATENÇÃO: {qtd_nao} pedido(s) não foram lidos!"
         f"</div>",
         unsafe_allow_html=True
     )
-
-    # Expander para visualizar os SKUs não lidos
-    titulo_expander = f"<span style='color:red;'>Clique aqui para visualizar os {qtd_nao} pedidos não lidos.</span>"
-    with st.expander(titulo_expander, expanded=False):
+    with st.expander(f"<span style='color:red;'>Clique aqui para visualizar os {qtd_nao} pedidos não lidos.</span>", expanded=False):
         for entrada in st.session_state.nao_encontrados:
             st.markdown(f"- {entrada}")
+
+# Exibe ícones e contagem por marca na página principal
 marcas_com_produtos = []
-for cod in st.session_state.contagem:
-    produto = produtos_cadastrados.get(cod)
-    if produto and produto["marca"] not in marcas_com_produtos:
-        marcas_com_produtos.append(produto["marca"])
+for cod, qtd in st.session_state.contagem.items():
+    prod = produtos_cadastrados.get(cod)
+    if prod and prod['marca'] not in marcas_com_produtos:
+        marcas_com_produtos.append(prod['marca'])
 
 marcas_por_linha = 4
 linhas = math.ceil(len(marcas_com_produtos) / marcas_por_linha)
 for i in range(linhas):
-    linha_marcas = marcas_com_produtos[i * marcas_por_linha:(i + 1) * marcas_por_linha]
-    cols = st.columns(len(linha_marcas))
-    for col, marca in zip(cols, linha_marcas):
+    linha = marcas_com_produtos[i * marcas_por_linha:(i + 1) * marcas_por_linha]
+    cols = st.columns(len(linha))
+    for col, marca in zip(cols, linha):
         with col:
             try:
                 img = Image.open(os.path.join(CAMINHO_LOGOS, f"{marca}.png"))
@@ -1429,13 +1437,14 @@ for i in range(linhas):
             except:
                 st.write(marca.upper())
             for cod, qtd in st.session_state.contagem.items():
-                produto = produtos_cadastrados.get(cod)
-                if produto and produto["marca"] == marca:
+                prod = produtos_cadastrados.get(cod)
+                if prod and prod['marca'] == marca:
                     st.markdown(
-                        f"<p style='margin-top: 0;'><strong>{produto['nome']}</strong> | Quantidade: {qtd}</p>",
+                        f"<p style='margin-top: 0;'><strong>{prod['nome']}</strong> | Quantidade: {qtd}</p>",
                         unsafe_allow_html=True
                     )
 
+# Geração do QR Code quando houver contagem
 if st.session_state.contagem:
     base_url = "https://cogpz234emkoeygixmfemn.streamlit.app/"
     params_dict = {"resultado": "1"}
