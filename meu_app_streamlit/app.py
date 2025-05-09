@@ -17,7 +17,8 @@ CAMINHO_LOGOS = "C:/meu_app_streamlit/logos" if os.path.exists("C:/meu_app_strea
 # INSIRA SUA BASE DE PRODUTOS AQUI
 lista_produtos = {
 
- "10170578202": {"nome": " White Clay 120g", "marca": "senka", "codigo_produto": "4550516474636"}, 
+ "10170578202": {"nome": " White Clay 120g", "marca": "senka", "codigo_produto": "4550516474636"},
+"5022484+10170577202": {"nome": " repair 200+senka whip 50", "marca": "senka", "codigo_produto": "4550516474636"}, 
  "10170584202": {"nome": " Whip Speedy 150ml", "marca": "senka", "codigo_produto": "4550516705846"},
  "10170766201": {"nome": " Low PH Calming Cica 100g", "marca": "senka", "codigo_produto": "4550516707666"}, 
  "10170588202": {"nome": " Whip Fresh 100", "marca": "senka", "codigo_produto": "4550516705884"}, 
