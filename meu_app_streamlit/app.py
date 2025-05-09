@@ -971,6 +971,11 @@ lista_produtos = {
   "25877-0": {"nome": "Invigo Sun Condicionador 200ml", "marca": "wella","codigo_produto": "4064666041650"},
   "24919-0": {"nome": "Invigo Sun Shampoo 250ml", "marca": "wella","codigo_produto": "3614226745880"},
   "25398-0": {"nome": "NutriCurls Shampoo Micellar 250ml", "marca": "wella","codigo_produto": "3614228865647"},
+
+"99350182189-0": {"nome": "ultimate repair night serum 30ml", "marca": "wella","codigo_produto": "000000000"},
+
+
+
   "26390-0": {"nome": "Oil Reflections Light 100ml", "marca": "wella","codigo_produto": "7898973417047"},
   "24637-0": {"nome": "Oil Reflections Luminous Instant Condicionador 200ml", "marca": "wella","codigo_produto": "7896235353881"},
   "24590-0": {"nome": "Oil Reflections Luminous Reboost Máscara Capilar 500ml", "marca": "wella","codigo_produto": "7896235353775"},
