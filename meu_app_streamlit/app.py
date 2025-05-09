@@ -816,6 +816,12 @@ lista_produtos = {
   "111315735": {"nome": "PERFECT S. ORIGINAL SHAMPOO 530ml", "marca": "mise","codigo_produto": "8809803540353"},
   "111315547": {"nome": "PERFECT S. ORIGINAL SHAMPOO 680ml", "marca": "mise","codigo_produto": "8809803548472"},
   "111315554": {"nome": "PERFECT S. ORIGINAL SHAMPOO 900ml", "marca": "mise","codigo_produto": "8809803548489"},
+
+"111315576": {"nome": "Serum watery 110ml", "marca": "mise","codigo_produto": "00000000000"},
+
+
+
+
   "111315563": {"nome": "PERFECT S. ROSE SERUM 80ml", "marca": "mise","codigo_produto": "8809803556217"},
   "111315561": {"nome": "PERFECT S. SERUM SUPER RICH 80ml", "marca": "mise","codigo_produto": "8809803556194"},
   "111315738": {"nome": "PERFECT S. STYLING CONDI 530ml", "marca": "mise","codigo_produto": "8809803540322"},
