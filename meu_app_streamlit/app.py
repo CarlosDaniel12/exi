@@ -1215,10 +1215,10 @@ if "resultado" in params:
         )
     )
 
-    # 3)  grupos de corredores 
+    # 3) Define grupos de corredores (omitido para brevidade)
     grupos = [
         ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
-        ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "senka" "image"]),
+        ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "senka", "image"]),
         ("Corredor 3", ["tsubaki", "wella", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
         ("Pinceis", ["real", "Ecootols"]),
         ("Dr.purederm", ["dr.pawpaw", "purederm"]),
@@ -1299,14 +1299,15 @@ def tentar_ler_csv(uploaded_file):
     return tentar_ler_csv_cache(file_bytes)
 
 def processar():
-    # ─────────── Inicialização segura ───────────
-    # Contagem deve ser dict
+    # ─────────── Inicializa estruturas da sessão ───────────
+    # ───────── Inicializa estruturas da sessão ─────────
     if "contagem" not in st.session_state or not isinstance(st.session_state.contagem, dict):
         st.session_state.contagem = {}
-    # nao_encontrados deve ser lista
     if "nao_encontrados" not in st.session_state or not isinstance(st.session_state.nao_encontrados, list):
         st.session_state.nao_encontrados = []
 
+    # ─────────── Captura e valida entrada ───────────
+    # ───────── Captura e valida entrada ─────────
     codigos_input = st.session_state.input_codigo.strip()
     if not codigos_input:
         return
@@ -1317,6 +1318,8 @@ def processar():
         st.error("⚠️ Nenhum arquivo CSV carregado!")
         return
 
+    # ─────────── Processa cada arquivo enviado ───────────
+    # ───────── Processa cada arquivo enviado ─────────
     for uploaded_file in uploaded_files:
         df = tentar_ler_csv(uploaded_file)
         if df is None:
@@ -1325,28 +1328,37 @@ def processar():
             st.error(f"CSV {uploaded_file.name} inválido. As colunas obrigatórias 'SKU' e 'Número pedido' não foram encontradas.")
             return
 
+        # Trata o campo SKU
         df["sku"] = df["sku"].apply(
             lambda x: str(int(float(str(x).replace(",", "").replace(" ", "").strip())))
             if "E+" in str(x) else str(x).strip()
         )
 
+        # ─────────── Processa os códigos digitados ───────────
+        # ───────── Processa os códigos digitados ─────────
         for codigo in codigos:
             pedidos = df[df["número pedido"].astype(str).str.strip() == codigo]
             if not pedidos.empty:
                 for sku in pedidos["sku"]:
+                    if pd.isna(sku) or str(sku).strip().lower() in ["", "nan"]:
+                        continue  # ignora SKU vazio ou NaN
+
+                    skus_nao_encontrados = []
                     for sku_individual in str(sku).split("+"):
                         sku_individual = sku_individual.strip()
                         if sku_individual in produtos_cadastrados:
-                            # aqui contagem é dict, get vai funcionar
                             st.session_state.contagem[sku_individual] = (
                                 st.session_state.contagem.get(sku_individual, 0) + 1
                             )
                         else:
-                            entrada = f"Pedido {codigo} → SKU: {sku_individual}"
-                            if entrada not in st.session_state.nao_encontrados:
-                                st.session_state.nao_encontrados.append(entrada)
+                            skus_nao_encontrados.append(sku_individual)
+
+                    if skus_nao_encontrados:
+                        entrada = f"Pedido {codigo} → SKU(s) não encontrado(s): {', '.join(skus_nao_encontrados)}"
+                        if entrada not in st.session_state.nao_encontrados:
+                            st.session_state.nao_encontrados.append(entrada)
             else:
-                # código direto (sem pedido)
+                # Código direto (sem pedido)
                 if codigo in produtos_cadastrados:
                     st.session_state.contagem[codigo] = (
                         st.session_state.contagem.get(codigo, 0) + 1
@@ -1356,7 +1368,8 @@ def processar():
                     if entrada not in st.session_state.nao_encontrados:
                         st.session_state.nao_encontrados.append(entrada)
 
-    # limpa input
+    # ─────────── Limpa o campo de entrada para novo uso ───────────
+    # ───────── Limpa o campo de entrada para novo uso ─────────
     st.session_state.input_codigo = ""
 
 if st.button("🔄 Limpar pedidos bipados"):
@@ -1391,7 +1404,7 @@ if st.session_state.nao_encontrados:
         f"</div>",
         unsafe_allow_html=True
     )
-    
+
     # Expander para visualizar os SKUs não lidos
     titulo_expander = f"<span style='color:red;'>Clique aqui para visualizar os {qtd_nao} pedidos não lidos.</span>"
     with st.expander(titulo_expander, expanded=False):
@@ -1402,7 +1415,7 @@ for cod in st.session_state.contagem:
     produto = produtos_cadastrados.get(cod)
     if produto and produto["marca"] not in marcas_com_produtos:
         marcas_com_produtos.append(produto["marca"])
-        
+
 marcas_por_linha = 4
 linhas = math.ceil(len(marcas_com_produtos) / marcas_por_linha)
 for i in range(linhas):
@@ -1430,7 +1443,7 @@ if st.session_state.contagem:
         params_dict[sku] = str(qtd)
     query_string = urllib.parse.urlencode(params_dict)
     full_url = f"{base_url}/?{query_string}"
-    
+
     qr = qrcode.QRCode(box_size=10, border=4)
     qr.add_data(full_url)
     qr.make(fit=True)
@@ -1441,6 +1454,5 @@ if st.session_state.contagem:
     st.markdown(f"[Clique aqui para acessar a página de resultados]({full_url})", unsafe_allow_html=True)
 else:
     st.info("Nenhum produto bipado ainda!")
-
 
 
