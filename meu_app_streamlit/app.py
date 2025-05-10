@@ -1205,102 +1205,114 @@ if "resultado" in params:
     # Agrupa os pedidos por marca
     agrupado_por_marca = {}
     for codigo, valores in st.query_params.items():
-    if codigo == "resultado":
-        continue
-    if codigo.startswith("sku_"):
-        sku = codigo[4:]  # remove o prefixo para recuperar o SKU original
-        # Se 'valores' for uma lista, pegue o primeiro elemento; caso contrário, use-o diretamente.
-        if isinstance(valores, list):
-            quantidade = valores[0] if valores else "0"
-        else:
-            quantidade = valores
-        produto = produtos_cadastrados.get(sku)
-        if produto:
-            marca = produto["marca"].lower().strip()
-            agrupado_por_marca.setdefault(marca, []).append({
-                "sku": sku,
-                "nome": produto["nome"],
-                "quantidade": quantidade,
-                "codigo_produto": produto.get("codigo_produto", "")
-            })
-
+        if codigo == "resultado":
+            continue
+        if codigo.startswith("sku_"):
+            sku = codigo[4:]  # remove o prefixo para recuperar o SKU original
+            # Se 'valores' for uma lista, pegue o primeiro elemento; caso contrário, use-o diretamente.
+            if isinstance(valores, list):
+                quantidade = valores[0] if valores else "0"
+            else:
+                quantidade = valores
+            produto = produtos_cadastrados.get(sku)
+            if produto:
+                marca = produto["marca"].lower().strip()
+                agrupado_por_marca.setdefault(marca, []).append({
+                    "sku": sku,
+                    "nome": produto["nome"],
+                    "quantidade": quantidade,
+                    "codigo_produto": produto.get("codigo_produto", "")
+                })
 
     # 1) Inicializa sessão de SKUs ativos para remoção
     if "ativos" not in st.session_state:
-        st.session_state.ativos = [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
+        st.session_state.ativos = [
+            item["sku"] for sub in agrupado_por_marca.values() for item in sub
+        ]
 
     # 2) Cabeçalho e botão de restaurar com callback
     st.markdown("## Resultados")
     st.button(
         "♻️ Restaurar todos",
-        on_click=lambda: st.session_state.ativos.clear() or st.session_state.ativos.extend(
-            [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
+        on_click=lambda: (
+            st.session_state.ativos.clear() or st.session_state.ativos.extend(
+                [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
+            )
         )
     )
 
-    # 3) Define grupos de corredores (omitido para brevidade)
+    # 3) Define grupos de corredores
     grupos = [
-    ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
-    ("Corredor 2", ["kerasys", "mise", "ryo", "ice"]),
-    ("Corredor 3", ["tsubaki", "wella", "senka", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
-    ("Pinceis", ["real", "ecootols"]),
-    ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
-    ("Image", ["image"]),
-    ("Sac", ["sac"])
-]
-    grupos_filtrados = [(t, m) for t, m in grupos if any(marca in agrupado_por_marca for marca in m)]
-    grupos_filtrados = [(t, m) for t, m in grupos if any(marca.lower().strip() in agrupado_por_marca for marca in m)]
+        ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
+        ("Corredor 2", ["kerasys", "mise", "ryo", "ice"]),
+        ("Corredor 3", ["tsubaki", "wella", "senka", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
+        ("Pinceis", ["real", "ecootols"]),
+        ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
+        ("Image", ["image"]),
+        ("Sac", ["sac"])
+    ]
+    # Filtra os grupos de acordo com os produtos encontrados
+    grupos_filtrados = [
+        (titulo, marcas)
+        for titulo, marcas in grupos
+        if any(marca.lower().strip() in agrupado_por_marca for marca in marcas)
+    ]
 
-    abas = st.tabs([titulo for titulo, _ in grupos_filtrados])
+    # Se nenhum grupo for encontrado, exibe uma mensagem informativa.
+    if not grupos_filtrados:
+        st.info("Nenhum produto encontrado para exibir nos grupos.")
+    else:
+        abas = st.tabs([titulo for titulo, _ in grupos_filtrados])
 
-    # 4) Exibição interativa dentro das abas
-    for (titulo, marcas), aba in zip(grupos_filtrados, abas):
-        with aba:
-            st.header(titulo)
-            for marca in marcas:
-                if marca not in agrupado_por_marca:
-                    continue
-
-                # Logo da marca
-                try:
-                    caminho = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
-                    with open(caminho, "rb") as f:
-                        logo = base64.b64encode(f.read()).decode()
-                    st.markdown(
-                        f"<img src='data:image/png;base64,{logo}' width='100'>",
-                        unsafe_allow_html=True
-                    )
-                except FileNotFoundError:
-                    st.write(marca.upper())
-
-                # Listagem com botão de remoção (usando callback)
-                for prod in agrupado_por_marca[marca]:
-                    sku = prod["sku"]
-                    if sku not in st.session_state.ativos:
+        # 4) Exibição interativa dentro das abas
+        for (titulo, marcas), aba in zip(grupos_filtrados, abas):
+            with aba:
+                st.header(titulo)
+                for marca in marcas:
+                    key_marca = marca.lower().strip()
+                    if key_marca not in agrupado_por_marca:
                         continue
 
-                    col1, col2 = st.columns([5, 1])
-                    with col1:
-                        color = produto_color_mapping.get(sku, "#000")
-                        nome_fmt = (
-                            f"<span style='color:{color};'>"
-                            f"<strong>{prod['nome']}</strong>"
-                            f"</span>"
-                        )
+                    # Exibe o logo da marca
+                    try:
+                        caminho = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
+                        with open(caminho, "rb") as f:
+                            logo = base64.b64encode(f.read()).decode()
                         st.markdown(
-                            f"{nome_fmt}  \n"
-                            f"Código do Produto: **{prod['codigo_produto']}**  \n"
-                            f"Quantidade: **{prod['quantidade']}**",
+                            f"<img src='data:image/png;base64,{logo}' width='100'>",
                             unsafe_allow_html=True
                         )
-                    with col2:
-                        st.button(
-                            "❌",
-                            key=f"rm_{sku}",
-                            on_click=remove_sku,
-                            args=(sku,)
-                        )
-                st.markdown("---")
+                    except FileNotFoundError:
+                        st.write(marca.upper())
+
+                    # Lista os produtos cadastrados dessa marca com botão de remoção
+                    for prod in agrupado_por_marca[key_marca]:
+                        sku = prod["sku"]
+                        if sku not in st.session_state.ativos:
+                            continue
+
+                        col1, col2 = st.columns([5, 1])
+                        with col1:
+                            color = produto_color_mapping.get(sku, "#000")
+                            nome_fmt = (
+                                f"<span style='color:{color};'>"
+                                f"<strong>{prod['nome']}</strong>"
+                                f"</span>"
+                            )
+                            st.markdown(
+                                f"{nome_fmt}  \n"
+                                f"Código do Produto: **{prod['codigo_produto']}**  \n"
+                                f"Quantidade: **{prod['quantidade']}**",
+                                unsafe_allow_html=True
+                            )
+                        with col2:
+                            st.button(
+                                "❌",
+                                key=f"rm_{sku}",
+                                on_click=remove_sku,
+                                args=(sku,)
+                            )
+                    st.markdown("---")
 
     # 5) Finaliza para que o Streamlit atualize após callbacks
     st.stop()
