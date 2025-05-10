@@ -1285,13 +1285,9 @@ if "resultado" in params:
                             unsafe_allow_html=True
                         )
                     with col2:
-                        st.button(
-                            "❌",
-                            key=f"rm_{sku}",
-                            on_click=remove_sku,
-                            args=(sku,)
-                        )
-                st.markdown("---")
+                        st.button("❌", on_click=remove_sku, args=(sku,))
+					st.markdown("---")
+
 
     # 5) Finaliza para que o Streamlit atualize após callbacks
     st.stop()
