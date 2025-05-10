@@ -1248,54 +1248,58 @@ if "resultado" in params:
 
     abas = st.tabs([titulo for titulo, _ in grupos_filtrados])
 
-    # 4) Exibição interativa dentro das abas
-    for (titulo, marcas), aba in zip(grupos_filtrados, abas):
-        with aba:
-            st.header(titulo)
-            for marca in marcas:
-                if marca not in agrupado_por_marca:
+    import uuid  # coloque isso no topo do seu arquivo, se ainda não tiver
+
+# 4) Exibição interativa dentro das abas
+for (titulo, marcas), aba in zip(grupos_filtrados, abas):
+    with aba:
+        st.header(titulo)
+        for marca in marcas:
+            marca_normalizada = marca.lower().strip()
+            if marca_normalizada not in agrupado_por_marca:
+                continue
+
+            # Logo da marca
+            try:
+                caminho = os.path.join(CAMINHO_LOGOS, f"{marca_normalizada}.png")
+                with open(caminho, "rb") as f:
+                    logo = base64.b64encode(f.read()).decode()
+                st.markdown(
+                    f"<img src='data:image/png;base64,{logo}' width='100'>",
+                    unsafe_allow_html=True
+                )
+            except FileNotFoundError:
+                st.write(marca.upper())
+
+            # Listagem com botão de remoção (usando callback)
+            for prod in agrupado_por_marca[marca_normalizada]:
+                sku = prod["sku"]
+                if sku not in st.session_state.ativos:
                     continue
 
-                # Logo da marca
-                try:
-                    caminho = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
-                    with open(caminho, "rb") as f:
-                        logo = base64.b64encode(f.read()).decode()
+                col1, col2 = st.columns([5, 1])
+                with col1:
+                    color = produto_color_mapping.get(sku, "#000")
+                    nome_fmt = (
+                        f"<span style='color:{color};'>"
+                        f"<strong>{prod['nome']}</strong>"
+                        f"</span>"
+                    )
                     st.markdown(
-                        f"<img src='data:image/png;base64,{logo}' width='100'>",
+                        f"{nome_fmt}  \n"
+                        f"Código do Produto: **{prod['codigo_produto']}**  \n"
+                        f"Quantidade: **{prod['quantidade']}**",
                         unsafe_allow_html=True
                     )
-                except FileNotFoundError:
-                    st.write(marca.upper())
+                with col2:
+                    st.button(
+                        "❌",
+                        key=f"rm_{sku}_{uuid.uuid4().hex}",
+                        on_click=remove_sku,
+                        args=(sku,)
+                    )
+            st.markdown("---")
 
-                # Listagem com botão de remoção (usando callback)
-                for prod in agrupado_por_marca[marca]:
-                    sku = prod["sku"]
-                    if sku not in st.session_state.ativos:
-                        continue
-
-                    col1, col2 = st.columns([5, 1])
-                    with col1:
-                        color = produto_color_mapping.get(sku, "#000")
-                        nome_fmt = (
-                            f"<span style='color:{color};'>"
-                            f"<strong>{prod['nome']}</strong>"
-                            f"</span>"
-                        )
-                        st.markdown(
-                            f"{nome_fmt}  \n"
-                            f"Código do Produto: **{prod['codigo_produto']}**  \n"
-                            f"Quantidade: **{prod['quantidade']}**",
-                            unsafe_allow_html=True
-                        )
-                        with col2:
-   					 st.button(
-        				"❌",
-       				 key=f"rm_{sku}_{uuid.uuid4().hex}",
-       				 on_click=remove_sku,
-       			 args=(sku,)
-    					)
-                 st.markdown("---")
 
     # 5) Finaliza para que o Streamlit atualize após callbacks
     st.stop()
