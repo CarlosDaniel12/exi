@@ -17,9 +17,8 @@ CAMINHO_LOGOS = "C:/meu_app_streamlit/logos" if os.path.exists("C:/meu_app_strea
 
 # INSIRA SUA BASE DE PRODUTOS AQUI
 lista_produtos = {
-
- "10170578202": {"nome": " White Clay 120g", "marca": "senka", "codigo_produto": "4550516474636"}, 
-"LP INOA Ox 20 Vol 6% 1000": {"nome": "LP INOA Ox 20 Vol 6% 1000", "marca": "sac"},
+    "10170578202": {"nome": " White Clay 120g", "marca": "senka", "codigo_produto": "4550516474636"},
+    "LP INOA Ox 20 Vol 6% 1000": {"nome": "LP INOA Ox 20 Vol 6% 1000", "marca": "sac"},
  "10170584202": {"nome": " Whip Speedy 150ml", "marca": "senka", "codigo_produto": "4550516705846"},
  "10170766201": {"nome": " Low PH Calming Cica 100g", "marca": "senka", "codigo_produto": "4550516707666"}, 
  "10170588202": {"nome": " Whip Fresh 100", "marca": "senka", "codigo_produto": "4550516705884"}, 
@@ -1113,81 +1112,17 @@ lista_produtos = {
   "7908615012667": {"nome": "L'Oréal Professionnel - Diactivateur 15 Volumes 120ml", "marca": "sac"},
   "G-7908195709889": {"nome": "Girassol Pink By Kern -Top Coat Maldivas - Esmalte 9ml", "marca": "sac"},
   "H2663900": {"nome": "LP - INOA 7.11 60G", "marca": "sac"},
-"7790819570995": {"nome": "Girassol Pink By Kern - Kit Proteção MAX para as Unhas - Primer Fortalecedor 9ml + Nivelador 9ml", "marca": "sac"},
-"BECHS2747": {"nome": "Gama Italy Pro - Prancha Elegance Led Bivolt", "marca": "sac"},
 
 
-
-
+    "7790819570995": {"nome": "Girassol Pink By Kern - Kit Proteção MAX para as Unhas - Primer Fortalecedor 9ml + Nivelador 9ml", "marca": "sac"},
+    "BECHS2747": {"nome": "Gama Italy Pro - Prancha Elegance Led Bivolt", "marca": "sac"},
     "G-7908195709933": {"nome": "Girassol Pink By Kern -Sérum Noturno - Esmalte 9ml", "marca": "sac"}
 }
 
 produtos_cadastrados = {codigo: produto for codigo, produto in lista_produtos.items()}
 
-# Mapeamento de cores para ICE, KERASYS, TSUBAKI e BANILA
-produto_color_mapping = {
-    # TSUBAKI
-    "10170558202": "#daa520",
-    "10170636202": "#faeba9",
-    "10170634202": "#faeba9",
-    "10170632202": "#ff0000",
-    "10170630202": "#ff0000",
-
-    # ICE
-    "50277E_5": "#faeba9", "51007E_5": "#faeba9", "03846BR": "#faeba9",
-    "39937E_5": "#faeba9", "51045E_5": "#faeba9", "51052E_5": "#faeba9",
-    "39920E_5": "#faeba9", "50260E_5": "#faeba9", "51014E_5": "#faeba9",
-    "51038E_5": "#faeba9", "51076E_5": "#ecc7cc", "50291E_5": "#ecc7cc",
-    "03839BR": "#ecc7cc", "39951E_5": "#ecc7cc", "51083E_5": "#ecc7cc",
-    "39944E_5": "#ecc7cc", "50284E_5": "#ecc7cc", "51090E_5": "#ecc7cc",
-    
-    # SENKA
-    "10170578202": "#ffffff", "5D267": "#ffffff", "10170584202": "#0190cb",
-    "10170573202": "#0190cb", "10170577202": "#0190cb", "10170581202": "#dc9fac",
-    "10170583202": "#dc9fac", "10170766201": "#27a584", "10170588202": "#acc674",
-    
-     # CAROL
-    "PA321": "#7CFC00", "PA320": "#7CFC00", "PA322": "#7CFC00", "PA319": "#7CFC00",
-    "PA352": "#CD853F", "PA350": "#CD853F", "PA349": "#CD853F", "PA351": "#CD853F", "PA353": "#CD853F", "PA323": "#CD853F",
-    "PA443": "#A020F0", "PA441": "#A020F0", "PA442": "#A020F0", 
-    "PA526": "#00BFFF", "PA523": "#00BFFF", "PA525": "#00BFFF",
-    "PA527": "#FF1493", "KIWIMASC1": "#FFB6C1",
-    
-     # BEDHEAD
-    "10170578202": "#ffffff", "5D267": "#ffffff", "10170584202": "#0190cb",
-    "10170573202": "#0190cb", "10170577202": "#0190cb", "10170581202": "#dc9fac",
-    "10170583202": "#dc9fac", "10170766201": "#27a584", "10170588202": "#acc674",
-    "300499": "#A020F0", "300565": "#A020F0", "330499": "#A020F0", "330565": "#A020F0","330501": "#A020F0","300503": "#4B0082",
-     "300557": "#FFA07A", "330557": "#FFA07A", "330555": "#FFA07A", "300555": "#FFA07A",
-    "330558": "#FF1493", "300558": "#FF1493", "300556": "#FF1493", "330556": "#FF1493",
-    "300522": "#FF0000", "300524": "#FF0000", "300563": "#FF0000", "300526": "#FF0000",
-    "330522": "#FF0000", "330524": "#FF0000", "330563": "#FF0000", "330526": "#FF0000",
-    "300516": "#00BFFF", "300516-1": "#00BFFF", "330532": "#0000FF",
-    "BH - Recovery Sh 600": "#00BFFF", "300520": "#00BFFF", "300562": "#00BFFF", "300518": "#00BFFF",
-    "330520": "#00BFFF", "330562": "#00BFFF", "330518": "#00BFFF", "330516": "#00BFFF",
-
-    
-   # KERASYS
-    "6134467": "#00FA9A", "6134473": "#00FA9A", "6134479": "#FFDEAD",
-    "6134464": "#FFDEAD", "6134472": "#00BFFF", "6134466": "#00BFFF",
-    "6134465": "#FF69B4", "6134471": "#FF69B4", "6100529": "#FF69B4",
-    "6066191": "#FF1493", "6066189": "#FF1493", "6066716": "#FF1493",
-    "6066192": "#FF1493", "6066712": "#FF1493", "6066188": "#FF1493",
-    "6066183": "#0000FF", "6066186": "#0000FF", "6066715": "#0000FF",
-    "6066185": "#0000FF", "6066711": "#0000FF", "6066182": "#0000FF",
-    "5019487": "#DAA520", "6093517": "#DAA520", "6100527": "#DAA520",
-    "6100531": "#DAA520",
-    "6093519": "#0000FF", "6100528": "#0000FF", "6100534": "#0000FF",
-    "6100679": "#0000FF",
-    "6098970": "#FFA500", "6098971": "#FFA500",
-    "6098972": "#0000CD", "6098969": "#0000CD",
-    "6101625": "#00CED1", "6101580": "#00CED1"
-    
-}
-
 # Funções de callback para remoção e restauração
 def remove_sku(sku):
-    """Remove o SKU da lista ativa"""
     ativos = st.session_state.ativos
     if sku in ativos:
         ativos.remove(sku)
@@ -1205,7 +1140,6 @@ if "resultado" in params:
     st.title("Resumo do Pedido - Organizado")
     st.markdown("---")
 
-    # Agrupa os pedidos por marca
     agrupado_por_marca = {}
     for codigo, valores in params.items():
         if codigo == "resultado":
@@ -1221,11 +1155,9 @@ if "resultado" in params:
                 "codigo_produto": produto.get("codigo_produto", "")
             })
 
-    # 1) Inicializa sessão de SKUs ativos para remoção
     if "ativos" not in st.session_state:
         st.session_state.ativos = [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
 
-    # 2) Cabeçalho e botão de restaurar com callback
     st.markdown("## Resultados")
     st.button(
         "♻️ Restaurar todos",
@@ -1234,72 +1166,64 @@ if "resultado" in params:
         )
     )
 
-    # 3) Define grupos de corredores (omitido para brevidade)
     grupos = [
-    ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
-    ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
-    ("Corredor 3", ["tsubaki", "wella", "senka", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
-    ("Pinceis", ["real", "ecootols"]),
-    ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
-    ("senka", ["senka"]),
-    ("Sac", ["sac"])
-]
-    grupos_filtrados = [(t, m) for t, m in grupos if any(marca.lower().strip() in agrupado_por_marca for marca in m)]
+        ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
+        ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
+        ("Corredor 3", ["tsubaki", "wella", "senka", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
+        ("Pinceis", ["real", "ecootols"]),
+        ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
+        ("senka", ["senka"]),
+        ("Sac", ["sac"])
+    ]
+    grupos_filtrados = [
+        (titulo, marcas) for titulo, marcas in grupos
+        if any(m.lower().strip() in agrupado_por_marca for m in marcas)
+    ]
 
     abas = st.tabs([titulo for titulo, _ in grupos_filtrados])
 
-    import uuid  # coloque isso no topo do seu arquivo, se ainda não tiver
-
-# 4) Exibição interativa dentro das abas
-for (titulo, marcas), aba in zip(grupos_filtrados, abas):
-    with aba:
-        st.header(titulo)
-        for marca in marcas:
-            marca_normalizada = marca.lower().strip()
-            if marca_normalizada not in agrupado_por_marca:
-                continue
-
-            # Logo da marca
-            try:
-                caminho = os.path.join(CAMINHO_LOGOS, f"{marca_normalizada}.png")
-                with open(caminho, "rb") as f:
-                    logo = base64.b64encode(f.read()).decode()
-                st.markdown(
-                    f"<img src='data:image/png;base64,{logo}' width='100'>",
-                    unsafe_allow_html=True
-                )
-            except FileNotFoundError:
-                st.write(marca.upper())
-
-            # Listagem com botão de remoção (usando callback)
-            for prod in agrupado_por_marca[marca_normalizada]:
-                sku = prod["sku"]
-                if sku not in st.session_state.ativos:
+    for (titulo, marcas), aba in zip(grupos_filtrados, abas):
+        with aba:
+            st.header(titulo)
+            for marca in marcas:
+                marca_normalizada = marca.lower().strip()
+                if marca_normalizada not in agrupado_por_marca:
                     continue
 
-                col1, col2 = st.columns([5, 1])
-                with col1:
-                    color = produto_color_mapping.get(sku, "#000")
-                    nome_fmt = (
-                        f"<span style='color:{color};'>"
-                        f"<strong>{prod['nome']}</strong>"
-                        f"</span>"
-                    )
+                try:
+                    caminho = os.path.join(CAMINHO_LOGOS, f"{marca_normalizada}.png")
+                    with open(caminho, "rb") as f:
+                        logo = base64.b64encode(f.read()).decode()
                     st.markdown(
-                        f"{nome_fmt}  \n"
-                        f"Código do Produto: **{prod['codigo_produto']}**  \n"
-                        f"Quantidade: **{prod['quantidade']}**",
+                        f"<img src='data:image/png;base64,{logo}' width='100'>",
                         unsafe_allow_html=True
                     )
-                with col2:
-                    st.button(
-                        "❌",
-                        key=f"rm_{sku}_{uuid.uuid4().hex}",
-                        on_click=remove_sku,
-                        args=(sku,)
-                    )
-            st.markdown("---")
+                except FileNotFoundError:
+                    st.write(marca.upper())
 
+                for prod in agrupado_por_marca[marca_normalizada]:
+                    sku = prod["sku"]
+                    if sku not in st.session_state.ativos:
+                        continue
+
+                    col1, col2 = st.columns([5, 1])
+                    with col1:
+                        color = produto_color_mapping.get(sku, "#000")
+                        nome_fmt = f"<span style='color:{color};'><strong>{prod['nome']}</strong></span>"
+                        st.markdown(
+                            f"{nome_fmt}  \n"
+                            f"Código do Produto: **{prod['codigo_produto']}**  \n"
+                            f"Quantidade: **{prod['quantidade']}**",
+                            unsafe_allow_html=True
+                        )
+                    with col2:
+                        st.button(
+                            "❌",
+                            key=f"rm_{sku}_{uuid.uuid4().hex}",
+                            on_click=remove_sku,
+                            args=(sku,)
+                        )
+            st.markdown("---")
 
     # 5) Finaliza para que o Streamlit atualize após callbacks
     st.stop()
