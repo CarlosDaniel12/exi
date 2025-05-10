@@ -1198,46 +1198,41 @@ for var in ["contagem", "pedidos_bipados", "input_codigo", "nao_encontrados", "u
 # Página de Resultados
 #################################
 params = st.query_params
-agrupado_por_marca = {}  # Inicializa o dicionário de agrupamento
+if "resultado" in params:
+    st.title("Resumo do Pedido - Organizado")
+    st.markdown("---")
 
-# Processa os parâmetros da query
-for codigo, valores in params.items():
-    if codigo == "resultado":
-        continue
-    # Verifica se o código começa com o prefixo "sku_"
-    if codigo.startswith("sku_"):
-        sku = codigo[4:]  # remove o prefixo para recuperar o SKU original
+    # Agrupa os pedidos por marca
+    agrupado_por_marca = {}
+    for codigo, valores in params.items():
+        if codigo == "resultado":
+            continue
         quantidade = valores[0] if valores else "0"
-        produto = produtos_cadastrados.get(sku)
+        produto = produtos_cadastrados.get(codigo)
         if produto:
             marca = produto["marca"].lower().strip()
             agrupado_por_marca.setdefault(marca, []).append({
-                "sku": sku,
+                "sku": codigo,
                 "nome": produto["nome"],
                 "quantidade": quantidade,
                 "codigo_produto": produto.get("codigo_produto", "")
             })
 
-# 1) Inicializa sessão de SKUs ativos para remoção (fora do loop)
-if "ativos" not in st.session_state:
-    st.session_state.ativos = [
-        item["sku"] for sub in agrupado_por_marca.values() for item in sub
-    ]
+    # 1) Inicializa sessão de SKUs ativos para remoção
+    if "ativos" not in st.session_state:
+        st.session_state.ativos = [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
 
-# 2) Cabeçalho e botão de restaurar com callback (também fora do loop)
-st.markdown("## Resultados")
-st.button(
-    "♻️ Restaurar todos",
-    on_click=lambda: (
-        st.session_state.ativos.clear() or 
-        st.session_state.ativos.extend(
+    # 2) Cabeçalho e botão de restaurar com callback
+    st.markdown("## Resultados")
+    st.button(
+        "♻️ Restaurar todos",
+        on_click=lambda: st.session_state.ativos.clear() or st.session_state.ativos.extend(
             [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
         )
     )
-)
 
-# 3) Define grupos de corredores (omitido para brevidade)
-grupos = [
+    # 3) Define grupos de corredores (omitido para brevidade)
+    grupos = [
     ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
     ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
     ("Corredor 3", ["tsubaki", "wella", "senka", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
@@ -1245,15 +1240,11 @@ grupos = [
     ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
     ("Sac", ["sac"])
 ]
+    grupos_filtrados = [(t, m) for t, m in grupos if any(marca in agrupado_por_marca for marca in m)]
+    grupos_filtrados = [(t, m) for t, m in grupos if any(marca.lower().strip() in agrupado_por_marca for marca in m)]
 
-# Filtra os grupos com base no agrupado_por_marca
-grupos_filtrados = [(t, m) for t, m in grupos if any(marca.lower().strip() in agrupado_por_marca for marca in m)]
-
-# Se nenhum grupo for encontrado, exiba uma mensagem
-if not grupos_filtrados:
-    st.info("Nenhum produto encontrado para agrupar nos corredores.")
-else:
     abas = st.tabs([titulo for titulo, _ in grupos_filtrados])
+
     # 4) Exibição interativa dentro das abas
     for (titulo, marcas), aba in zip(grupos_filtrados, abas):
         with aba:
@@ -1454,7 +1445,7 @@ if st.session_state.contagem:
     base_url = "https://cogpz234emkoeygixmfemn.streamlit.app/"
     params_dict = {"resultado": "1"}
     for sku, qtd in st.session_state.contagem.items():
-        params_dict[f"sku_{sku}"] = str(qtd)
+        params_dict[sku] = str(qtd)
     query_string = urllib.parse.urlencode(params_dict)
     full_url = f"{base_url}/?{query_string}"
 
@@ -1468,7 +1459,6 @@ if st.session_state.contagem:
     st.markdown(f"[Clique aqui para acessar a página de resultados]({full_url})", unsafe_allow_html=True)
 else:
     st.info("Nenhum produto bipado ainda!")
-
 
 
 
