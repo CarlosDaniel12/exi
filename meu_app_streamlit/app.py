@@ -1239,8 +1239,8 @@ st.button(
 # ... (o restante do código que exibe os grupos e os produtos)
 
 
-    # 3) Define grupos de corredores (omitido para brevidade)
-    grupos = [
+# 3) Define grupos de corredores (omitido para brevidade)
+grupos = [
     ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
     ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
     ("Corredor 3", ["tsubaki", "wella", "senka", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
@@ -1248,11 +1248,8 @@ st.button(
     ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
     ("Sac", ["sac"])
 ]
-    grupos_filtrados = [(t, m) for t, m in grupos if any(marca in agrupado_por_marca for marca in m)]
-    grupos_filtrados = [(t, m) for t, m in grupos if any(marca.lower().strip() in agrupado_por_marca for marca in m)]
-
-    abas = st.tabs([titulo for titulo, _ in grupos_filtrados])
-
+grupos_filtrados = [(t, m) for t, m in grupos if any(marca.lower().strip() in agrupado_por_marca for marca in m)]
+abas = st.tabs([titulo for titulo, _ in grupos_filtrados])
     # 4) Exibição interativa dentro das abas
     for (titulo, marcas), aba in zip(grupos_filtrados, abas):
         with aba:
