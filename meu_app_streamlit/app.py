@@ -1182,118 +1182,106 @@ produto_color_mapping = {
 
 }
 
-# Funções de callback para remoção e restauração
-def remove_sku(sku):
-    """Remove o SKU da lista ativa"""
-    ativos = st.session_state.ativos
-    if sku in ativos:
-        ativos.remove(sku)
+# URL base para a página de resultados (GitHub Pages ou domínio próprio)
+base_url = "https://github.com/exibrasil/exi/blob/main/meu_app_streamlit/app.py"
 
-# Inicializa variáveis na sessão básicas
-for var in ["contagem", "pedidos_bipados", "input_codigo", "nao_encontrados", "uploaded_files"]:
-    if var not in st.session_state:
-        st.session_state[var] = [] if var != "input_codigo" else ""
+# Inicialização do estado da sessão
+if "contagem" not in st.session_state:
+    st.session_state.contagem = {}
+if "input_codigo" not in st.session_state:
+    st.session_state.input_codigo = ""
+if "nao_encontrados" not in st.session_state:
+    st.session_state.nao_encontrados = []
 
-#################################
-# Página de Resultados
-#################################
-params = st.query_params
+# Função de callback para processar cada scan
+def processar():
+    entrada = st.session_state.input_codigo.strip()
+    if not entrada:
+        return
+    codigos = re.split(r"[\s,]+", entrada)
+    for codigo in codigos:
+        if codigo in produtos_cadastrados:
+            st.session_state.contagem[codigo] = (
+                st.session_state.contagem.get(codigo, 0) + 1
+            )
+        else:
+            aviso = f"SKU não cadastrado: {codigo}"
+            if aviso not in st.session_state.nao_encontrados:
+                st.session_state.nao_encontrados.append(aviso)
+    # limpa o campo para o próximo scan
+    st.session_state.input_codigo = ""
+
+# Input que dispara automaticamente a cada scan
+st.text_input(
+    "Digite o código interno, código de barras ou número do pedido:",
+    key="input_codigo",
+    on_change=processar,
+)
+
+# Exibe contagem atual
+st.header("Contagem Atual")
+if st.session_state.contagem:
+    for sku, qtd in st.session_state.contagem.items():
+        info = produtos_cadastrados.get(sku, {})
+        nome = info.get("nome", sku)
+        st.write(f"- {nome}: **{qtd}**")
+else:
+    st.write("Nenhum item escaneado ainda.")
+
+# Exibe avisos de SKUs não encontrados
+if st.session_state.nao_encontrados:
+    st.warning("Não encontrados:")
+    for aviso in st.session_state.nao_encontrados:
+        st.write(f"- {aviso}")
+
+# Gera e exibe o QR Code com o estado atual de contagem
+if st.session_state.contagem:
+    params = {"resultado": "1"}
+    for sku, qtd in st.session_state.contagem.items():
+        params[sku] = str(qtd)
+    query_string = urllib.parse.urlencode(params)
+    full_url = f"{base_url}/?{query_string}"
+
+    qr = qrcode.QRCode(version=1, box_size=5, border=2)
+    qr.add_data(full_url)
+    qr.make(fit=True)
+    img = qr.make_image()
+    buf = io.BytesIO()
+    img.save(buf)
+
+    st.image(buf.getvalue())
+    st.markdown(f"[Clique aqui para ver o resumo]({full_url})")
+
+# Página de resultados (quando a query string contém 'resultado')
+params = st.experimental_get_query_params()
 if "resultado" in params:
+    # Agrupa produtos por marca
+    agrupado = {}
+    for sku, valores in params.items():
+        if sku == "resultado":
+            continue
+        qtd = int(valores[0])
+        info = produtos_cadastrados.get(sku, {})
+        nome = info.get("nome", sku)
+        marca = info.get("marca", "SEM MARCA")
+        agrupado.setdefault(marca, []).append({
+            "sku": sku,
+            "nome": nome,
+            "qtd": qtd
+        })
+
     st.title("Resumo do Pedido - Organizado")
     st.markdown("---")
-
-    # Agrupa os pedidos por marca
-    agrupado_por_marca = {}
-    for codigo, valores in params.items():
-        if codigo == "resultado":
-            continue
-        quantidade = valores[0] if valores else "0"
-        produto = produtos_cadastrados.get(codigo)
-        if produto:
-            marca = produto["marca"].lower().strip()
-            agrupado_por_marca.setdefault(marca, []).append({
-                "sku": codigo,
-                "nome": produto["nome"],
-                "quantidade": quantidade,
-                "codigo_produto": produto.get("codigo_produto", "")
-            })
-
-    # 1) Inicializa sessão de SKUs ativos para remoção
-    if "ativos" not in st.session_state:
-        st.session_state.ativos = [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
-
-    # 2) Cabeçalho e botão de restaurar com callback
-    st.markdown("## Resultados")
-    st.button(
-        "♻️ Restaurar todos",
-        on_click=lambda: st.session_state.ativos.clear() or st.session_state.ativos.extend(
-            [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
-        )
-    )
-
-    # 3) Define grupos de corredores (omitido para brevidade)
-    grupos = [
-    ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
-    ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
-    ("Corredor 3", ["tsubaki", "wella", "senka", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
-    ("Pinceis", ["real", "ecootols"]),
-    ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
-    ("Sac", ["sac"])
-]
-    grupos_filtrados = [(t, m) for t, m in grupos if any(marca in agrupado_por_marca for marca in m)]
-    grupos_filtrados = [(t, m) for t, m in grupos if any(marca.lower().strip() in agrupado_por_marca for marca in m)]
-
-    abas = st.tabs([titulo for titulo, _ in grupos_filtrados])
-
-    # 4) Exibição interativa dentro das abas
-    for (titulo, marcas), aba in zip(grupos_filtrados, abas):
-        with aba:
-            st.header(titulo)
-            for marca in marcas:
-                if marca not in agrupado_por_marca:
-                    continue
-
-                # Logo da marca
-                try:
-                    caminho = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
-                    with open(caminho, "rb") as f:
-                        logo = base64.b64encode(f.read()).decode()
-                    st.markdown(
-                        f"<img src='data:image/png;base64,{logo}' width='100'>",
-                        unsafe_allow_html=True
-                    )
-                except FileNotFoundError:
-                    st.write(marca.upper())
-
-                # Listagem com botão de remoção (usando callback)
-                for prod in agrupado_por_marca[marca]:
-                    sku = prod["sku"]
-                    if sku not in st.session_state.ativos:
-                        continue
-
-                    col1, col2 = st.columns([5, 1])
-                    with col1:
-                        color = produto_color_mapping.get(sku, "#000")
-                        nome_fmt = (
-                            f"<span style='color:{color};'>"
-                            f"<strong>{prod['nome']}</strong>"
-                            f"</span>"
-                        )
-                        st.markdown(
-                            f"{nome_fmt}  \n"
-                            f"Código do Produto: **{prod['codigo_produto']}**  \n"
-                            f"Quantidade: **{prod['quantidade']}**",
-                            unsafe_allow_html=True
-                        )
-                    with col2:
-                        st.button(
-                            "❌",
-                            key=f"rm_{sku}",
-                            on_click=remove_sku,
-                            args=(sku,)
-                        )
-                st.markdown("---")
-
+    for marca, itens in agrupado.items():
+        # Exibe logo da marca (coloque suas imagens em 'logos/NOME_DA_MARCA.png')
+        logo_url = f"{base_url}/logos/{marca}.png"
+        st.image(logo_url, width=100)
+        st.subheader(marca)
+        for item in itens:
+            st.write(f"**{item['nome']}**")
+            st.write(f"Código do Produto: {item['sku']}")
+            st.write(f"Quantidade: {item['qtd']}")
+        st.markdown("---")
     # 5) Finaliza para que o Streamlit atualize após callbacks
     st.stop()
 #################################
@@ -1459,6 +1447,7 @@ if st.session_state.contagem:
     st.markdown(f"[Clique aqui para acessar a página de resultados]({full_url})", unsafe_allow_html=True)
 else:
     st.info("Nenhum produto bipado ainda!")
+
 
 
 
