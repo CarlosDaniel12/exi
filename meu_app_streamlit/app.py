@@ -1299,15 +1299,19 @@ if st.session_state.contagem:
 
 # gera QR automaticamente
 if st.session_state.contagem:
-    base="https://cogpz234emkoeygixmfemn.streamlit.app/"
-    ps={"resultado":"1"}
-    for sku,qtd in st.session_state.contagem.items():
-        ps[sku]=str(qtd)
-    url=base+"?"+urllib.parse.urlencode(ps)
-    qr=qrcode.QRCode(box_size=6,border=2)
-    qr.add_data(url); qr.make(fit=True)
-    im=qr.make_image(fill_color="black",back_color="white")
-    buf=BytesIO(); im.save(buf,format="PNG")
-    st.image(buf.getvalue(),width=150)
-    st.markdown(f"[Ver resultados]({url})",unsafe_allow_html=True)
+    base = "https://cogpz234emkoeygixmfemn.streamlit.app/"
+    params_qr = {"resultado": "1"}
+    for sku, qtd in st.session_state.contagem.items():
+        params_qr[sku] = str(qtd)
+    url = base + "?" + urllib.parse.urlencode(params_qr)
 
+    qr = qrcode.QRCode(box_size=6, border=2)
+    qr.add_data(url)
+    qr.make(fit=True)
+    img_qr = qr.make_image(fill_color="black", back_color="white")
+    buf = BytesIO()
+    img_qr.save(buf, format="PNG")
+
+    st.image(buf.getvalue(), width=150)
+    st.write("🔗 URL de Debug:", url)            # <–– trechinho de debug
+    st.markdown(f"[Acessar resultados]({url})", unsafe_allow_html=True)
