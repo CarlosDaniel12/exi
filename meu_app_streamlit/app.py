@@ -1238,7 +1238,6 @@ if "resultado" in params:
     ("Corredor 3", ["tsubaki", "wella", "senka", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
     ("Pinceis", ["real", "ecootols"]),
     ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
-    ("senka", ["senka"]),
     ("Sac", ["sac"])
 ]
     grupos_filtrados = [(t, m) for t, m in grupos if any(marca in agrupado_por_marca for marca in m)]
@@ -1460,5 +1459,6 @@ if st.session_state.contagem:
     st.markdown(f"[Clique aqui para acessar a página de resultados]({full_url})", unsafe_allow_html=True)
 else:
     st.info("Nenhum produto bipado ainda!")
+
 
 
