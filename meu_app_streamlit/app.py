@@ -1121,6 +1121,42 @@ lista_produtos = {
 
 produtos_cadastrados = {codigo: produto for codigo, produto in lista_produtos.items()}
 
+# Mapeamento de cores para ICE, KERASYS, TSUBAKI e BANILA
+produto_color_mapping = {
+    "10170578202": "#ffffff",
+    "5D267": "#ffffff",
+    "10170584202": "#0190cb",
+    "10170573202": "#0190cb",
+    "10170577202": "#0190cb",
+    "10170581202": "#dc9fac",
+    "10170583202": "#dc9fac",
+    "10170766201": "#27a584",
+    "10170588202": "#acc674",
+    "50277E_5": "#faeba9",
+    "51007E_5": "#faeba9",
+    "03846BR": "#faeba9",
+    "39937E_5": "#faeba9",
+    "51045E_5": "#faeba9",
+    "51052E_5": "#faeba9",
+    "39920E_5": "#faeba9",
+    "50260E_5": "#faeba9",
+    "51014E_5": "#faeba9",
+    "51038E_5": "#faeba9",
+    "51076E_5": "#ecc7cc",
+    "50291E_5": "#ecc7cc",
+    "03839BR": "#ecc7cc",
+    "39951E_5": "#ecc7cc",
+    "51083E_5": "#ecc7cc",
+    "39944E_5": "#ecc7cc",
+    "50284E_5": "#ecc7cc",
+    "51090E_5": "#ecc7cc",
+    "10170558202": "#daa520",
+    "10170636202": "#faeba9",
+    "10170634202": "#faeba9",
+    "10170632202": "#ff0000",
+    "10170630202": "#ff0000"
+}
+
 # Funções de callback para remoção e restauração
 def remove_sku(sku):
     ativos = st.session_state.ativos
@@ -1224,7 +1260,6 @@ if "resultado" in params:
                             args=(sku,)
                         )
             st.markdown("---")
-
     # 5) Finaliza para que o Streamlit atualize após callbacks
     st.stop()
 #################################
