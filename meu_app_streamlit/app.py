@@ -1204,19 +1204,26 @@ if "resultado" in params:
 
     # Agrupa os pedidos por marca
     agrupado_por_marca = {}
-    for codigo, valores in params.items():
-        if codigo == "resultado":
-            continue
-        quantidade = valores[0] if valores else "0"
-        produto = produtos_cadastrados.get(codigo)
+    for codigo, valores in st.query_params.items():
+    if codigo == "resultado":
+        continue
+    if codigo.startswith("sku_"):
+        sku = codigo[4:]  # remove o prefixo para recuperar o SKU original
+        # Se 'valores' for uma lista, pegue o primeiro elemento; caso contrário, use-o diretamente.
+        if isinstance(valores, list):
+            quantidade = valores[0] if valores else "0"
+        else:
+            quantidade = valores
+        produto = produtos_cadastrados.get(sku)
         if produto:
             marca = produto["marca"].lower().strip()
             agrupado_por_marca.setdefault(marca, []).append({
-                "sku": codigo,
+                "sku": sku,
                 "nome": produto["nome"],
                 "quantidade": quantidade,
                 "codigo_produto": produto.get("codigo_produto", "")
             })
+
 
     # 1) Inicializa sessão de SKUs ativos para remoção
     if "ativos" not in st.session_state:
