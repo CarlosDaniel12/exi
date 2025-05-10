@@ -1198,11 +1198,13 @@ for var in ["contagem", "pedidos_bipados", "input_codigo", "nao_encontrados", "u
 # Página de Resultados
 #################################
 params = st.query_params
+agrupado_por_marca = {}  # Inicializa o dicionário de agrupamento
+
+# Processa os parâmetros da query
 for codigo, valores in params.items():
-    # Ignore o parâmetro "resultado"
     if codigo == "resultado":
         continue
-    # Verifica se o código começa com o prefixo
+    # Verifica se o código começa com o prefixo "sku_"
     if codigo.startswith("sku_"):
         sku = codigo[4:]  # remove o prefixo para recuperar o SKU original
         quantidade = valores[0] if valores else "0"
@@ -1216,18 +1218,26 @@ for codigo, valores in params.items():
                 "codigo_produto": produto.get("codigo_produto", "")
             })
 
-    # 1) Inicializa sessão de SKUs ativos para remoção
-    if "ativos" not in st.session_state:
-        st.session_state.ativos = [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
+# 1) Inicializa sessão de SKUs ativos para remoção (fora do loop)
+if "ativos" not in st.session_state:
+    st.session_state.ativos = [
+        item["sku"] for sub in agrupado_por_marca.values() for item in sub
+    ]
 
-    # 2) Cabeçalho e botão de restaurar com callback
-    st.markdown("## Resultados")
-    st.button(
-        "♻️ Restaurar todos",
-        on_click=lambda: st.session_state.ativos.clear() or st.session_state.ativos.extend(
+# 2) Cabeçalho e botão de restaurar com callback (também fora do loop)
+st.markdown("## Resultados")
+st.button(
+    "♻️ Restaurar todos",
+    on_click=lambda: (
+        st.session_state.ativos.clear() or 
+        st.session_state.ativos.extend(
             [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
         )
     )
+)
+
+# ... (o restante do código que exibe os grupos e os produtos)
+
 
     # 3) Define grupos de corredores (omitido para brevidade)
     grupos = [
