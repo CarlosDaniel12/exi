@@ -1,18 +1,16 @@
 import streamlit as st
 import pandas as pd
-from PIL import Image
-import os, base64
-from io import BytesIO
+import os
 import re
 import qrcode
 import urllib.parse
+from io import BytesIO
 
 # --- 0) Defina aqui seu dicionário de produtos ---
 # Substitua pelos seus SKUs, nomes e marcas reais
-lista_produtos = {
-"10170578202": {"nome": "White Clay 120g", "marca": "senka", "codigo_produto": "4550516474636"},
-
-    "LP INOA Ox 20 Vol 6% 1000": {"nome": "LP INOA Ox 20 Vol 6% 1000", "marca": "sac"},
+enlista_produtos = {
+      "10170578202": {"nome": "White Clay 120g", "marca": "senka", "codigo_produto": "4550516474636"},
+  "LP INOA Ox 20 Vol 6% 1000": {"nome": "LP INOA Ox 20 Vol 6% 1000", "marca": "sac"},
  "10170584202": {"nome": " Whip Speedy 150ml", "marca": "senka", "codigo_produto": "4550516705846"},
  "10170766201": {"nome": " Low PH Calming Cica 100g", "marca": "senka", "codigo_produto": "4550516707666"}, 
  "10170588202": {"nome": " Whip Fresh 100", "marca": "senka", "codigo_produto": "4550516705884"}, 
@@ -1105,6 +1103,7 @@ lista_produtos = {
   "E0487122": {"nome": "LP - INOA 9,1 60G", "marca": "sac"},
   "7908615012667": {"nome": "L'Oréal Professionnel - Diactivateur 15 Volumes 120ml", "marca": "sac"},
   "G-7908195709889": {"nome": "Girassol Pink By Kern -Top Coat Maldivas - Esmalte 9ml", "marca": "sac"},
+
   "H2663900": {"nome": "LP - INOA 7.11 60G", "marca": "sac"},
 
     "7790819570995": {"nome": "Girassol Pink By Kern - Kit Proteção MAX para as Unhas - Primer Fortalecedor 9ml + Nivelador 9ml", "marca": "sac"},
@@ -1129,6 +1128,7 @@ CAMINHO_LOGOS = (
 )
 
 def tentar_ler_csv(uploaded_file):
+    """Tenta ler um arquivo CSV e retorna um DataFrame ou None."""
     try:
         return pd.read_csv(uploaded_file)
     except Exception:
@@ -1207,7 +1207,7 @@ for sku in st.session_state.ativos:
     marca = lista_produtos.get(sku, {}).get("marca", "Outros")
     agrupado_por_marca.setdefault(marca, []).append({"sku": sku})
 
-# --- 7) Botões de ação: Restaurar todos e Limpar pedidos bipados ---
+# --- 7) Botões de ação com chaves únicas ---
 col1, col2 = st.columns(2)
 with col1:
     st.button(
