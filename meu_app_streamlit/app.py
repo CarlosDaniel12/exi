@@ -7,6 +7,7 @@ import re
 import math
 import qrcode
 import urllib.parse
+import uuid
 
 # Configura layout
 st.set_page_config(layout="wide")
@@ -1288,12 +1289,12 @@ if "resultado" in params:
                             unsafe_allow_html=True
                         )
                     with col2:
-                        st.button(
-                            "❌",
-                            key=f"rm_{sku}",
-                            on_click=remove_sku,
-                            args=(sku,)
-                        )
+    st.button(
+        "❌",
+        key=f"rm_{sku}_{uuid.uuid4().hex}",
+        on_click=remove_sku,
+        args=(sku,)
+    )
                 st.markdown("---")
 
     # 5) Finaliza para que o Streamlit atualize após callbacks
