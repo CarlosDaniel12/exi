@@ -1244,9 +1244,8 @@ if "resultado" in params:
 
     abas = st.tabs([titulo for titulo, _ in grupos_filtrados])
 
-    # 4) Exibição interativa dentro das abas
     # Exibição interativa dentro das abas
-for (titulo, marcas), aba in zip(grupos_filtrados, abas):
+	for (titulo, marcas), aba in zip(grupos_filtrados, abas):
     with aba:
         st.header(titulo)
         for marca in marcas:
