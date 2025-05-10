@@ -1114,6 +1114,7 @@ lista_produtos = {
   "H2663900": {"nome": "LP - INOA 7.11 60G", "marca": "sac"},
 
 
+
     "7790819570995": {"nome": "Girassol Pink By Kern - Kit Proteção MAX para as Unhas - Primer Fortalecedor 9ml + Nivelador 9ml", "marca": "sac"},
     "BECHS2747": {"nome": "Gama Italy Pro - Prancha Elegance Led Bivolt", "marca": "sac"},
     "G-7908195709933": {"nome": "Girassol Pink By Kern - Sérum Noturno - Esmalte 9ml", "marca": "sac"}
@@ -1223,13 +1224,23 @@ if "resultado" in params:
 
     # 2) Cabeçalho e botão de restaurar com callback
     st.markdown("## Resultados")
-    st.button(
-        "♻️ Restaurar todos",
-        on_click=lambda: st.session_state.ativos.clear() or st.session_state.ativos.extend(
-            [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
-        )
+   st.button(
+    "🔄 Limpar bipagem",
+    key="clear_bipagem",   # ← key fixa única
+    on_click=lambda: (
+        st.session_state.contagem.clear(),
+        st.session_state.nao_encontrados.clear(),
+        setattr(st.session_state, "input_codigo", ""),
+        setattr(st.session_state, "finalizado", False)
     )
+)
 
+# (Se você ainda usar) Finalizar bipagem
+st.button(
+    "✅ Finalizar bipagem e gerar QR",
+    key="finalize_qr",     # ← key fixa única
+    on_click=lambda: setattr(st.session_state, "finalizado", True)
+)
     # 3) Define grupos de corredores (omitido para brevidade)
     grupos = [
     ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
