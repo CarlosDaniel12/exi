@@ -1198,21 +1198,19 @@ for var in ["contagem", "pedidos_bipados", "input_codigo", "nao_encontrados", "u
 # Página de Resultados
 #################################
 params = st.query_params
-if "resultado" in params:
-    st.title("Resumo do Pedido - Organizado")
-    st.markdown("---")
-
-    # Agrupa os pedidos por marca
-    agrupado_por_marca = {}
-    for codigo, valores in params.items():
-        if codigo == "resultado":
-            continue
+for codigo, valores in params.items():
+    # Ignore o parâmetro "resultado"
+    if codigo == "resultado":
+        continue
+    # Verifica se o código começa com o prefixo
+    if codigo.startswith("sku_"):
+        sku = codigo[4:]  # remove o prefixo para recuperar o SKU original
         quantidade = valores[0] if valores else "0"
-        produto = produtos_cadastrados.get(codigo)
+        produto = produtos_cadastrados.get(sku)
         if produto:
             marca = produto["marca"].lower().strip()
             agrupado_por_marca.setdefault(marca, []).append({
-                "sku": codigo,
+                "sku": sku,
                 "nome": produto["nome"],
                 "quantidade": quantidade,
                 "codigo_produto": produto.get("codigo_produto", "")
@@ -1445,7 +1443,7 @@ if st.session_state.contagem:
     base_url = "https://cogpz234emkoeygixmfemn.streamlit.app/"
     params_dict = {"resultado": "1"}
     for sku, qtd in st.session_state.contagem.items():
-        params_dict[sku] = str(qtd)
+        params_dict[f"sku_{sku}"] = str(qtd)
     query_string = urllib.parse.urlencode(params_dict)
     full_url = f"{base_url}/?{query_string}"
 
