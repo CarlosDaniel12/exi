@@ -1236,9 +1236,6 @@ st.button(
     )
 )
 
-# ... (o restante do código que exibe os grupos e os produtos)
-
-
 # 3) Define grupos de corredores (omitido para brevidade)
 grupos = [
     ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
@@ -1250,54 +1247,54 @@ grupos = [
 ]
 grupos_filtrados = [(t, m) for t, m in grupos if any(marca.lower().strip() in agrupado_por_marca for marca in m)]
 abas = st.tabs([titulo for titulo, _ in grupos_filtrados])
-    # 4) Exibição interativa dentro das abas
-    for (titulo, marcas), aba in zip(grupos_filtrados, abas):
-        with aba:
-            st.header(titulo)
-            for marca in marcas:
-                if marca not in agrupado_por_marca:
+# 4) Exibição interativa dentro das abas
+for (titulo, marcas), aba in zip(grupos_filtrados, abas):
+    with aba:
+        st.header(titulo)
+        for marca in marcas:
+            if marca not in agrupado_por_marca:
+                continue
+
+            # Logo da marca
+            try:
+                caminho = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
+                with open(caminho, "rb") as f:
+                    logo = base64.b64encode(f.read()).decode()
+                st.markdown(
+                    f"<img src='data:image/png;base64,{logo}' width='100'>",
+                    unsafe_allow_html=True
+                )
+            except FileNotFoundError:
+                st.write(marca.upper())
+
+            # Listagem com botão de remoção (usando callback)
+            for prod in agrupado_por_marca[marca]:
+                sku = prod["sku"]
+                if sku not in st.session_state.ativos:
                     continue
 
-                # Logo da marca
-                try:
-                    caminho = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
-                    with open(caminho, "rb") as f:
-                        logo = base64.b64encode(f.read()).decode()
+                col1, col2 = st.columns([5, 1])
+                with col1:
+                    color = produto_color_mapping.get(sku, "#000")
+                    nome_fmt = (
+                        f"<span style='color:{color};'>"
+                        f"<strong>{prod['nome']}</strong>"
+                        f"</span>"
+                    )
                     st.markdown(
-                        f"<img src='data:image/png;base64,{logo}' width='100'>",
+                        f"{nome_fmt}  \n"
+                        f"Código do Produto: **{prod['codigo_produto']}**  \n"
+                        f"Quantidade: **{prod['quantidade']}**",
                         unsafe_allow_html=True
                     )
-                except FileNotFoundError:
-                    st.write(marca.upper())
-
-                # Listagem com botão de remoção (usando callback)
-                for prod in agrupado_por_marca[marca]:
-                    sku = prod["sku"]
-                    if sku not in st.session_state.ativos:
-                        continue
-
-                    col1, col2 = st.columns([5, 1])
-                    with col1:
-                        color = produto_color_mapping.get(sku, "#000")
-                        nome_fmt = (
-                            f"<span style='color:{color};'>"
-                            f"<strong>{prod['nome']}</strong>"
-                            f"</span>"
-                        )
-                        st.markdown(
-                            f"{nome_fmt}  \n"
-                            f"Código do Produto: **{prod['codigo_produto']}**  \n"
-                            f"Quantidade: **{prod['quantidade']}**",
-                            unsafe_allow_html=True
-                        )
-                    with col2:
-                        st.button(
-                            "❌",
-                            key=f"rm_{sku}",
-                            on_click=remove_sku,
-                            args=(sku,)
-                        )
-                st.markdown("---")
+                with col2:
+                    st.button(
+                        "❌",
+                        key=f"rm_{sku}",
+                        on_click=remove_sku,
+                        args=(sku,)
+                    )
+            st.markdown("---")
 
     # 5) Finaliza para que o Streamlit atualize após callbacks
     st.stop()
