@@ -18,6 +18,7 @@ CAMINHO_LOGOS = "C:/meu_app_streamlit/logos" if os.path.exists("C:/meu_app_strea
 lista_produtos = {
 
  "10170578202": {"nome": " White Clay 120g", "marca": "senka", "codigo_produto": "4550516474636"}, 
+"LP INOA Ox 20 Vol 6% 1000": {"nome": "LP INOA Ox 20 Vol 6% 1000", "marca": "sac"},
  "10170584202": {"nome": " Whip Speedy 150ml", "marca": "senka", "codigo_produto": "4550516705846"},
  "10170766201": {"nome": " Low PH Calming Cica 100g", "marca": "senka", "codigo_produto": "4550516707666"}, 
  "10170588202": {"nome": " Whip Fresh 100", "marca": "senka", "codigo_produto": "4550516705884"}, 
@@ -1113,7 +1114,8 @@ lista_produtos = {
   "H2663900": {"nome": "LP - INOA 7.11 60G", "marca": "sac"},
 "7790819570995": {"nome": "Girassol Pink By Kern - Kit Proteção MAX para as Unhas - Primer Fortalecedor 9ml + Nivelador 9ml", "marca": "sac"},
 "BECHS2747": {"nome": "Gama Italy Pro - Prancha Elegance Led Bivolt", "marca": "sac"},
-"LP INOA Ox 20 Vol 6% 1000": {"nome": "LP INOA Ox 20 Vol 6% 1000", "marca": "sac"},
+
+
 
 
     "G-7908195709933": {"nome": "Girassol Pink By Kern -Sérum Noturno - Esmalte 9ml", "marca": "sac"}
@@ -1233,14 +1235,14 @@ if "resultado" in params:
 
     # 3) Define grupos de corredores (omitido para brevidade)
     grupos = [
-        ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
-        ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
-        ("Corredor 3", ["tsubaki", "wella", "senka","sebastian", "bedhead", "lee", "banila", "alfapart"]),
-        ("Pinceis", ["real", "ecootols"]),
-        ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
-	("senka", ["senka"])
-        ("Sac", ["sac"])
-    ]
+    ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
+    ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
+    ("Corredor 3", ["tsubaki", "wella", "senka", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
+    ("Pinceis", ["real", "ecootols"]),
+    ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
+    ("senka", ["senka"]),
+    ("Sac", ["sac"])
+]
     grupos_filtrados = [(t, m) for t, m in grupos if any(marca in agrupado_por_marca for marca in m)]
     abas = st.tabs([titulo for titulo, _ in grupos_filtrados])
 
@@ -1458,4 +1460,5 @@ if st.session_state.contagem:
     st.markdown(f"[Clique aqui para acessar a página de resultados]({full_url})", unsafe_allow_html=True)
 else:
     st.info("Nenhum produto bipado ainda!")
+
 
