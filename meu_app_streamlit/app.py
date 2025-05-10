@@ -1243,7 +1243,8 @@ if "resultado" in params:
     ("senka", ["senka"]),
     ("Sac", ["sac"])
 ]
-    grupos_filtrados = [(t, m) for t, m in grupos if any(marca in agrupado_por_marca for marca in m)]
+    grupos_filtrados = [(t, m) for t, m in grupos if any(marca.lower().strip() in agrupado_por_marca for marca in m)]
+
     abas = st.tabs([titulo for titulo, _ in grupos_filtrados])
 
     # 4) Exibição interativa dentro das abas
