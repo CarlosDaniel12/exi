@@ -1238,7 +1238,7 @@ if "resultado" in params:
     ("Corredor 3", ["tsubaki", "wella", "senka", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
     ("Pinceis", ["real", "ecootols"]),
     ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
-    ("Imagee", ["image"])
+    ("Image", ["image"]),
     ("Sac", ["sac"])
 ]
     grupos_filtrados = [(t, m) for t, m in grupos if any(marca in agrupado_por_marca for marca in m)]
