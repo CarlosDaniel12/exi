@@ -1288,14 +1288,14 @@ if "resultado" in params:
                             f"Quantidade: **{prod['quantidade']}**",
                             unsafe_allow_html=True
                         )
-                    with col2:
-    st.button(
-        "❌",
-        key=f"rm_{sku}_{uuid.uuid4().hex}",
-        on_click=remove_sku,
-        args=(sku,)
-    )
-                st.markdown("---")
+                        with col2:
+   					 st.button(
+        				"❌",
+       				 key=f"rm_{sku}_{uuid.uuid4().hex}",
+       				 on_click=remove_sku,
+       			 args=(sku,)
+    					)
+                 st.markdown("---")
 
     # 5) Finaliza para que o Streamlit atualize após callbacks
     st.stop()
