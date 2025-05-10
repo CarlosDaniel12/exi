@@ -1127,13 +1127,23 @@ produto_color_mapping = {
 }
 
 # Inicializa st.session_state
-for var in ["contagem", "pedidos_bipados", "input_codigo", "nao_encontrados", "uploaded_files"]:
-    if var not in st.session_state:
-        st.session_state[var] = [] if var != "input_codigo" else ""
+if "contagem" not in st.session_state:
+    st.session_state.contagem = {}
+if "pedidos_bipados" not in st.session_state:
+    st.session_state.pedidos_bipados = []
+if "input_codigo" not in st.session_state:
+    st.session_state.input_codigo = ""
+if "nao_encontrados" not in st.session_state:
+    st.session_state.nao_encontrados = []
+if "uploaded_files" not in st.session_state:
+    st.session_state.uploaded_files = []
 if "finalizado" not in st.session_state:
     st.session_state.finalizado = False
 
 # Callback para remoção de SKU
+def remove_sku(sku):
+    if sku in st.session_state.ativos:
+        st.session_state.ativos.remove(sku)
 def remove_sku(sku):
     if sku in st.session_state.ativos:
         st.session_state.ativos.remove(sku)
