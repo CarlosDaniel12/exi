@@ -1118,15 +1118,15 @@ lista_produtos = {
     "BECHS2747": {"nome": "Gama Italy Pro - Prancha Elegance Led Bivolt", "marca": "sac"},
     "G-7908195709933": {"nome": "Girassol Pink By Kern - Sérum Noturno - Esmalte 9ml", "marca": "sac"}
 }
-produtos_cadastrados = {codigo: produto for codigo, produto in lista_produtos.items()}
+produtos_cadastrados = {sku: info for sku, info in lista_produtos.items()}
 
-# Mapeamento de cores
+# ─── Mapeamento de cores ─────────────────────────────────────────
 produto_color_mapping = {
     "10170578202": "#ffffff",
-    # adicione outros SKUs e cores aqui...
+    # adicione aqui outros SKUs e suas cores...
 }
 
-# Inicializa st.session_state
+# ─── Inicializa st.session_state ─────────────────────────────────
 if "contagem" not in st.session_state:
     st.session_state.contagem = {}
 if "pedidos_bipados" not in st.session_state:
@@ -1140,29 +1140,26 @@ if "uploaded_files" not in st.session_state:
 if "finalizado" not in st.session_state:
     st.session_state.finalizado = False
 
-# Callback para remoção de SKU
-def remove_sku(sku):
-    if sku in st.session_state.ativos:
-        st.session_state.ativos.remove(sku)
+# ─── Callback para remover SKU da lista ativa ────────────────────
 def remove_sku(sku):
     if sku in st.session_state.ativos:
         st.session_state.ativos.remove(sku)
 
-##############################
-# Página de Resultados (QR)   #
-##############################
+# ─── Página de Resultados via QR (organizado por marca) ───────────
 params = st.query_params
 if "resultado" in params:
     st.title("Resumo do Pedido - Organizado")
     st.markdown("---")
 
-    # Agrupa por marca
+    # 1) Agrupa por marca
     agrupado_por_marca = {}
     for sku, vals in params.items():
-        if sku == "resultado": continue
+        if sku == "resultado":
+            continue
         qtd = vals[0] if vals else "0"
         prod = produtos_cadastrados.get(sku)
-        if not prod: continue
+        if not prod:
+            continue
         marca = prod["marca"].lower().strip()
         agrupado_por_marca.setdefault(marca, []).append({
             "sku": sku,
@@ -1171,16 +1168,24 @@ if "resultado" in params:
             "codigo_produto": prod.get("codigo_produto", "")
         })
 
-    # Inicializa ativos
+    # 2) Inicializa lista de SKUs ativos
     if "ativos" not in st.session_state:
-        st.session_state.ativos = [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
+        st.session_state.ativos = [
+            item["sku"]
+            for sub in agrupado_por_marca.values()
+            for item in sub
+        ]
 
+    # 3) Cabeçalho e restaurar
     st.markdown("## Resultados")
-    st.button("♻️ Restaurar todos", on_click=lambda: st.session_state.ativos.extend(
-        [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
-    ))
+    st.button(
+        "♻️ Restaurar todos",
+        on_click=lambda: st.session_state.ativos.extend(
+            [item["sku"] for sub in agrupado_por_marca.values() for item in sub]
+        )
+    )
 
-    # Define grupos e filtra
+    # 4) Define grupos e filtra
     grupos = [
         ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
         ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
@@ -1188,34 +1193,37 @@ if "resultado" in params:
         ("Pincéis", ["real", "ecotools"]),
         ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
         ("senka", ["senka"]),
-        ("sac", ["sac"])
+        ("sac", ["sac"]),
     ]
     grupos_filtrados = [
         (t, m) for t, m in grupos
-        if any(marc.lower().strip() in agrupado_por_marca for marc in m)
+        if any(marca in agrupado_por_marca for marca in [x.lower().strip() for x in m])
     ]
-    abas = st.tabs([t for t,_ in grupos_filtrados])
+    abas = st.tabs([t for t, _ in grupos_filtrados])
 
-    # Exibição por abas
+    # 5) Exibição interativa por abas
     for (titulo, marcas), aba in zip(grupos_filtrados, abas):
         with aba:
             st.header(titulo)
             for marca in marcas:
                 m_norm = marca.lower().strip()
-                if m_norm not in agrupado_por_marca: continue
+                if m_norm not in agrupado_por_marca:
+                    continue
 
-                # Exibe logo
+                # Logo da marca
                 try:
                     logo_path = os.path.join(CAMINHO_LOGOS, f"{m_norm}.png")
-                    b = base64.b64encode(open(logo_path, "rb").read()).decode()
-                    st.markdown(f"<img src='data:image/png;base64,{b}' width='80'>", unsafe_allow_html=True)
+                    b64 = base64.b64encode(open(logo_path, "rb").read()).decode()
+                    st.markdown(f"<img src='data:image/png;base64,{b64}' width='80'>", unsafe_allow_html=True)
                 except:
                     st.write(marca.upper())
 
+                # Lista de produtos
                 for prod in agrupado_por_marca[m_norm]:
                     sku = prod["sku"]
-                    if sku not in st.session_state.ativos: continue
-                    c1, c2 = st.columns([4,1])
+                    if sku not in st.session_state.ativos:
+                        continue
+                    c1, c2 = st.columns([4, 1])
                     with c1:
                         cor = produto_color_mapping.get(sku, "#000")
                         st.markdown(
@@ -1229,15 +1237,12 @@ if "resultado" in params:
                 st.markdown("---")
     st.stop()
 
-##############################
-# Página de Bipagem          #
-##############################
+# ─── Página de Bipagem ────────────────────────────────────────────
 st.title("Bipagem de Produtos")
 uploaded = st.file_uploader("Envie os CSVs do Bling:", type=["csv"], accept_multiple_files=True)
 if uploaded:
     st.session_state.uploaded_files = uploaded
 
-# Função de leitura de CSVs
 @st.cache_data
 def ler_csv(bytes_data):
     try:
@@ -1247,21 +1252,29 @@ def ler_csv(bytes_data):
     df.columns = df.columns.str.strip().str.lower()
     return df
 
-# Processa os códigos bipados
 def processar():
-    if not st.session_state.input_codigo.strip(): return
-    if "contagem" not in st.session_state: st.session_state.contagem = {}
-    cods = re.split(r'[\s,]+', st.session_state.input_codigo.strip())
-    files = st.session_state.get("uploaded_files", [])
+    cods_input = st.session_state.input_codigo.strip()
+    if not cods_input:
+        return
+    cods = re.split(r'[\s,]+', cods_input)
+    files = st.session_state.uploaded_files
     if not files:
         st.error("⚠️ Faça upload dos CSVs primeiro!")
         return
+    # garante que contagem seja dict
+    if not isinstance(st.session_state.contagem, dict):
+        st.session_state.contagem = {}
+    # garante que nao_encontrados seja lista
+    if not isinstance(st.session_state.nao_encontrados, list):
+        st.session_state.nao_encontrados = []
     for f in files:
         df = ler_csv(f.getvalue())
         if "sku" not in df.columns or "número pedido" not in df.columns:
             st.error(f"CSV inválido: {f.name}")
             return
-        df["sku"] = df["sku"].apply(lambda x: str(int(float(x))) if "E+" in str(x) else str(x).strip())
+        df["sku"] = df["sku"].apply(
+            lambda x: str(int(float(x))) if "E+" in str(x) else str(x).strip()
+        )
         for cod in cods:
             pedidos = df[df["número pedido"].astype(str).str.strip() == cod]
             if not pedidos.empty:
@@ -1283,10 +1296,9 @@ def processar():
                         st.session_state.nao_encontrados.append(ent)
     st.session_state.input_codigo = ""
 
-# Campo de texto para bipagem
 st.text_input("Código do pedido ou SKU:", key="input_codigo", on_change=processar)
 
-# Exibe alertas de não encontrados
+# Mostra não encontrados
 if st.session_state.nao_encontrados:
     st.warning(f"{len(st.session_state.nao_encontrados)} não encontrados")
     with st.expander("Ver detalhes"):
@@ -1298,44 +1310,32 @@ if st.session_state.contagem:
     cols = st.columns(4)
     for i, (sku, qtd) in enumerate(st.session_state.contagem.items()):
         prod = produtos_cadastrados.get(sku)
-        if not prod: continue
+        if not prod:
+            continue
         col = cols[i % 4]
         with col:
+            brand = prod["marca"].lower().strip()
             try:
-                img = Image.open(os.path.join(CAMINHO_LOGOS, f"{prod['marca'].lower().strip()}.png"))
+                img = Image.open(os.path.join(CAMINHO_LOGOS, f"{brand}.png"))
                 st.image(img, width=80)
             except:
-                st.write(prod['marca'].upper())
-            st.write(prod['nome'])
+                st.write(prod["marca"].upper())
+            st.write(prod["nome"])
             st.write("Qtde:", qtd)
 
-# Botões de controle
-if st.button("🔄 Limpar bipagem"):
-    st.session_state.contagem.clear()
-    st.session_state.nao_encontrados.clear()
-    st.session_state.input_codigo = ""
-    st.session_state.finalizado = False
+# ─── Geração automática de QR Code ────────────────────────────────
+if st.session_state.contagem:
+    base = "https://cogpz234emkoeygixmfemn.streamlit.app/"
+    params_qr = {"resultado": "1"}
+    for sku, qtd in st.session_state.contagem.items():
+        params_qr[sku] = str(qtd)
+    url = base + "?" + urllib.parse.urlencode(params_qr)
 
-display_qr = False
-if st.button("✅ Finalizar bipagem e gerar QR"):
-    st.session_state.finalizado = True
-    display_qr = True
-
-if st.session_state.finalizado or display_qr:
-    if st.session_state.contagem:
-        base = "https://cogpz234emkoeygixmfemn.streamlit.app/"
-        params_qr = {"resultado": "1"}
-        for sku, qtd in st.session_state.contagem.items():
-            params_qr[sku] = str(qtd)
-        url = base + "?" + urllib.parse.urlencode(params_qr)
-        qr = qrcode.QRCode(box_size=6, border=2)
-        qr.add_data(url)
-        qr.make(fit=True)
-        img_qr = qr.make_image(fill_color="black", back_color="white")
-        buf = BytesIO()
-        img_qr.save(buf, format="PNG")
-        st.image(buf.getvalue(), width=150)
-        st.markdown(f"[Acessar resultados]({url})", unsafe_allow_html=True)
-    else:
-        st.info("Nenhum produto bipado.")
-
+    qr = qrcode.QRCode(box_size=6, border=2)
+    qr.add_data(url)
+    qr.make(fit=True)
+    img_qr = qr.make_image(fill_color="black", back_color="white")
+    buf = BytesIO()
+    img_qr.save(buf, format="PNG")
+    st.image(buf.getvalue(), width=150)
+    st.markdown(f"[Acessar resultados]({url})", unsafe_allow_html=True)
