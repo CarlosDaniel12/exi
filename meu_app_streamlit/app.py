@@ -1234,10 +1234,11 @@ if "resultado" in params:
     # 3) Define grupos de corredores (omitido para brevidade)
     grupos = [
     ("Corredor 1", ["kerastase", "fino", "redken", "senscience", "loreal", "carol"]),
-    ("Corredor 2", ["kerasys", "mise", "ryo", "ice", "image"]),
+    ("Corredor 2", ["kerasys", "mise", "ryo", "ice"]),
     ("Corredor 3", ["tsubaki", "wella", "senka", "sebastian", "bedhead", "lee", "banila", "alfapart"]),
     ("Pinceis", ["real", "ecootols"]),
     ("Dr.purederm", ["dr.pawpaw", "dr.purederm"]),
+    ("Image", ["image"])
     ("Sac", ["sac"])
 ]
     grupos_filtrados = [(t, m) for t, m in grupos if any(marca in agrupado_por_marca for marca in m)]
@@ -1459,6 +1460,7 @@ if st.session_state.contagem:
     st.markdown(f"[Clique aqui para acessar a página de resultados]({full_url})", unsafe_allow_html=True)
 else:
     st.info("Nenhum produto bipado ainda!")
+
 
 
 
