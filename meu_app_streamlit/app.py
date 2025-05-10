@@ -1127,21 +1127,9 @@ produto_color_mapping = {
     "7790819570995": "#faeba9",
     "BECHS2747": "#acc674",
     "G-7908195709933": "#0190cb",
-    # ... adicione mais SKUs e cores 
 }
 
-# ─── Callbacks ──────────────────────────────────────────────────
-def remove_sku(sku):
-    if sku in st.session_state.ativos:
-        st.session_state.ativos.remove(sku)
-
-def clear_bipagem():
-    st.session_state.contagem.clear()
-    st.session_state.nao_encontrados.clear()
-    st.session_state.input_codigo = ""
-    st.session_state.uploaded_files = []
-
-# ─── Inicializa st.session_state ───────────────────────────────
+# ─── Inicializa st.session_state ────────────────────────────────
 if "contagem" not in st.session_state:
     st.session_state.contagem = {}
 if "nao_encontrados" not in st.session_state:
@@ -1151,12 +1139,38 @@ if "input_codigo" not in st.session_state:
 if "uploaded_files" not in st.session_state:
     st.session_state.uploaded_files = []
 
+# ─── Funções de callback ─────────────────────────────────────────
+def remove_sku(sku, idx):
+    """Remove o SKU da lista ativa."""
+    if sku in st.session_state.ativos:
+        st.session_state.ativos.remove(sku)
+
+def clear_bipagem():
+    """Limpa todos os estados de bipagem."""
+    st.session_state.contagem.clear()
+    st.session_state.nao_encontrados.clear()
+    st.session_state.input_codigo = ""
+    st.session_state.uploaded_files = []
+
+# ─── Leitura de CSVs ─────────────────────────────────────────────
+@st.cache_data
+def ler_csv(data_bytes):
+    try:
+        df = pd.read_csv(BytesIO(data_bytes), sep=";", dtype=str,
+                         on_bad_lines="skip", engine="python", encoding="utf-8")
+    except:
+        df = pd.read_csv(BytesIO(data_bytes), sep=";", dtype=str,
+                         on_bad_lines="skip", engine="python", encoding="latin-1")
+    df.columns = df.columns.str.strip().str.lower()
+    return df
+
 # ─── Página de Resultados via QR Code ───────────────────────────
 params = st.query_params
 if "resultado" in params:
     st.title("Resumo do Pedido - Organizado")
     st.markdown("---")
 
+    # Agrupa por marca
     agrupado = {}
     for sku, vals in params.items():
         if sku == "resultado":
@@ -1165,17 +1179,19 @@ if "resultado" in params:
         prod = produtos_cadastrados.get(sku)
         if not prod:
             continue
-        marca = prod["marca"].lower().strip()
-        agrupado.setdefault(marca, []).append({
+        m = prod["marca"].lower().strip()
+        agrupado.setdefault(m, []).append({
             "sku": sku,
             "nome": prod["nome"],
-            "quantidade": qtd,
-            "codigo_produto": prod.get("codigo_produto", "")
+            "qtde": qtd,
+            "cod_prod": prod.get("codigo_produto", "")
         })
 
+    # Inicializa lista de ativos
     if "ativos" not in st.session_state:
         st.session_state.ativos = [item["sku"] for sub in agrupado.values() for item in sub]
 
+    # Botão de restaurar todos
     st.markdown("## Resultados")
     st.button(
         "♻️ Restaurar todos",
@@ -1185,6 +1201,7 @@ if "resultado" in params:
         )
     )
 
+    # Define grupos e filtra
     grupos = [
         ("Corredor 1", ["kerastase","fino","redken","senscience","loreal","carol"]),
         ("Corredor 2", ["kerasys","mise","ryo","ice","image"]),
@@ -1196,28 +1213,27 @@ if "resultado" in params:
     ]
     filt = []
     for titulo, marcas in grupos:
-        for m in marcas:
-            if m in agrupado:
-                filt.append((titulo, marcas))
-                break
+        if any(m in agrupado for m in marcas):
+            filt.append((titulo, marcas))
     abas = st.tabs([t for t,_ in filt])
 
-    for (titulo, marcas), aba in zip(filt, abas):
+    # Exibição em abas com keys únicas
+    for titulo_marcas, aba in zip(filt, abas):
+        titulo, marcas = titulo_marcas
         with aba:
             st.header(titulo)
             for marca in marcas:
-                m_norm = marca.lower().strip()
-                if m_norm not in agrupado:
+                if marca not in agrupado:
                     continue
-                # logo
+                # Logo
                 try:
-                    path = os.path.join(CAMINHO_LOGOS, f"{m_norm}.png")
-                    b64 = base64.b64encode(open(path, "rb").read()).decode()
+                    p = os.path.join(CAMINHO_LOGOS, f"{marca}.png")
+                    b64 = base64.b64encode(open(p, "rb").read()).decode()
                     st.markdown(f"<img src='data:image/png;base64,{b64}' width='80'>", unsafe_allow_html=True)
                 except:
                     st.write(marca.upper())
-                # produtos
-                for item in agrupado[m_norm]:
+                # Produtos
+                for idx, item in enumerate(agrupado[marca]):
                     sku = item["sku"]
                     if sku not in st.session_state.ativos:
                         continue
@@ -1226,16 +1242,16 @@ if "resultado" in params:
                         cor = produto_color_mapping.get(sku, "#000")
                         st.markdown(
                             f"<span style='color:{cor}'><strong>{item['nome']}</strong></span><br>"
-                            f"Código: {item['codigo_produto']}<br>"
-                            f"Qtde: {item['quantidade']}",
+                            f"Código: {item['cod_prod']}<br>"
+                            f"Qtde: {item['qtde']}",
                             unsafe_allow_html=True
                         )
                     with c2:
                         st.button(
                             "❌",
-                            key=f"rm_{sku}_{uuid.uuid4().hex}",
+                            key=f"rm_{sku}_{idx}",
                             on_click=remove_sku,
-                            args=(sku,)
+                            args=(sku, idx)
                         )
                 st.markdown("---")
     st.stop()
@@ -1246,30 +1262,14 @@ uploaded = st.file_uploader("Envie os CSVs do Bling:", type=["csv"], accept_mult
 if uploaded:
     st.session_state.uploaded_files = uploaded
 
-@st.cache_data
-def ler_csv(bytes_data):
-    try:
-        df = pd.read_csv(BytesIO(bytes_data), sep=";", dtype=str, on_bad_lines="skip", engine="python", encoding="utf-8")
-    except:
-        df = pd.read_csv(BytesIO(bytes_data), sep=";", dtype=str, on_bad_lines="skip", engine="python", encoding="latin-1")
-    df.columns = df.columns.str.strip().str.lower()
-    return df
-
 def processar():
     cods = re.split(r'[\s,]+', st.session_state.input_codigo.strip())
     if not cods:
         return
-    files = st.session_state.uploaded_files
-    if not files:
+    if not st.session_state.uploaded_files:
         st.error("⚠️ Faça upload dos CSVs primeiro!")
         return
-    # garantir tipos
-    if not isinstance(st.session_state.contagem, dict):
-        st.session_state.contagem = {}
-    if not isinstance(st.session_state.nao_encontrados, list):
-        st.session_state.nao_encontrados = []
-
-    for f in files:
+    for f in st.session_state.uploaded_files:
         df = ler_csv(f.getvalue())
         if "sku" not in df.columns or "número pedido" not in df.columns:
             st.error(f"CSV inválido: {f.name}")
@@ -1294,12 +1294,11 @@ def processar():
                     ent = f"Código direto → {cod}"
                     if ent not in st.session_state.nao_encontrados:
                         st.session_state.nao_encontrados.append(ent)
-
     st.session_state.input_codigo = ""
 
 st.text_input("Código do pedido ou SKU:", key="input_codigo", on_change=processar)
 
-# Exibe não encontrados
+# Mostra não encontrados
 if st.session_state.nao_encontrados:
     st.warning(f"{len(st.session_state.nao_encontrados)} não encontrados")
     with st.expander("Ver detalhes"):
@@ -1315,9 +1314,9 @@ if st.session_state.contagem:
             continue
         col = cols[i % 4]
         with col:
-            marca = prod["marca"].lower().strip()
+            m = prod["marca"].lower().strip()
             try:
-                img = Image.open(os.path.join(CAMINHO_LOGOS, f"{marca}.png"))
+                img = Image.open(os.path.join(CAMINHO_LOGOS, f"{m}.png"))
                 st.image(img, width=80)
             except:
                 st.write(prod["marca"].upper())
@@ -1343,3 +1342,5 @@ if st.session_state.contagem:
     img_qr.save(buf, format="PNG")
     st.image(buf.getvalue(), width=150)
     st.markdown(f"[Acessar resultados]({url})", unsafe_allow_html=True)
+
+
