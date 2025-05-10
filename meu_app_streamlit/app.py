@@ -1182,11 +1182,11 @@ if "resultado" in params:
     ]
     grupos_filtrados = [
         (t, m) for t, m in grupos
-        if any(marca in agrupado_por_marca for marca in [x.lower().strip() for x in m])
+        if any(marc.lower().strip() in agrupado_por_marca for marc in m)
     ]
     abas = st.tabs([t for t,_ in grupos_filtrados])
 
-    # Exibição em abas
+    # Exibição por abas
     for (titulo, marcas), aba in zip(grupos_filtrados, abas):
         with aba:
             st.header(titulo)
@@ -1194,11 +1194,11 @@ if "resultado" in params:
                 m_norm = marca.lower().strip()
                 if m_norm not in agrupado_por_marca: continue
 
-                # logo
+                # Exibe logo
                 try:
-                    path = os.path.join(CAMINHO_LOGOS, f"{m_norm}.png")
-                    data = base64.b64encode(open(path,"rb").read()).decode()
-                    st.markdown(f"<img src='data:image/png;base64,{data}' width='80'>", unsafe_allow_html=True)
+                    logo_path = os.path.join(CAMINHO_LOGOS, f"{m_norm}.png")
+                    b = base64.b64encode(open(logo_path, "rb").read()).decode()
+                    st.markdown(f"<img src='data:image/png;base64,{b}' width='80'>", unsafe_allow_html=True)
                 except:
                     st.write(marca.upper())
 
@@ -1207,10 +1207,13 @@ if "resultado" in params:
                     if sku not in st.session_state.ativos: continue
                     c1, c2 = st.columns([4,1])
                     with c1:
-                        cor = produto_color_mapping.get(sku,"#000")
-                        st.markdown(f"<span style='color:{cor}'><strong>{prod['nome']}</strong></span><br>"
-                                    f"Código: {prod['codigo_produto']}<br>"
-                                    f"Qtde: {prod['quantidade']}", unsafe_allow_html=True)
+                        cor = produto_color_mapping.get(sku, "#000")
+                        st.markdown(
+                            f"<span style='color:{cor}'><strong>{prod['nome']}</strong></span><br>"
+                            f"Código: {prod['codigo_produto']}<br>"
+                            f"Qtde: {prod['quantidade']}",
+                            unsafe_allow_html=True
+                        )
                     with c2:
                         st.button("❌", key=f"rm_{sku}_{uuid.uuid4().hex}", on_click=remove_sku, args=(sku,))
                 st.markdown("---")
@@ -1224,16 +1227,17 @@ uploaded = st.file_uploader("Envie os CSVs do Bling:", type=["csv"], accept_mult
 if uploaded:
     st.session_state.uploaded_files = uploaded
 
-# Função de leitura
+# Função de leitura de CSVs
 @st.cache_data
-def ler_csv(bytes):
+def ler_csv(bytes_data):
     try:
-        df = pd.read_csv(BytesIO(bytes), sep=";", dtype=str, encoding="utf-8", engine="python", on_bad_lines="skip")
+        df = pd.read_csv(BytesIO(bytes_data), sep=";", dtype=str, on_bad_lines="skip", engine="python", encoding="utf-8")
     except:
-        df = pd.read_csv(BytesIO(bytes), sep=";", dtype=str, encoding="latin-1", engine="python", on_bad_lines="skip")
+        df = pd.read_csv(BytesIO(bytes_data), sep=";", dtype=str, on_bad_lines="skip", engine="python", encoding="latin-1")
     df.columns = df.columns.str.strip().str.lower()
     return df
 
+# Processa os códigos bipados
 def processar():
     if not st.session_state.input_codigo.strip(): return
     if "contagem" not in st.session_state: st.session_state.contagem = {}
@@ -1249,43 +1253,46 @@ def processar():
             return
         df["sku"] = df["sku"].apply(lambda x: str(int(float(x))) if "E+" in str(x) else str(x).strip())
         for cod in cods:
-            pedidos = df[df["número pedido"].astype(str).str.strip()==cod]
+            pedidos = df[df["número pedido"].astype(str).str.strip() == cod]
             if not pedidos.empty:
                 for sku in pedidos["sku"]:
                     for sk in str(sku).split("+"):
                         sk = sk.strip()
                         if sk in produtos_cadastrados:
-                            st.session_state.contagem[sk] = st.session_state.contagem.get(sk,0)+1
+                            st.session_state.contagem[sk] = st.session_state.contagem.get(sk, 0) + 1
                         else:
                             ent = f"Pedido {cod} → SKU {sk}"
                             if ent not in st.session_state.nao_encontrados:
                                 st.session_state.nao_encontrados.append(ent)
             else:
                 if cod in produtos_cadastrados:
-                    st.session_state.contagem[cod]=st.session_state.contagem.get(cod,0)+1
+                    st.session_state.contagem[cod] = st.session_state.contagem.get(cod, 0) + 1
                 else:
                     ent = f"Código direto → {cod}"
                     if ent not in st.session_state.nao_encontrados:
                         st.session_state.nao_encontrados.append(ent)
     st.session_state.input_codigo = ""
 
+# Campo de texto para bipagem
 st.text_input("Código do pedido ou SKU:", key="input_codigo", on_change=processar)
+
+# Exibe alertas de não encontrados
 if st.session_state.nao_encontrados:
     st.warning(f"{len(st.session_state.nao_encontrados)} não encontrados")
     with st.expander("Ver detalhes"):
         for x in st.session_state.nao_encontrados:
             st.write("-", x)
 
-# Exibe contagem e logos
+# Exibe contagem com logos
 if st.session_state.contagem:
     cols = st.columns(4)
-    for i,(sku,qtd) in enumerate(st.session_state.contagem.items()):
+    for i, (sku, qtd) in enumerate(st.session_state.contagem.items()):
         prod = produtos_cadastrados.get(sku)
         if not prod: continue
-        col = cols[i%4]
+        col = cols[i % 4]
         with col:
             try:
-                img = Image.open(os.path.join(CAMINHO_LOGOS, f\"{prod['marca'].lower().strip()}.png\"))
+                img = Image.open(os.path.join(CAMINHO_LOGOS, f"{prod['marca'].lower().strip()}.png"))
                 st.image(img, width=80)
             except:
                 st.write(prod['marca'].upper())
@@ -1307,14 +1314,16 @@ if st.button("✅ Finalizar bipagem e gerar QR"):
 if st.session_state.finalizado or display_qr:
     if st.session_state.contagem:
         base = "https://cogpz234emkoeygixmfemn.streamlit.app/"
-        params = {"resultado":"1"}
-        for sku,qtd in st.session_state.contagem.items():
-            params[sku]=str(qtd)
-        url = base + "?" + urllib.parse.urlencode(params)
-        qr = qrcode.QRCode(box_size=6,border=2)
-        qr.add_data(url); qr.make(fit=True)
-        img = qr.make_image(fill_color="black", back_color="white")
-        buf = BytesIO(); img.save(buf, format="PNG")
+        params_qr = {"resultado": "1"}
+        for sku, qtd in st.session_state.contagem.items():
+            params_qr[sku] = str(qtd)
+        url = base + "?" + urllib.parse.urlencode(params_qr)
+        qr = qrcode.QRCode(box_size=6, border=2)
+        qr.add_data(url)
+        qr.make(fit=True)
+        img_qr = qr.make_image(fill_color="black", back_color="white")
+        buf = BytesIO()
+        img_qr.save(buf, format="PNG")
         st.image(buf.getvalue(), width=150)
         st.markdown(f"[Acessar resultados]({url})", unsafe_allow_html=True)
     else:
